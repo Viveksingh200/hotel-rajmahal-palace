@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
+@theme {
+  --color-sandstone: #933d2d;
+  --color-sandstone-dark: #762f22;
+  --color-sandstone-light: #b54f3c;
+  --color-cream: #faf7f2;
+  --color-cream-muted: #f4efe6;
+  --color-cream-dark: #eae2d5;
+  --color-charcoal: #1a1d24;
+  --color-charcoal-light: #262a34;
+  --color-wood: #5a3d28;
+  --color-forest: #274436;
+  --color-gold: #c5a059;
+  --color-gold-light: #dfb971;
+}
+
 @layer base {
   :root {
-    --sandstone: #933d2d;
-    --sandstone-dark: #762f22;
-    --sandstone-light: #b54f3c;
-    --cream: #faf7f2;
-    --cream-muted: #f4efe6;
-    --cream-dark: #eae2d5;
-    --charcoal: #1a1d24;
-    --charcoal-light: #262a34;
-    --wood: #5a3d28;
-    --forest: #274436;
-    --gold: #c5a059;
-    --gold-light: #dfb971;
-
     --background: #faf7f2;
     --foreground: #1a1d24;
   }
@@ -25,11 +27,9 @@
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    background-color: #faf7f2;
+    color: #1a1d24;
     overflow-x: hidden;
-    selection-background-color: var(--sandstone);
-    selection-color: #ffffff;
   }
 
   /* Custom typography classes */
@@ -52,61 +52,23 @@
   -webkit-backdrop-filter: blur(16px);
 }
 
-.bg-sandstone {
-  background-color: #933d2d;
-}
+/* Fallback direct CSS classes for max compatibility */
+.bg-sandstone { background-color: #933d2d; }
+.bg-sandstone-dark { background-color: #762f22; }
+.bg-cream { background-color: #faf7f2; }
+.bg-cream-muted { background-color: #f4efe6; }
+.bg-charcoal { background-color: #1a1d24; }
+.bg-charcoal-light { background-color: #262a34; }
+.bg-wood { background-color: #5a3d28; }
+.bg-forest { background-color: #274436; }
 
-.bg-sandstone-dark {
-  background-color: #762f22;
-}
+.text-sandstone { color: #933d2d; }
+.text-gold { color: #c5a059; }
+.text-cream { color: #faf7f2; }
+.text-charcoal { color: #1a1d24; }
 
-.bg-cream {
-  background-color: #faf7f2;
-}
-
-.bg-cream-muted {
-  background-color: #f4efe6;
-}
-
-.bg-charcoal {
-  background-color: #1a1d24;
-}
-
-.bg-charcoal-light {
-  background-color: #262a34;
-}
-
-.bg-wood {
-  background-color: #5a3d28;
-}
-
-.bg-forest {
-  background-color: #274436;
-}
-
-.text-sandstone {
-  color: #933d2d;
-}
-
-.text-gold {
-  color: #c5a059;
-}
-
-.text-cream {
-  color: #faf7f2;
-}
-
-.text-charcoal {
-  color: #1a1d24;
-}
-
-.border-gold {
-  border-color: #c5a059;
-}
-
-.border-sandstone {
-  border-color: #933d2d;
-}
+.border-gold { border-color: #c5a059; }
+.border-sandstone { border-color: #933d2d; }
 
 /* Subtle Jali ornamental motif divider */
 .jali-divider {
