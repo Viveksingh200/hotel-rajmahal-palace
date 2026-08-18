@@ -86,38 +86,183 @@ export default function GalleryLightbox({ showFilter = true, limit = null }) {
         </div>
       )}
 
-      {/* Grid Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayItems.map((item, idx) => (
-          <motion.div
-            layout
-            key={item.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.4 }}
-            onClick={() => openLightbox(idx)}
-            className="relative h-72 rounded-lg overflow-hidden border border-[#D4AF37]/20 shadow-md group cursor-pointer"
-          >
-            <Image
-              src={item.src}
-              alt={item.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#100F0E]/90 via-[#100F0E]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-              <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] font-semibold">
-                {item.category}
-              </span>
-              <h4 className="text-lg font-serif text-[#F7F5F2]">{item.title}</h4>
-              <p className="text-xs text-[#D6B892]/80 line-clamp-1 mt-0.5">{item.caption}</p>
-              <div className="mt-3 inline-flex items-center gap-1.5 text-xs text-[#D4AF37] font-serif">
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span>View Fullscreen</span>
+      {/* Asymmetric Gallery Layout Grid Matching Reference Screenshot */}
+      <div className="flex flex-col gap-3.5">
+        {Array.from({ length: Math.ceil(displayItems.length / 5) }).map((_, chunkIdx) => {
+          const offset = chunkIdx * 5;
+          const chunkItems = displayItems.slice(offset, offset + 5);
+
+          const card0 = chunkItems[0];
+          const card1 = chunkItems[1];
+          const card2 = chunkItems[2];
+          const card3 = chunkItems[3];
+          const card4 = chunkItems[4];
+
+          return (
+            <div key={chunkIdx} className="space-y-3.5">
+              {/* Row 1: Left Tall/Wide Card (60%) + Right Stacked Cards (40%) */}
+              <div className="grid grid-cols-12 gap-3.5">
+                {/* Card 0: Top Left Feature */}
+                {card0 && (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.05 }}
+                    onClick={() => openLightbox(offset + 0)}
+                    className="col-span-12 lg:col-span-7 h-[360px] sm:h-[480px] relative rounded-[20px] overflow-hidden border border-white/10 hover:border-[#D4AF37]/50 shadow-2xl group cursor-pointer"
+                  >
+                    <Image
+                      src={card0.src}
+                      alt={card0.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 sm:p-7 flex flex-col justify-end">
+                      <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold mb-1">
+                        {card0.subtitle || card0.category}
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-serif text-[#F7F5F2] font-normal tracking-wide">
+                        {card0.title}
+                      </h3>
+                    </div>
+                    <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 group-hover:text-[#100F0E] group-hover:bg-[#D4AF37] group-hover:border-[#D4AF37] transition-all">
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Right Column Stack: Card 1 & Card 2 */}
+                <div className="col-span-12 lg:col-span-5 flex flex-col gap-3.5">
+                  {/* Card 1: Top Right Upper */}
+                  {card1 && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                      onClick={() => openLightbox(offset + 1)}
+                      className="h-[173px] sm:h-[233px] relative rounded-[20px] overflow-hidden border border-white/10 hover:border-[#D4AF37]/50 shadow-2xl group cursor-pointer"
+                    >
+                      <Image
+                        src={card1.src}
+                        alt={card1.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-5 sm:p-6 flex flex-col justify-end">
+                        <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold mb-1">
+                          {card1.subtitle || card1.category}
+                        </span>
+                        <h3 className="text-base sm:text-xl font-serif text-[#F7F5F2] font-normal tracking-wide">
+                          {card1.title}
+                        </h3>
+                      </div>
+                      <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 group-hover:text-[#100F0E] group-hover:bg-[#D4AF37] group-hover:border-[#D4AF37] transition-all">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Card 2: Top Right Lower */}
+                  {card2 && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.15 }}
+                      onClick={() => openLightbox(offset + 2)}
+                      className="h-[173px] sm:h-[233px] relative rounded-[20px] overflow-hidden border border-white/10 hover:border-[#D4AF37]/50 shadow-2xl group cursor-pointer"
+                    >
+                      <Image
+                        src={card2.src}
+                        alt={card2.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-5 sm:p-6 flex flex-col justify-end">
+                        <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold mb-1">
+                          {card2.subtitle || card2.category}
+                        </span>
+                        <h3 className="text-base sm:text-xl font-serif text-[#F7F5F2] font-normal tracking-wide">
+                          {card2.title}
+                        </h3>
+                      </div>
+                      <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 group-hover:text-[#100F0E] group-hover:bg-[#D4AF37] group-hover:border-[#D4AF37] transition-all">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
               </div>
+
+              {/* Row 2: Left Medium Card (40%) + Right Wide Card (60%) */}
+              {(card3 || card4) && (
+                <div className="grid grid-cols-12 gap-3.5">
+                  {/* Card 3: Bottom Left Medium */}
+                  {card3 && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      onClick={() => openLightbox(offset + 3)}
+                      className="col-span-12 lg:col-span-5 h-[220px] sm:h-[270px] relative rounded-[20px] overflow-hidden border border-white/10 hover:border-[#D4AF37]/50 shadow-2xl group cursor-pointer"
+                    >
+                      <Image
+                        src={card3.src}
+                        alt={card3.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 sm:p-7 flex flex-col justify-end">
+                        <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold mb-1">
+                          {card3.subtitle || card3.category}
+                        </span>
+                        <h3 className="text-lg sm:text-2xl font-serif text-[#F7F5F2] font-normal tracking-wide">
+                          {card3.title}
+                        </h3>
+                      </div>
+                      <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 group-hover:text-[#100F0E] group-hover:bg-[#D4AF37] group-hover:border-[#D4AF37] transition-all">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Card 4: Bottom Right Wide */}
+                  {card4 && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.25 }}
+                      onClick={() => openLightbox(offset + 4)}
+                      className="col-span-12 lg:col-span-7 h-[220px] sm:h-[270px] relative rounded-[20px] overflow-hidden border border-white/10 hover:border-[#D4AF37]/50 shadow-2xl group cursor-pointer"
+                    >
+                      <Image
+                        src={card4.src}
+                        alt={card4.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 sm:p-7 flex flex-col justify-end">
+                        <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold mb-1">
+                          {card4.subtitle || card4.category}
+                        </span>
+                        <h3 className="text-lg sm:text-2xl font-serif text-[#F7F5F2] font-normal tracking-wide">
+                          {card4.title}
+                        </h3>
+                      </div>
+                      <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 group-hover:text-[#100F0E] group-hover:bg-[#D4AF37] group-hover:border-[#D4AF37] transition-all">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
             </div>
-          </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Fullscreen Lightbox Modal */}

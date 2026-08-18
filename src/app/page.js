@@ -143,7 +143,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <GalleryLightbox showFilter={false} limit={6} />
+          <GalleryLightbox showFilter={false} limit={5} />
         </div>
       </section>
 

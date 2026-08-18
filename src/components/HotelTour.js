@@ -18,7 +18,7 @@ export default function HotelTour() {
   const animFrameRef = useRef(null);
   const containerRef = useRef(null);
 
-  const TOTAL_FRAMES = 99;
+  const TOTAL_FRAMES = 720;
 
   // Preload frames for smooth canvas rendering
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function HotelTour() {
     for (let i = 1; i <= TOTAL_FRAMES; i++) {
       const img = new Image();
       const numStr = String(i).padStart(3, "0");
-      img.src = `/frames/set1/ezgif-frame-${numStr}.jpg`;
+      img.src = `/frames/ezgif-frame-${numStr}.jpg`;
 
       img.onload = () => {
         loadedCount++;

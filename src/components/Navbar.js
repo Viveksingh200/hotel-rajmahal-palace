@@ -40,9 +40,10 @@ export default function Navbar({
   };
 
   const navLinks = [
-    { name: "Home", href: "/" },
+    { name: "About", href: "/#about" },
     { name: "Rooms", href: "/rooms" },
     { name: "Dining", onClick: handleDiningClick, href: "/dining" },
+    { name: "Experience", href: "/experience" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
   ];
@@ -50,13 +51,13 @@ export default function Navbar({
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 px-4 sm:px-8 ${
           scrolled
-            ? "bg-[#100F0E]/95 backdrop-blur-md shadow-2xl py-3 border-b border-[#D4AF37]/20"
-            : "bg-gradient-to-b from-black/80 via-black/40 to-transparent py-5"
+            ? "bg-[#12100E]/98 backdrop-blur-2xl border-b border-[#D4AF37]/30 py-3 shadow-[0_15px_40px_rgba(0,0,0,0.9)]"
+            : "bg-gradient-to-b from-[#12100E]/95 via-[#12100E]/60 to-transparent pt-4 pb-6"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="group flex flex-col focus:outline-none">
             <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-semibold group-hover:text-amber-300 transition-colors">
@@ -68,15 +69,15 @@ export default function Navbar({
             <span className="h-[1px] w-full bg-gradient-to-r from-[#D4AF37]/0 via-[#D4AF37]/70 to-[#D4AF37]/0 group-hover:via-[#D4AF37] transition-all duration-300"></span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Center Floating Pill Nav Container */}
+          <nav className="hidden lg:flex items-center bg-[#181614]/85 backdrop-blur-xl border border-[#D4AF37]/35 px-8 py-2.5 rounded-full shadow-[0_10px_35px_rgba(0,0,0,0.7)] space-x-7 sm:space-x-8">
             {navLinks.map((link) => {
               if (link.onClick) {
                 return (
                   <button
                     key={link.name}
                     onClick={link.onClick}
-                    className="text-xs tracking-widest uppercase font-medium text-[#F7F5F2]/90 hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
+                    className="text-[11px] tracking-[0.22em] font-serif uppercase text-[#F7F5F2]/80 hover:text-[#D4AF37] transition-all py-1 cursor-pointer"
                   >
                     {link.name}
                   </button>
@@ -87,15 +88,15 @@ export default function Navbar({
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-xs tracking-widest uppercase font-medium transition-all duration-300 relative py-1 ${
-                    isActive ? "text-[#D4AF37] font-semibold" : "text-[#F7F5F2]/90 hover:text-[#D4AF37]"
+                  className={`text-[11px] tracking-[0.22em] font-serif uppercase transition-all py-1 relative ${
+                    isActive ? "text-[#D4AF37] font-semibold" : "text-[#F7F5F2]/80 hover:text-[#D4AF37]"
                   }`}
                 >
                   {link.name}
                   {isActive && (
                     <motion.span
                       layoutId="activeNavIndicator"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#D4AF37]"
+                      className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#D4AF37]"
                     />
                   )}
                 </Link>
@@ -103,25 +104,23 @@ export default function Navbar({
             })}
           </nav>
 
-          {/* Right Action Button */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* Right Action Button ("BOOK NOW") */}
+          <div className="hidden lg:flex items-center">
             <button
               onClick={handleBookingClick}
-              className="bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] hover:opacity-95 text-[#100F0E] font-serif text-xs font-semibold tracking-widest px-6 py-2.5 rounded-sm border border-[#D4AF37]/40 shadow-lg hover:shadow-[#D4AF37]/40 transition-all duration-300 flex items-center gap-2 cursor-pointer"
+              className="bg-black/50 hover:bg-[#D4AF37] text-[#F7F5F2] hover:text-[#100F0E] font-serif text-[11px] font-semibold tracking-[0.25em] uppercase px-7 py-2.5 rounded-full border border-[#D4AF37]/80 shadow-[0_0_20px_rgba(212,175,55,0.25)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all duration-300 cursor-pointer"
             >
-              <Calendar className="w-4 h-4 text-[#100F0E]" />
-              <span>BOOK YOUR STAY</span>
+              BOOK NOW
             </button>
           </div>
 
-          {/* Mobile Hamburger Toggle */}
-          <div className="flex md:hidden items-center space-x-2">
+          {/* Mobile View Toggle */}
+          <div className="flex lg:hidden items-center space-x-3">
             <button
               onClick={handleBookingClick}
-              className="bg-[#D4AF37] text-[#100F0E] text-[11px] font-serif tracking-widest px-3 py-1.5 rounded-sm border border-[#D4AF37]/40 flex items-center gap-1 font-semibold"
+              className="bg-black/50 hover:bg-[#D4AF37] text-[#F7F5F2] hover:text-[#100F0E] text-[10px] font-serif tracking-[0.2em] uppercase px-4 py-1.5 rounded-full border border-[#D4AF37]/70 font-semibold"
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>BOOK</span>
+              BOOK NOW
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -142,13 +141,16 @@ export default function Navbar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "-100%" }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 bg-[#100F0E]/98 backdrop-blur-xl flex flex-col justify-between pt-24 pb-12 px-6 border-b border-[#D4AF37]/30 md:hidden"
+            className="fixed inset-0 z-40 bg-[#100F0E]/98 backdrop-blur-xl flex flex-col justify-between pt-24 pb-12 px-6 border-b border-[#D4AF37]/30 lg:hidden"
           >
             <div className="flex flex-col space-y-6">
-              <div className="text-center pb-4 border-b border-[#D4AF37]/20">
-                <span className="text-xs uppercase tracking-[0.4em] text-[#D4AF37] block mb-1">HOTEL</span>
-                <span className="text-2xl font-serif text-[#F7F5F2]">RAJMAHAL PALACE</span>
-                <p className="text-xs text-[#D6B892]/70 italic mt-1">Heritage & Hillside Serenity</p>
+              <div className="text-center pb-4 border-b border-[#D4AF37]/20 flex flex-col items-center">
+                <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-semibold mb-1">
+                  HOTEL
+                </span>
+                <span className="text-2xl font-serif tracking-wider text-[#F7F5F2]">
+                  RAJMAHAL PALACE
+                </span>
               </div>
 
               <div className="flex flex-col space-y-3">
@@ -187,10 +189,10 @@ export default function Navbar({
                   setMobileMenuOpen(false);
                   handleBookingClick();
                 }}
-                className="w-full bg-[#D4AF37] text-[#100F0E] font-serif tracking-widest py-3.5 rounded-sm border border-[#D4AF37]/40 text-center flex items-center justify-center gap-2 shadow-lg font-semibold cursor-pointer"
+                className="w-full bg-[#D4AF37] text-[#100F0E] font-serif tracking-widest py-3.5 rounded-full border border-[#D4AF37]/40 text-center flex items-center justify-center gap-2 shadow-lg font-semibold cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
-                <span>BOOK YOUR STAY</span>
+                <span>BOOK NOW</span>
               </button>
             </div>
           </motion.div>
@@ -199,3 +201,4 @@ export default function Navbar({
     </>
   );
 }
+
