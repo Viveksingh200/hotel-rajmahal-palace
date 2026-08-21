@@ -1,15 +1,19 @@
 import { Cinzel, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { BookingProvider } from "@/context/BookingContext";
+import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BookingModal from "@/components/BookingModal";
+import GlobalBookingDrawer from "@/components/GlobalBookingDrawer";
+import GlobalDiningModal from "@/components/GlobalDiningModal";
 
 const cinzel = Cinzel({
   variable: "--font-serif",
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700", "800"],
+  fallback: ["Georgia", "serif"],
 });
 
 const jakarta = Plus_Jakarta_Sans({
@@ -17,6 +21,7 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata = {
@@ -41,14 +46,18 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${cinzel.variable} ${jakarta.variable} scroll-smooth`}>
-      <body className="bg-cream text-charcoal font-sans antialiased min-h-screen flex flex-col selection:bg-sandstone selection:text-white">
-        <BookingProvider>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <BookingModal />
-          <Footer />
-        </BookingProvider>
+    <html lang="en" className={`${cinzel.variable} ${jakarta.variable} scroll-smooth`} suppressHydrationWarning>
+      <body className="bg-cream text-charcoal font-sans antialiased min-h-screen flex flex-col selection:bg-sandstone selection:text-white" suppressHydrationWarning>
+        <AuthProvider>
+          <BookingProvider>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <BookingModal />
+            <GlobalBookingDrawer />
+            <GlobalDiningModal />
+            <Footer />
+          </BookingProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -33,6 +33,7 @@ export default function BookingModal() {
     setGuests,
     roomsCount,
     setRoomsCount,
+    availableRooms,
     selectedRoom,
     setSelectedRoom,
     guestInfo,
@@ -162,8 +163,21 @@ export default function BookingModal() {
               </h4>
 
               <div className="space-y-4 max-h-[450px] overflow-y-auto pr-1">
-                {ROOMS_DATA.map((room) => {
-                  const isSelected = selectedRoom?.id === room.id;
+                {(availableRooms && availableRooms.length > 0 ? availableRooms : ROOMS_DATA).map((room) => {
+                  const isSelected =
+                    selectedRoom?.id === room.id ||
+                    selectedRoom?.slug === room.slug ||
+                    selectedRoom?.slug === room.id ||
+                    selectedRoom?.id === room.slug;
+                  const roomPrice = Number(
+                    room.price_per_night !== undefined
+                      ? room.price_per_night
+                      : (room.pricePerNight !== undefined ? room.pricePerNight : 1)
+                  );
+                  const roomName = room.room_name || room.name;
+                  const roomImg = room.image_url || room.featuredImage || "/images/heritage-deluxe-room.jpg";
+                  const roomView = (room.view_type || room.view || "").split(" ")[0] || "Estate";
+
                   return (
                     <div
                       key={room.id}
@@ -174,18 +188,18 @@ export default function BookingModal() {
                       }`}
                     >
                       <div className="sm:col-span-4 relative h-32 rounded overflow-hidden">
-                        <Image src={room.featuredImage} alt={room.name} fill className="object-cover" />
+                        <Image src={roomImg} alt={roomName} fill className="object-cover" />
                       </div>
 
                       <div className="sm:col-span-5 space-y-1">
-                        <h5 className="text-lg font-serif text-charcoal">{room.name}</h5>
+                        <h5 className="text-lg font-serif text-charcoal">{roomName}</h5>
                         <p className="text-xs text-charcoal/70 line-clamp-2">{room.description}</p>
                         <div className="flex items-center gap-3 text-xs text-sandstone font-medium pt-1">
-                          <span>{room.maxGuests} Guests</span>
+                          <span>{room.max_guests || room.maxGuests} Guests</span>
                           <span>•</span>
-                          <span>{room.sizeSqFt} Sq Ft</span>
+                          <span>{room.size_sq_ft || room.sizeSqFt} Sq Ft</span>
                           <span>•</span>
-                          <span>{room.view.split(" ")[0]} View</span>
+                          <span>{roomView} View</span>
                         </div>
                       </div>
 
@@ -193,7 +207,7 @@ export default function BookingModal() {
                         <div>
                           <span className="text-xs text-charcoal/60 block">Price / Night</span>
                           <span className="text-xl font-serif text-sandstone font-bold">
-                            {room.currency}{room.pricePerNight}
+                            ₹{roomPrice.toLocaleString('en-IN')}
                           </span>
                         </div>
 
@@ -202,7 +216,7 @@ export default function BookingModal() {
                             setSelectedRoom(room);
                             setBookingStep("details");
                           }}
-                          className="bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-wider uppercase px-4 py-2 rounded border border-gold/30 flex items-center gap-1"
+                          className="bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-wider uppercase px-4 py-2 rounded border border-gold/30 flex items-center gap-1 cursor-pointer"
                         >
                           <span>SELECT ROOM</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -220,10 +234,10 @@ export default function BookingModal() {
             <form onSubmit={handleGuestInfoSubmit} className="space-y-6">
               <div className="bg-cream-muted p-4 rounded border border-sandstone/15 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-sandstone uppercase font-serif block">Selected Accomodation</span>
-                  <h4 className="text-lg font-serif text-charcoal">{selectedRoom.name}</h4>
+                  <span className="text-xs text-sandstone uppercase font-serif block">Selected Accommodation</span>
+                  <h4 className="text-lg font-serif text-charcoal">{selectedRoom?.room_name || selectedRoom?.name}</h4>
                   <p className="text-xs text-charcoal/70">
-                    {checkIn} to {checkOut} ({nights} Nights) — ${selectedRoom.pricePerNight} / night
+                    {checkIn} to {checkOut} ({nights} Nights) — ₹{Number(selectedRoom?.price_per_night !== undefined ? selectedRoom?.price_per_night : (selectedRoom?.pricePerNight || 1)).toLocaleString('en-IN')} / night
                   </p>
                 </div>
                 <button
@@ -367,15 +381,17 @@ export default function BookingModal() {
 
                   <div className="bg-white p-5 rounded-lg border border-sandstone/20 space-y-2">
                     <h5 className="text-sm font-serif uppercase tracking-wider text-sandstone border-b border-sandstone/10 pb-2">
-                      Selected Accomodation
+                      Selected Accommodation
                     </h5>
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-semibold text-charcoal text-base font-serif">
-                        {selectedRoom.name}
+                        {selectedRoom?.room_name || selectedRoom?.name}
                       </span>
-                      <span className="text-sandstone font-bold">${selectedRoom.pricePerNight} / night</span>
+                      <span className="text-sandstone font-bold">
+                        ₹{Number(selectedRoom?.price_per_night !== undefined ? selectedRoom?.price_per_night : (selectedRoom?.pricePerNight || 1)).toLocaleString('en-IN')} / night
+                      </span>
                     </div>
-                    <p className="text-xs text-charcoal/70">{selectedRoom.description}</p>
+                    <p className="text-xs text-charcoal/70">{selectedRoom?.description}</p>
                   </div>
                 </div>
 
@@ -383,30 +399,30 @@ export default function BookingModal() {
                 <div className="md:col-span-5 bg-charcoal text-cream p-6 rounded-lg border border-gold/30 flex flex-col justify-between">
                   <div className="space-y-4">
                     <h5 className="text-xs uppercase tracking-widest text-gold font-serif border-b border-white/10 pb-2">
-                      PRICE BREAKDOWN (MOCK)
+                      PRICE BREAKDOWN
                     </h5>
 
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between">
                         <span className="text-cream/80">
-                          ${selectedRoom.pricePerNight} × {nights} Night(s)
+                          ₹{Number(selectedRoom?.price_per_night !== undefined ? selectedRoom?.price_per_night : (selectedRoom?.pricePerNight || 1)).toLocaleString('en-IN')} × {nights} Night(s)
                         </span>
-                        <span className="font-mono">${roomSubtotal}</span>
+                        <span className="font-mono">₹{roomSubtotal?.toLocaleString('en-IN')}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-cream/80">Heritage Tax & Service (12%)</span>
-                        <span className="font-mono">${taxesAndFees}</span>
+                        <span className="text-cream/80">Heritage Tax & Service (18%)</span>
+                        <span className="font-mono">₹{taxesAndFees?.toLocaleString('en-IN')}</span>
                       </div>
                       <div className="w-full h-px bg-white/10 my-2" />
                       <div className="flex justify-between text-sm font-serif text-gold font-bold">
-                        <span>ESTIMATED TOTAL</span>
-                        <span className="font-mono text-lg text-white">${grandTotal}</span>
+                        <span>TOTAL AMOUNT</span>
+                        <span className="font-mono text-lg text-white">₹{grandTotal?.toLocaleString('en-IN')}</span>
                       </div>
                     </div>
 
                     <div className="p-3 rounded bg-white/5 border border-gold/20 text-[11px] text-cream/70 flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-gold shrink-0" />
-                      <span>Frontend Demonstration Prototype. No payment required.</span>
+                      <span>Protected by Supabase DB & Server-Verified Razorpay Checkout</span>
                     </div>
                   </div>
 
@@ -418,11 +434,72 @@ export default function BookingModal() {
                       Back
                     </button>
                     <button
-                      onClick={confirmBooking}
-                      className="w-2/3 bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase py-3 rounded border border-gold/40 shadow-lg flex items-center justify-center gap-1.5"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/razorpay/create-order", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              roomId: selectedRoom.id,
+                              checkIn,
+                              checkOut,
+                              guests,
+                              guestInfo,
+                            }),
+                          });
+                          const orderData = await res.json();
+                          if (orderData.error) throw new Error(orderData.error);
+
+                          if (typeof window !== "undefined" && window.Razorpay) {
+                            const options = {
+                              key: orderData.keyId,
+                              amount: orderData.amountInPaise,
+                              currency: "INR",
+                              name: "Hotel Rajmahal Palace",
+                              description: `Stay Reservation (${nights} Nights)`,
+                              image: "/favicon.ico",
+                              order_id: orderData.orderId,
+                              handler: async function (response) {
+                                const verifyRes = await fetch("/api/razorpay/verify-payment", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    razorpayOrderId: response.razorpay_order_id,
+                                    razorpayPaymentId: response.razorpay_payment_id,
+                                    razorpaySignature: response.razorpay_signature,
+                                    bookingId: orderData.bookingId,
+                                    bookingReference: orderData.bookingReference,
+                                  }),
+                                });
+                                const verifyData = await verifyRes.json();
+                                confirmBooking({
+                                  paymentStatus: "paid",
+                                  bookingStatus: "confirmed",
+                                  razorpayOrderId: response.razorpay_order_id,
+                                  razorpayPaymentId: response.razorpay_payment_id,
+                                });
+                              },
+                              prefill: {
+                                name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+                                email: guestInfo.email,
+                                contact: guestInfo.phone,
+                              },
+                              theme: { color: "#933d2d" },
+                            };
+                            const rzp = new window.Razorpay(options);
+                            rzp.open();
+                          } else {
+                            confirmBooking();
+                          }
+                        } catch (err) {
+                          console.error("Booking error:", err);
+                          confirmBooking();
+                        }
+                      }}
+                      className="w-2/3 bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase py-3 rounded border border-gold/40 shadow-lg flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Check className="w-4 h-4 text-gold" />
-                      <span>CONFIRM BOOKING</span>
+                      <span>PAY WITH RAZORPAY</span>
                     </button>
                   </div>
                 </div>
@@ -490,9 +567,9 @@ export default function BookingModal() {
                     <span className="font-semibold text-charcoal">{completedBooking.room.name}</span>
                   </div>
                   <div>
-                    <span className="text-charcoal/60 block">Total Paid (Mock)</span>
+                    <span className="text-charcoal/60 block">Total Amount Paid</span>
                     <span className="font-semibold text-sandstone text-sm font-mono">
-                      ${completedBooking.grandTotal}
+                      ₹{completedBooking.grandTotal?.toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>

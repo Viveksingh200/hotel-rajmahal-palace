@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
@@ -233,12 +234,12 @@ export default function CinematicCanvasScroll({
           </p>
 
           <div className="flex items-center justify-center w-full">
-            <button
-              onClick={onOpenBooking}
-              className="px-7 sm:px-9 py-3.5 sm:py-4 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-[11px] sm:text-xs font-serif uppercase tracking-[0.2em] sm:tracking-[0.25em] font-semibold rounded-sm shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-all cursor-pointer"
+            <Link
+              href="/rooms"
+              className="px-7 sm:px-9 py-3.5 sm:py-4 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-[11px] sm:text-xs font-serif uppercase tracking-[0.2em] sm:tracking-[0.25em] font-semibold rounded-sm shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-all cursor-pointer inline-block"
             >
               Reserve Your Stay
-            </button>
+            </Link>
           </div>
         </div>
 

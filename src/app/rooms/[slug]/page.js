@@ -33,22 +33,56 @@ export default function RoomDetailPage({ params }) {
 
   const [activeImage, setActiveImage] = useState(room.featuredImage);
 
+  const today = new Date().toISOString().split("T")[0];
+
+  const getMinCheckOut = (checkInDate) => {
+    if (!checkInDate) return today;
+    const d = new Date(checkInDate);
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  };
+
+  const handleCheckInChange = (newDate) => {
+    setCheckIn(newDate);
+    if (!checkOut || checkOut <= newDate) {
+      setCheckOut(getMinCheckOut(newDate));
+    }
+  };
+
   // Price calculations in frontend JS
   const subtotal = room.pricePerNight * nights * roomsCount;
-  const taxes = Math.round(subtotal * 0.12);
+  const taxes = Math.round(subtotal * 0.18);
   const estimatedTotal = subtotal + taxes;
 
   return (
-    <div className="w-full bg-cream text-charcoal pt-24 pb-20">
-      {/* Top Back Link */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-        <Link
-          href="/rooms"
-          className="inline-flex items-center gap-2 text-xs font-serif uppercase tracking-widest text-sandstone hover:text-sandstone-dark transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to All Rooms</span>
-        </Link>
+    <div className="w-full bg-cream text-charcoal pb-20">
+      {/* Subpage Banner Header */}
+      <div className="relative h-[380px] sm:h-[440px] w-full flex items-center justify-center text-center overflow-hidden mb-12">
+        <Image
+          src={room.featuredImage || "/images/bedroom.jpg"}
+          alt={room.name}
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent" />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 text-cream space-y-2.5 pt-14">
+          <Link
+            href="/rooms"
+            className="inline-flex items-center gap-2 text-xs font-serif uppercase tracking-widest text-gold hover:text-amber-300 transition-colors mb-1"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to All Rooms</span>
+          </Link>
+          <h1 className="text-3xl sm:text-5xl font-serif text-white tracking-tight">
+            {room.name}
+          </h1>
+          <div className="w-20 h-0.5 bg-gold mx-auto" />
+          <p className="text-sm sm:text-base font-serif italic text-cream/90 max-w-xl mx-auto">
+            {room.view} &bull; {room.size}
+          </p>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,9 +109,8 @@ export default function RoomDetailPage({ params }) {
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
-                  className={`relative h-20 sm:h-24 rounded overflow-hidden border-2 transition-all ${
-                    activeImage === img ? "border-sandstone scale-95 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
-                  }`}
+                  className={`relative h-20 sm:h-24 rounded overflow-hidden border-2 transition-all ${activeImage === img ? "border-sandstone scale-95 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
+                    }`}
                 >
                   <Image src={img} alt={`Gallery thumbnail ${idx}`} fill className="object-cover" />
                 </button>
@@ -167,8 +200,9 @@ export default function RoomDetailPage({ params }) {
                   <label className="text-gold font-serif uppercase tracking-wider">Check-In</label>
                   <input
                     type="date"
+                    min={today}
                     value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
+                    onChange={(e) => handleCheckInChange(e.target.value)}
                     className="bg-charcoal-light border border-white/20 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-gold"
                   />
                 </div>
@@ -177,6 +211,7 @@ export default function RoomDetailPage({ params }) {
                   <label className="text-gold font-serif uppercase tracking-wider">Check-Out</label>
                   <input
                     type="date"
+                    min={getMinCheckOut(checkIn)}
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
                     className="bg-charcoal-light border border-white/20 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-gold"
@@ -218,17 +253,17 @@ export default function RoomDetailPage({ params }) {
                   <span className="font-mono text-white">{nights} Night(s)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-cream/70">Subtotal ({nights} × ${room.pricePerNight})</span>
-                  <span className="font-mono text-white">${subtotal}</span>
+                  <span className="text-cream/70">Subtotal ({nights} × ₹{room.pricePerNight?.toLocaleString('en-IN')})</span>
+                  <span className="font-mono text-white">₹{subtotal?.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-cream/70">Heritage Tax (12%)</span>
-                  <span className="font-mono text-white">${taxes}</span>
+                  <span className="text-cream/70">Heritage Tax (18%)</span>
+                  <span className="font-mono text-white">₹{taxes?.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="w-full h-px bg-white/10 my-1" />
                 <div className="flex justify-between font-serif text-sm text-gold font-bold">
                   <span>ESTIMATED TOTAL</span>
-                  <span className="font-mono text-base text-white">${estimatedTotal}</span>
+                  <span className="font-mono text-base text-white">₹{estimatedTotal?.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 

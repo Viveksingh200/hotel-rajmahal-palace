@@ -17,13 +17,37 @@ export default function BookingWidget() {
     searchAvailableRooms,
   } = useBooking();
 
+  const today = new Date().toISOString().split("T")[0];
+
+  const getMinCheckOut = (checkInDate) => {
+    if (!checkInDate) return today;
+    const d = new Date(checkInDate);
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  };
+
+  const handleCheckInChange = (newDate) => {
+    setCheckIn(newDate);
+    if (!checkOut || checkOut <= newDate) {
+      setCheckOut(getMinCheckOut(newDate));
+    }
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
+    if (checkIn < today) {
+      alert("Check-in date cannot be in the past.");
+      return;
+    }
+    if (checkOut <= checkIn) {
+      alert("Check-out date must be after check-in date.");
+      return;
+    }
     searchAvailableRooms(checkIn, checkOut, guests, roomsCount);
   };
 
   return (
-    <div className="relative z-30 max-w-6xl mx-auto px-4 -mt-12 sm:-mt-16 mb-16">
+    <div className="relative z-20 max-w-6xl mx-auto px-4 my-8 sm:my-9">
       <div className="bg-charcoal text-cream rounded-lg p-4 sm:p-6 shadow-2xl border border-gold/30 backdrop-blur-md">
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           {/* Check-In */}
@@ -34,9 +58,10 @@ export default function BookingWidget() {
             </label>
             <input
               type="date"
+              min={today}
               value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="bg-charcoal-light border border-white/20 focus:border-gold rounded-sm px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-gold transition-colors"
+              onChange={(e) => handleCheckInChange(e.target.value)}
+              className="bg-charcoal-light border border-gold/40 focus:border-gold rounded-sm px-3 py-2.5 text-sm text-white font-mono focus:outline-none focus:ring-1 focus:ring-gold transition-colors cursor-pointer"
               required
             />
           </div>
@@ -49,9 +74,10 @@ export default function BookingWidget() {
             </label>
             <input
               type="date"
+              min={getMinCheckOut(checkIn)}
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="bg-charcoal-light border border-white/20 focus:border-gold rounded-sm px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-gold transition-colors"
+              className="bg-charcoal-light border border-gold/40 focus:border-gold rounded-sm px-3 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-gold transition-colors cursor-pointer"
               required
             />
           </div>

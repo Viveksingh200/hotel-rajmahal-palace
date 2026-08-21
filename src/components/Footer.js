@@ -2,12 +2,19 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { HOTEL_INFO } from "@/data/hotel";
 import { useBooking } from "@/context/BookingContext";
 import { Calendar, Phone, Mail, MapPin, Share2, Globe, Compass } from "lucide-react";
 
 export default function Footer() {
   const { openBookingModal } = useBooking();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
 
   const quickLinks = [
     { name: "Home", href: "/" },

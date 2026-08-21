@@ -1,12 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ROOMS_DATA } from "@/data/rooms";
 import RoomCard from "./RoomCard";
 import { ArrowRight } from "lucide-react";
+import { fetchRooms } from "@/lib/bookingService";
 
 export default function RoomsSection() {
+  const [rooms, setRooms] = useState(ROOMS_DATA);
+
+  useEffect(() => {
+    async function loadRooms() {
+      try {
+        const data = await fetchRooms();
+        if (data && data.length > 0) {
+          setRooms(data);
+        }
+      } catch (err) {
+        console.error("Error fetching rooms for homepage:", err);
+      }
+    }
+    loadRooms();
+  }, []);
+
   return (
     <section id="rooms-section" className="py-24 bg-cream-muted text-charcoal relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +46,7 @@ export default function RoomsSection() {
 
         {/* Room Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {ROOMS_DATA.slice(0, 3).map((room) => (
+          {rooms.slice(0, 3).map((room) => (
             <RoomCard key={room.id} room={room} />
           ))}
         </div>
@@ -38,9 +55,9 @@ export default function RoomsSection() {
         <div className="mt-16 text-center">
           <Link
             href="/rooms"
-            className="inline-flex items-center gap-3 bg-charcoal hover:bg-black text-cream font-serif text-sm tracking-widest uppercase px-8 py-4 rounded-sm border border-gold/40 hover:border-gold shadow-xl transition-all duration-300 group"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase rounded-sm border border-gold/40 shadow-lg transition-all group"
           >
-            <span>VIEW ALL ACCOMMODATIONS</span>
+            <span>EXPLORE ALL SUITES</span>
             <ArrowRight className="w-4 h-4 text-gold group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

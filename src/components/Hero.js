@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Compass, ChevronDown } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
@@ -83,17 +84,17 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.9 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
         >
-          <button
-            onClick={() => openBookingModal("available")}
-            className="w-full sm:w-auto bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-sm tracking-widest px-8 py-4 rounded-sm border border-gold/50 hover:border-gold shadow-2xl hover:shadow-sandstone/50 transition-all duration-300 flex items-center justify-center gap-2 group"
+          <Link
+            href="/rooms"
+            className="w-full sm:w-auto bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-sm tracking-widest px-8 py-4 rounded-sm border border-gold/50 hover:border-gold shadow-2xl hover:shadow-sandstone/50 transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" />
-            <span>BOOK YOUR STAY</span>
-          </button>
+            <span>RESERVE YOUR STAY</span>
+          </Link>
 
           <button
             onClick={scrollToExplore}
-            className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-cream font-serif text-sm tracking-widest px-8 py-4 rounded-sm border border-white/30 hover:border-gold backdrop-blur-md transition-all duration-300 flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-cream font-serif text-sm tracking-widest px-8 py-4 rounded-sm border border-white/30 hover:border-gold backdrop-blur-md transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
           >
             <Compass className="w-4 h-4 text-gold group-hover:rotate-45 transition-transform" />
             <span>EXPLORE THE HOTEL</span>

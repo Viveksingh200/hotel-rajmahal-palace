@@ -30,20 +30,20 @@ export default function ExperienceSection() {
   ];
 
   return (
-    <section id="experience" className="py-24 bg-charcoal text-cream relative overflow-hidden">
+    <section id="experience" className="py-24 bg-cream text-charcoal relative overflow-hidden">
       {/* Subtle background glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-sandstone/10 rounded-full filter blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-sandstone/5 rounded-full filter blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase tracking-[0.4em] text-gold font-medium block mb-2">
+          <span className="text-xs uppercase tracking-[0.4em] text-sandstone font-semibold block mb-2">
             NATURAL HARMONY
           </span>
-          <h2 className="text-3xl sm:text-5xl font-serif text-white tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight mb-4">
             SERENITY OF THE HILLS
           </h2>
-          <div className="w-24 h-0.5 mx-auto bg-gold/60 mb-6" />
-          <p className="text-base sm:text-lg font-serif italic text-cream/80">
+          <div className="w-24 h-0.5 mx-auto bg-gold mb-6" />
+          <p className="text-base sm:text-lg font-serif italic text-sandstone">
             &ldquo;Reconnect with nature in an unspoiled sanctuary surrounded by greenery and peaceful slopes.&rdquo;
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function ExperienceSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative h-[400px] sm:h-[500px] rounded-xl overflow-hidden shadow-2xl border border-gold/30 mb-16"
+          className="relative h-[400px] sm:h-[500px] rounded-xl overflow-hidden shadow-2xl border border-sandstone/20 mb-16"
         >
           <Image
             src="/images/experience.jpg"
@@ -85,13 +85,13 @@ export default function ExperienceSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: idx * 0.1 }}
-              className="bg-charcoal-light p-6 rounded-lg border border-white/10 hover:border-gold/40 transition-colors group"
+              className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-sandstone/15 hover:border-gold/60 shadow-lg hover:shadow-xl transition-all group"
             >
-              <div className="w-12 h-12 rounded-full bg-sandstone/20 border border-gold/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-full bg-sandstone/10 border border-gold/40 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 {exp.icon}
               </div>
-              <h4 className="text-xl font-serif text-white mb-2">{exp.title}</h4>
-              <p className="text-xs text-cream/70 leading-relaxed font-sans">{exp.description}</p>
+              <h4 className="text-xl font-serif text-charcoal mb-2">{exp.title}</h4>
+              <p className="text-xs text-charcoal/70 leading-relaxed font-sans">{exp.description}</p>
             </motion.div>
           ))}
         </div>
