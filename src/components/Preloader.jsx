@@ -47,9 +47,6 @@ export default function Preloader({ progress = 0, isReady = false, onComplete })
             HOTEL RAJMAHAL PALACE
           </h1>
           <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent my-3" />
-          <p className="text-xs sm:text-sm font-serif italic text-[#D6B892]/70 max-w-sm">
-            Preparing 3D Cinematic Visual Experience...
-          </p>
         </div>
 
         {/* Progress Bar & Percentage */}

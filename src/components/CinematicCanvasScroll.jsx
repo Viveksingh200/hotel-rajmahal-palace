@@ -34,6 +34,14 @@ export default function CinematicCanvasScroll({
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [heroAnimated, setHeroAnimated] = useState(false);
 
+  const onProgressRef = useRef(onProgress);
+  const onReadyRef = useRef(onReady);
+
+  useEffect(() => {
+    onProgressRef.current = onProgress;
+    onReadyRef.current = onReady;
+  });
+
   // Mask reveal animation trigger
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,9 +50,10 @@ export default function CinematicCanvasScroll({
     return () => clearTimeout(timer);
   }, []);
 
-  // Preload native Hotel Rajmahal Palace frames (720 frames)
+  // Preload native Hotel Rajmahal Palace frames (720 frames) - RUNS ONCE ON MOUNT
   useEffect(() => {
     let loadedCount = 0;
+    let lastReportedPercent = -1;
     const loadedImages = new Array(TOTAL_FRAMES);
 
     let currentIndex = 0;
@@ -67,12 +76,20 @@ export default function CinematicCanvasScroll({
           loadedImages[i] = img;
           imagesRef.current = loadedImages;
 
-          const prog = (loadedCount / TOTAL_FRAMES) * 100;
-          if (onProgress) onProgress(prog);
+          const prog = Math.floor((loadedCount / TOTAL_FRAMES) * 100);
+          if (prog !== lastReportedPercent) {
+            lastReportedPercent = prog;
+            if (onProgressRef.current) onProgressRef.current(prog);
+          }
+
+          if (i === 0) {
+            renderFrame(0);
+          }
 
           if (loadedCount >= TOTAL_FRAMES) {
             setImagesLoaded(true);
-            if (onReady) onReady();
+            renderFrame(0);
+            if (onReadyRef.current) onReadyRef.current();
           }
 
           if (batchCompleted >= totalInBatch) {
@@ -94,7 +111,7 @@ export default function CinematicCanvasScroll({
     };
 
     loadNextBatch();
-  }, [onProgress, onReady]);
+  }, []);
 
   // Instant High-Precision Canvas Drawing Engine
   const renderFrame = (idx) => {
@@ -178,6 +195,8 @@ export default function CinematicCanvasScroll({
       },
     });
 
+    renderFrame(currentFrameRef.current || 0);
+
     return () => {
       trigger.kill();
     };
@@ -206,7 +225,7 @@ export default function CinematicCanvasScroll({
               : "opacity-0 scale-95 pointer-events-none"
           }`}
         >
-          <h1 className="font-serif text-3xl sm:text-7xl lg:text-9xl text-[#F7F5F2] tracking-wider font-normal uppercase leading-[1.05] sm:leading-[0.95] drop-shadow-2xl mb-4 sm:mb-6 flex flex-col items-center select-none w-full">
+          <h1 className="font-serif text-3xl sm:text-7xl lg:text-9xl text-[#F7F5F2] tracking-wider font-medium sm:font-normal uppercase leading-[1.05] sm:leading-[0.95] drop-shadow-2xl mb-4 sm:mb-6 flex flex-col items-center select-none w-full bg-[#100F0E]/80 md:bg-transparent rounded-xl md:rounded-none">
             <span className="block overflow-hidden py-1 w-full">
               <motion.span
                 initial={{ y: "150%", opacity: 0 }}
