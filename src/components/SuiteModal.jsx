@@ -7,13 +7,16 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 lg:p-10 bg-[#0A0908]/92 backdrop-blur-2xl animate-fadeIn cursor-pointer"
-      onClick={onClose}
-    >
-      {/* Modal Container */}
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 lg:p-10">
+      {/* 1. Backdrop Overlay */}
       <div
-        className="relative w-full max-w-6xl max-h-[85vh] sm:max-h-[90vh] bg-[#100F0E] border border-[#D4AF37]/35 rounded-xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.9)] flex flex-col cursor-default"
+        className="fixed inset-0 bg-[#0A0908]/92 backdrop-blur-2xl animate-fadeIn cursor-pointer"
+        onClick={onClose}
+      />
+
+      {/* 2. Modal Container */}
+      <div
+        className="relative z-10 w-full max-w-6xl max-h-[85vh] sm:max-h-[90vh] bg-[#100F0E] border border-[#D4AF37]/35 rounded-xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.9)] flex flex-col cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -28,6 +31,8 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
           </div>
           <button
             onClick={onClose}
+            data-cursor="CLOSE"
+            aria-label="Close"
             className="p-2.5 rounded-full border border-[#D4AF37]/30 text-[#D6B892] hover:bg-[#D4AF37] hover:text-[#100F0E] transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -66,19 +71,15 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
                     &ldquo;{room.tagline}&rdquo;
                   </p>
 
-                  <p className="text-xs text-[#D6B892]/75 font-sans leading-relaxed line-clamp-2">
-                    {room.description}
-                  </p>
-
                   {/* Specs Pills */}
                   <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#D4AF37]/15 text-[11px] text-[#D6B892]">
                     <div className="flex items-center gap-1.5">
                       <Maximize className="w-3.5 h-3.5 text-[#D4AF37]" />
                       <span>{room.sizeSqFt} Sq Ft</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5" title={`Max ${room.maxAdults} Adults & ${room.maxChildren} Children`}>
                       <Users className="w-3.5 h-3.5 text-[#D4AF37]" />
-                      <span>{room.maxGuests} Guests</span>
+                      <span className="truncate">{room.maxAdults}A + {room.maxChildren}C</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <BedDouble className="w-3.5 h-3.5 text-[#D4AF37]" />

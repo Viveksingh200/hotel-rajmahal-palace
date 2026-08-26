@@ -5,10 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Compass, ChevronDown } from "lucide-react";
-import { useBooking } from "@/context/BookingContext";
 
 export default function Hero() {
-  const { openBookingModal } = useBooking();
 
   const scrollToExplore = () => {
     const el = document.getElementById("hotel-intro");

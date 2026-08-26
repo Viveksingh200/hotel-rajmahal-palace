@@ -272,12 +272,10 @@ export default function GalleryLightbox({ showFilter = true, limit = null }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={closeLightbox}
-            className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-2xl flex flex-col justify-between p-4 sm:p-8 cursor-pointer select-none"
+            className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-2xl flex flex-col justify-between p-4 sm:p-8 select-none"
           >
             {/* Top Bar */}
             <div
-              onClick={(e) => e.stopPropagation()}
               className="flex items-center justify-between z-10 text-[#F7F5F2] max-w-7xl w-full mx-auto"
             >
               <div>
@@ -290,8 +288,9 @@ export default function GalleryLightbox({ showFilter = true, limit = null }) {
               {/* Close / Back Button */}
               <button
                 onClick={closeLightbox}
+                data-cursor="CLOSE"
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161412] hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#100F0E] border border-[#D4AF37]/50 shadow-lg transition-all duration-200 cursor-pointer font-serif text-xs tracking-widest uppercase"
-                aria-label="Close photo viewer"
+                aria-label="Close"
               >
                 <X className="w-4 h-4" />
                 <span>CLOSE (ESC)</span>
@@ -316,6 +315,7 @@ export default function GalleryLightbox({ showFilter = true, limit = null }) {
               {/* Prev Button */}
               <button
                 onClick={prevImage}
+                data-cursor="PREV"
                 className="absolute left-2 sm:left-6 p-3.5 rounded-full bg-[#100F0E]/80 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#100F0E] border border-[#D4AF37]/40 shadow-xl transition-all cursor-pointer"
                 aria-label="Previous image"
               >
@@ -325,6 +325,7 @@ export default function GalleryLightbox({ showFilter = true, limit = null }) {
               {/* Next Button */}
               <button
                 onClick={nextImage}
+                data-cursor="NEXT"
                 className="absolute right-2 sm:right-6 p-3.5 rounded-full bg-[#100F0E]/80 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#100F0E] border border-[#D4AF37]/40 shadow-xl transition-all cursor-pointer"
                 aria-label="Next image"
               >
@@ -346,6 +347,7 @@ export default function GalleryLightbox({ showFilter = true, limit = null }) {
                 </span>
                 <button
                   onClick={closeLightbox}
+                  data-cursor="CLOSE"
                   className="text-xs text-[#D6B892]/80 hover:text-[#D4AF37] underline underline-offset-4 font-serif uppercase tracking-wider cursor-pointer flex items-center gap-1 mx-auto"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />

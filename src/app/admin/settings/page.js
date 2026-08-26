@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminGuard from "@/components/AdminGuard";
 import AdminLayout from "@/components/AdminLayout";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { HOTEL_INFO } from "@/data/hotel";
 import { ShieldCheck, Database, CreditCard, Server, CheckCircle2, AlertTriangle, Key } from "lucide-react";
 
 export default function AdminSettingsPage() {
@@ -41,28 +42,28 @@ export default function AdminSettingsPage() {
                 <label className="text-charcoal/60 block font-serif uppercase tracking-wider text-[10px]">
                   Property Name
                 </label>
-                <span className="font-semibold text-charcoal text-sm">Hotel Rajmahal Palace</span>
+                <span className="font-semibold text-charcoal text-sm">{HOTEL_INFO.name}</span>
               </div>
 
               <div>
                 <label className="text-charcoal/60 block font-serif uppercase tracking-wider text-[10px]">
-                  Location
+                  Address / Location
                 </label>
-                <span className="font-semibold text-charcoal text-sm">Jaipur Highway, Heritage Valley</span>
+                <span className="font-semibold text-charcoal text-sm">{HOTEL_INFO.address}</span>
               </div>
 
               <div>
                 <label className="text-charcoal/60 block font-serif uppercase tracking-wider text-[10px]">
                   Contact Phone
                 </label>
-                <span className="font-semibold text-charcoal">+91 141 298 7000</span>
+                <span className="font-semibold text-charcoal">{HOTEL_INFO.phone}</span>
               </div>
 
               <div>
                 <label className="text-charcoal/60 block font-serif uppercase tracking-wider text-[10px]">
                   Reservations Email
                 </label>
-                <span className="font-semibold text-charcoal">reservations@hotelrajmahalpalace.com</span>
+                <span className="font-semibold text-charcoal">{HOTEL_INFO.email}</span>
               </div>
             </div>
           </div>

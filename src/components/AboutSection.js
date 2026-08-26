@@ -32,7 +32,7 @@ export default function AboutSection() {
             </p>
 
             <p className="text-base text-[#2C2825] leading-relaxed font-sans font-normal">
-              Hotel Rajmahal Palace was crafted to celebrate Rajasthan’s timeless sandstone craftsmanship while providing modern comfort framed by quiet mountain slopes. We focus on personal hospitality, restful privacy, and authentic dining.
+              Hotel Rajmahal Palace is nestled in the serene hills of Bhimashankar, offering authentic royal hospitality, comfortable modern stays, and breathtaking views of lush green slopes and valleys.
             </p>
 
             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#933D2D]/20">

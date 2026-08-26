@@ -4,12 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HOTEL_INFO } from "@/data/hotel";
+import { Calendar, Phone, Mail, MapPin } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
-import { Calendar, Phone, Mail, MapPin, Share2, Globe, Compass } from "lucide-react";
 
 export default function Footer() {
-  const { openBookingModal } = useBooking();
   const pathname = usePathname();
+  const { openBookingDrawer } = useBooking();
 
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -18,6 +18,7 @@ export default function Footer() {
 
   const quickLinks = [
     { name: "Home", href: "/" },
+    { name: "About Us", href: "/about" },
     { name: "Rooms", href: "/rooms" },
     { name: "Experience", href: "/experience" },
     { name: "Dining", href: "/dining" },
@@ -47,34 +48,58 @@ export default function Footer() {
               An Indian heritage-inspired resort surrounded by hills, lush greenery, and serene natural surroundings. Where royal grandeur meets quiet mountain rest.
             </p>
 
-            {/* Social Icons (Inline SVG for reliability) */}
+            {/* Social Icons */}
             <div className="flex items-center space-x-3 pt-2">
               <a
-                href="https://instagram.com"
+                href={HOTEL_INFO.instagramUrl || "https://www.instagram.com/rajmahalpalace04"}
                 target="_blank"
                 rel="noreferrer"
+                data-cursor="none"
                 aria-label="Instagram"
-                className="w-9 h-9 rounded-full bg-white/5 hover:bg-sandstone text-cream/80 hover:text-white border border-white/10 hover:border-gold transition-colors flex items-center justify-center"
+                className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#100F0E] border border-white/10 hover:border-[#D4AF37] transition-all duration-300 flex items-center justify-center group cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
               >
-                <Globe className="w-4 h-4 text-gold" />
+                <svg
+                  className="w-4 h-4 text-current group-hover:scale-110 transition-transform stroke-current fill-none stroke-[1.75]"
+                  viewBox="0 0 24 24"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                </svg>
               </a>
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noreferrer"
+                data-cursor="none"
                 aria-label="Facebook"
-                className="w-9 h-9 rounded-full bg-white/5 hover:bg-sandstone text-cream/80 hover:text-white border border-white/10 hover:border-gold transition-colors flex items-center justify-center"
+                className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#100F0E] border border-white/10 hover:border-[#D4AF37] transition-all duration-300 flex items-center justify-center group cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
               >
-                <Compass className="w-4 h-4 text-gold" />
+                <svg
+                  className="w-4 h-4 text-current group-hover:scale-110 transition-transform stroke-current fill-none stroke-[1.75]"
+                  viewBox="0 0 24 24"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                </svg>
               </a>
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Share"
-                className="w-9 h-9 rounded-full bg-white/5 hover:bg-sandstone text-cream/80 hover:text-white border border-white/10 hover:border-gold transition-colors flex items-center justify-center"
+                data-cursor="none"
+                aria-label="Twitter / X"
+                className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#100F0E] border border-white/10 hover:border-[#D4AF37] transition-all duration-300 flex items-center justify-center group cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
               >
-                <Share2 className="w-4 h-4 text-gold" />
+                <svg
+                  className="w-3.5 h-3.5 text-current group-hover:scale-110 transition-transform fill-current"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
               </a>
             </div>
           </div>
@@ -105,24 +130,37 @@ export default function Footer() {
             <div className="w-10 h-0.5 bg-gold/40 mb-4" />
 
             <div className="space-y-3 text-xs text-cream/80 font-sans">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+              <a
+                href={HOTEL_INFO.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-2.5 hover:text-gold transition-colors group"
+              >
+                <MapPin className="w-4 h-4 text-gold shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                 <span>{HOTEL_INFO.address}</span>
-              </div>
-              <div className="flex items-center gap-2.5">
+              </a>
+              <a
+                href={`tel:${HOTEL_INFO.phone.replace(/\s+/g, "")}`}
+                className="flex items-center gap-2.5 hover:text-gold transition-colors"
+              >
                 <Phone className="w-4 h-4 text-gold shrink-0" />
                 <span>{HOTEL_INFO.phone}</span>
-              </div>
-              <div className="flex items-center gap-2.5">
+              </a>
+              <a
+                href={`mailto:${HOTEL_INFO.email}`}
+                data-cursor="none"
+                className="flex items-center gap-2.5 hover:text-gold transition-colors"
+              >
                 <Mail className="w-4 h-4 text-gold shrink-0" />
                 <span>{HOTEL_INFO.email}</span>
-              </div>
+              </a>
             </div>
 
             <div className="pt-2">
               <button
-                onClick={() => openBookingModal("available")}
-                className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase py-3 rounded-sm border border-gold/40 shadow-lg flex items-center justify-center gap-2 transition-colors"
+                onClick={() => openBookingDrawer()}
+                data-cursor="RESERVE"
+                className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase py-3 rounded-sm border border-gold/40 shadow-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <Calendar className="w-4 h-4 text-gold" />
                 <span>BOOK YOUR STAY</span>
@@ -134,7 +172,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-cream/50 gap-4">
           <p>© {new Date().getFullYear()} Hotel Rajmahal Palace. All rights reserved.</p>
-          <p className="font-serif italic text-gold/60">Frontend Luxury Hospitality Prototype</p>
+          <p className="font-serif italic text-gold/80">Experience Timeless Royal Heritage</p>
         </div>
       </div>
     </footer>

@@ -116,7 +116,7 @@ export async function POST(req) {
         </div>
         <div class="footer">
           <p><strong>Hotel Rajmahal Palace</strong></p>
-          <p>Rajmahal Estates, Heritage Valley Road • Reservations: +91 98765 43210</p>
+          <p>Mukam Post Shirgaon, NH 60, Taluka Khed, Dist. Pune 412402 • Reservations: +91 70706 16464</p>
           <p style="margin-top: 10px; font-size: 11px; color: #762f22;">Thank you for choosing Hotel Rajmahal Palace.</p>
         </div>
       </div>

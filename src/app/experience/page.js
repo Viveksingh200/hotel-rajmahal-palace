@@ -11,7 +11,7 @@ export default function ExperiencePage() {
       {/* Subpage Banner Header */}
       <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden">
         <Image
-          src="/images/experience.png"
+          src="/images/1474910833_bhimshankar_7.jpg"
           alt="Serene Hill Surroundings of Hotel Rajmahal Palace"
           fill
           priority
@@ -21,14 +21,14 @@ export default function ExperiencePage() {
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-cream space-y-3 pt-14">
           <span className="text-xs uppercase tracking-[0.4em] text-gold font-medium block">
-            THE HILL ESCAPE
+            NATURE & PEACE
           </span>
           <h1 className="text-4xl sm:text-6xl font-serif text-white tracking-tight">
             Experience & Nature
           </h1>
           <div className="w-20 h-0.5 bg-gold mx-auto" />
-          <p className="text-base sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1 px-2 rounded-full">
-            &ldquo;Surrounded by green ridges, crisp air, and tranquil mountain horizons.&rdquo;
+          <p className="text-base sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1 px-3 rounded-full">
+            &ldquo;Enjoy fresh air, lush green hills, and peaceful mountain views.&rdquo;
           </p>
         </div>
       </div>

@@ -2,8 +2,8 @@ import { supabase, isSupabaseConfigured } from "./supabase/client";
 import { ROOMS_DATA } from "@/data/rooms";
 
 // Local state fallback storage key for offline prototype persistence
-const LOCAL_BOOKINGS_KEY = "rajmahal_local_bookings";
-const LOCAL_ROOMS_KEY = "rajmahal_local_rooms";
+const LOCAL_BOOKINGS_KEY = "rajmahal_bookings_v5";
+const LOCAL_ROOMS_KEY = "rajmahal_rooms_v5";
 
 // Helper: Get offline rooms fallback
 const getLocalRooms = () => {
@@ -11,22 +11,25 @@ const getLocalRooms = () => {
   const stored = localStorage.getItem(LOCAL_ROOMS_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length === ROOMS_DATA.length) {
+        return parsed;
+      }
     } catch (e) {
       console.error(e);
     }
   }
-  const initial = ROOMS_DATA.map((r, i) => ({
+  const initial = ROOMS_DATA.map((r) => ({
     id: r.id,
-    room_number: r.roomNumber || `${101 + i}`,
+    room_number: "",
     room_name: r.name,
     room_type: r.slug.replace("-room", "").replace("-suite", ""),
     slug: r.slug,
     description: r.description,
     price_per_night: r.pricePerNight,
     max_guests: r.maxGuests,
-    max_adults: r.maxAdults || 2,
-    max_children: r.maxChildren || 1,
+    max_adults: r.maxAdults || (r.sizeSqFt === 500 ? 3 : 4),
+    max_children: r.maxChildren || (r.sizeSqFt === 500 ? 2 : 3),
     size_sq_ft: r.sizeSqFt,
     bed_type: r.bedType,
     view_type: r.view,
@@ -52,9 +55,8 @@ const getLocalBookings = () => {
       console.error(e);
     }
   }
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-  const next3Days = new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0];
+  const pastDate1 = new Date(Date.now() - 86400000 * 10).toISOString().split("T")[0];
+  const pastDate2 = new Date(Date.now() - 86400000 * 8).toISOString().split("T")[0];
 
   const sample = [
     {
@@ -64,44 +66,21 @@ const getLocalBookings = () => {
       customer_email: "vikram@rajmahal.in",
       customer_phone: "+91 98290 12345",
       special_requests: "High floor balcony suite, early morning high tea setup",
-      room_id: "hill-view-suite",
-      check_in: tomorrow,
-      check_out: next3Days,
-      guests: 2,
+      room_id: "heritage-deluxe-room",
+      check_in: pastDate1,
+      check_out: pastDate2,
+      guests: 3,
       rooms_count: 1,
       nights: 2,
-      room_subtotal: 900,
-      taxes_and_fees: 162,
-      total_amount: 1062,
+      room_subtotal: 28000,
+      taxes_and_fees: 5040,
+      total_amount: 33040,
       payment_status: "paid",
       booking_status: "confirmed",
       razorpay_order_id: "order_N8291047192",
       razorpay_payment_id: "pay_P9182740192",
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      room: ROOMS_DATA.find((r) => r.id === "hill-view-suite") || ROOMS_DATA[0],
-    },
-    {
-      id: "demo-b2",
-      booking_reference: "RMP-742910",
-      customer_name: "Sunita Sharma",
-      customer_email: "sunita.sharma@gmail.com",
-      customer_phone: "+91 94140 88291",
-      special_requests: "Anniversary celebration package request",
-      room_id: "royal-palace-suite",
-      check_in: today,
-      check_out: tomorrow,
-      guests: 2,
-      rooms_count: 1,
-      nights: 1,
-      room_subtotal: 360,
-      taxes_and_fees: 64.8,
-      total_amount: 424.8,
-      payment_status: "paid",
-      booking_status: "confirmed",
-      razorpay_order_id: "order_O1029481920",
-      razorpay_payment_id: "pay_P8829103948",
-      created_at: new Date(Date.now() - 172800000).toISOString(),
-      room: ROOMS_DATA.find((r) => r.id === "royal-palace-suite") || ROOMS_DATA[1],
+      created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+      room: ROOMS_DATA[0],
     },
   ];
   localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(sample));

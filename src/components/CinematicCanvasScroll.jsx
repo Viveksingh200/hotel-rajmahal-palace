@@ -255,6 +255,7 @@ export default function CinematicCanvasScroll({
           <div className="flex items-center justify-center w-full">
             <Link
               href="/rooms"
+              data-cursor="RESERVE"
               className="px-7 sm:px-9 py-3.5 sm:py-4 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-[11px] sm:text-xs font-serif uppercase tracking-[0.2em] sm:tracking-[0.25em] font-semibold rounded-sm shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-all cursor-pointer inline-block"
             >
               Reserve Your Stay
@@ -283,13 +284,14 @@ export default function CinematicCanvasScroll({
             <p className="text-xs sm:text-sm text-[#D6B892]/80 leading-relaxed font-light mb-6">
               &ldquo;Enjoy delicious moments in a relaxing atmosphere&rdquo;
             </p>
-            <button
-              onClick={onOpenDining}
+            <Link
+              href="/dining"
+              data-cursor="DINE"
               className="px-6 py-3 bg-[#D4AF37] hover:bg-amber-300 text-[#100F0E] text-[10px] sm:text-[11px] font-serif uppercase tracking-[0.2em] font-semibold rounded-full shadow-lg hover:scale-105 transition-all cursor-pointer inline-flex items-center gap-2"
             >
               <span>EXPLORE DINING</span>
               <span className="text-xs">&rarr;</span>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -385,6 +387,7 @@ export default function CinematicCanvasScroll({
             </p>
             <button
               onClick={onOpenSuites}
+              data-cursor="ROOMS"
               className="px-6 py-3 bg-[#D4AF37] hover:bg-amber-300 text-[#100F0E] text-[10px] sm:text-[11px] font-serif uppercase tracking-[0.2em] font-semibold rounded-full shadow-lg hover:scale-105 transition-all cursor-pointer inline-flex items-center gap-2"
             >
               <span>EXPLORE SUITES</span>
@@ -440,6 +443,7 @@ export default function CinematicCanvasScroll({
             </p>
             <button
               onClick={onOpenBooking}
+              data-cursor="RESERVE"
               className="px-8 py-3.5 bg-[#D4AF37] hover:bg-amber-300 text-[#100F0E] text-[10px] sm:text-[11px] font-serif uppercase tracking-[0.2em] font-semibold rounded-full shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-all cursor-pointer inline-flex items-center gap-2"
             >
               <span>RESERVE YOUR STAY</span>

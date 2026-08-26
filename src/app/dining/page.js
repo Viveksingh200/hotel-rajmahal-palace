@@ -6,11 +6,11 @@ import DiningSection from "@/components/DiningSection";
 
 export default function DiningPage() {
   return (
-    <div className="w-full bg-cream text-charcoal pb-20">
+    <div className="w-full bg-cream text-charcoal">
       {/* Banner */}
       <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden">
         <Image
-          src="/images/dining.png"
+          src="/images/dinning.png"
           alt="Palace Courtyard Dining"
           fill
           priority
@@ -26,7 +26,7 @@ export default function DiningPage() {
             Palace Dining
           </h1>
           <div className="w-20 h-0.5 bg-gold mx-auto" />
-          <p className="text-base sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1 px-2 rounded-full">
+          <p className="text-base sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1 px-3 rounded-full border border-[#D4AF37]/30">
             &ldquo;Enjoy relaxed dining in a warm and welcoming setting.&rdquo;
           </p>
         </div>

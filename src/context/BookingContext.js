@@ -139,7 +139,6 @@ export function BookingProvider({ children }) {
     if (newCheckOut) setCheckOut(newCheckOut);
     if (newGuests) setGuests(newGuests);
     if (newRooms) setRoomsCount(newRooms);
-    setIsBookingDrawerOpen(true);
   };
 
   const confirmBooking = async (paymentData = {}) => {

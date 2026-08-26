@@ -3,10 +3,12 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Utensils, ArrowRight } from "lucide-react";
+import { useBooking } from "@/context/BookingContext";
 
 export default function DiningSection() {
+  const { openDining } = useBooking();
+
   return (
     <section id="dining" className="py-24 bg-cream-muted text-charcoal relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,13 +52,14 @@ export default function DiningSection() {
             </div>
 
             <div className="pt-2">
-              <Link
-                href="/dining"
-                className="inline-flex items-center gap-2 text-sandstone hover:text-sandstone-dark font-serif text-sm tracking-wider uppercase font-semibold group"
+              <button
+                onClick={() => openDining()}
+                data-cursor="MENU"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase font-semibold transition-all shadow-md group cursor-pointer"
               >
-                <span>EXPLORE DINING EXPERIENCE</span>
+                <span>EXPLORE MENU</span>
                 <ArrowRight className="w-4 h-4 text-gold group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
             </div>
           </motion.div>
 

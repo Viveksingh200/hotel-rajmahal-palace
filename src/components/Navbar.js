@@ -47,19 +47,13 @@ export default function Navbar({
   }, []);
 
 
-  const handleBookingClick = () => {
-    if (onOpenBooking) onOpenBooking();
-    else if (bookingCtx?.openBookingDrawer) bookingCtx.openBookingDrawer();
-    else if (bookingCtx?.openBookingModal) bookingCtx.openBookingModal("available");
-  };
-
   const handleDiningClick = () => {
     if (onOpenDining) onOpenDining();
     else if (bookingCtx?.openDining) bookingCtx.openDining();
   };
 
   const navLinks = [
-    { name: "About", href: "/#about" },
+    { name: "About", href: "/about" },
     { name: "Rooms", href: "/rooms" },
     { name: "Dining", href: "/dining" },
     { name: "Experience", href: "/experience" },
@@ -95,6 +89,7 @@ export default function Navbar({
                   <button
                     key={link.name}
                     onClick={link.onClick}
+                    data-cursor={link.name.toUpperCase()}
                     className="text-[11px] tracking-[0.22em] font-serif uppercase text-[#F7F5F2]/80 hover:text-[#D4AF37] transition-all py-1 cursor-pointer"
                   >
                     {link.name}
@@ -106,6 +101,7 @@ export default function Navbar({
                 <Link
                   key={link.name}
                   href={link.href}
+                  data-cursor={link.name.toUpperCase()}
                   className={`text-[11px] tracking-[0.22em] font-serif uppercase transition-all py-1 relative ${isActive ? "text-[#D4AF37] font-semibold" : "text-[#F7F5F2]/80 hover:text-[#D4AF37]"
                     }`}
                 >
@@ -123,17 +119,19 @@ export default function Navbar({
 
           {/* Right Action Buttons ("BOOK NOW" & Login Profile) */}
           <div className="hidden lg:flex items-center space-x-3">
-            <button
-              onClick={handleBookingClick}
-              className="bg-black/50 hover:bg-[#D4AF37] text-[#F7F5F2] hover:text-[#100F0E] font-serif text-[11px] font-semibold tracking-[0.25em] uppercase px-7 py-2.5 rounded-full border border-[#D4AF37]/80 shadow-[0_0_20px_rgba(212,175,55,0.25)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all duration-300 cursor-pointer"
+            <Link
+              href="/rooms"
+              data-cursor="RESERVE"
+              className="bg-black/50 hover:bg-[#D4AF37] text-[#F7F5F2] hover:text-[#100F0E] font-serif text-[11px] font-semibold tracking-[0.25em] uppercase px-7 py-2.5 rounded-full border border-[#D4AF37]/80 shadow-[0_0_20px_rgba(212,175,55,0.25)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
             >
               BOOK NOW
-            </button>
+            </Link>
 
             {isAuthenticated ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  data-cursor="ACCOUNT"
                   className="flex items-center justify-center w-9 h-9 rounded-full bg-[#D4AF37] hover:bg-amber-400 text-[#100F0E] font-bold text-sm font-mono shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all cursor-pointer"
                   title={user?.email || "Profile"}
                 >
@@ -287,16 +285,14 @@ export default function Navbar({
             </div>
 
             <div className="flex flex-col space-y-4">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleBookingClick();
-                }}
+              <Link
+                href="/rooms"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-[#D4AF37] text-[#100F0E] font-serif tracking-widest py-3.5 rounded-full border border-[#D4AF37]/40 text-center flex items-center justify-center gap-2 shadow-lg font-semibold cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 <span>BOOK NOW</span>
-              </button>
+              </Link>
             </div>
           </motion.div>
         )}

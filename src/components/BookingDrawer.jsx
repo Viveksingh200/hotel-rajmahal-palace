@@ -5,8 +5,10 @@ import { X, Calendar, Users, Crown, CheckCircle, Tag, ArrowRight, Sparkles, Load
 import confetti from "canvas-confetti";
 import { ROOMS_DATA } from "@/data/rooms";
 import { fetchAvailableRooms } from "@/lib/bookingService";
+import { useBooking } from "@/context/BookingContext";
 
 export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) {
+  const { checkIn: ctxCheckIn, checkOut: ctxCheckOut, guests: ctxGuests } = useBooking();
   const getToday = () => new Date().toISOString().split("T")[0];
   const getTomorrow = () => new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
@@ -19,15 +21,17 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
   const [rooms, setRooms] = useState(ROOMS_DATA);
   const [selectedRoomId, setSelectedRoomId] = useState(initialSuite?.id || ROOMS_DATA[0].id);
-  const [checkIn, setCheckIn] = useState(getToday());
-  const [checkOut, setCheckOut] = useState(getTomorrow());
-  const [adults, setAdults] = useState(2);
+  const [checkIn, setCheckIn] = useState(ctxCheckIn || getToday());
+  const [checkOut, setCheckOut] = useState(ctxCheckOut || getTomorrow());
+  const [adults, setAdults] = useState(ctxGuests || 2);
   const [childrenCount, setChildrenCount] = useState(0);
-  const [promoCode, setPromoCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [confirmedBookingRef, setConfirmedBookingRef] = useState("");
 
   const handleCheckInChange = (newDate) => {
     setCheckIn(newDate);
@@ -36,14 +40,46 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     }
   };
 
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
-  const [confirmedBookingRef, setConfirmedBookingRef] = useState("");
+  const allSelectableRooms = ROOMS_DATA.map((baseRoom) => {
+    const liveMatch = rooms.find(
+      (r) =>
+        r.id === baseRoom.id ||
+        r.slug === baseRoom.slug ||
+        r.room_name === baseRoom.name ||
+        r.name === baseRoom.name
+    );
+    return liveMatch ? { ...baseRoom, ...liveMatch } : baseRoom;
+  });
 
+  const room =
+    allSelectableRooms.find(
+      (r) =>
+        r.id === selectedRoomId ||
+        r.slug === selectedRoomId ||
+        r.room_number === selectedRoomId
+    ) || allSelectableRooms[0];
+
+  // Room capacity logic: 500 sq ft (Heritage Deluxe) -> Max 3 Adults & 2 Children; 700 sq ft (Royal Suite) -> Max 4 Adults & 3 Children
+  const roomSize = Number(room.size_sq_ft || room.sizeSqFt || 500);
+  const is700SqFt = roomSize >= 700 || (room.slug && room.slug.includes("suite")) || (room.name && room.name.toLowerCase().includes("suite")) || (room.room_name && room.room_name.toLowerCase().includes("suite"));
+  const maxAllowedAdults = is700SqFt ? 4 : 3;
+  const maxAllowedChildren = is700SqFt ? 3 : 2;
+
+  // 1. Sync with context when opened
   useEffect(() => {
-    if (initialSuite) {
-      const match = rooms.find(
+    if (isOpen) {
+      if (ctxCheckIn) setCheckIn(ctxCheckIn);
+      if (ctxCheckOut) setCheckOut(ctxCheckOut);
+      if (ctxGuests) {
+        setAdults((prev) => Math.min(ctxGuests, maxAllowedAdults));
+      }
+    }
+  }, [isOpen]);
+
+  // 2. Sync initial suite only when drawer is opened or initialSuite changes
+  useEffect(() => {
+    if (isOpen && initialSuite) {
+      const match = allSelectableRooms.find(
         (r) =>
           r.id === initialSuite.id ||
           r.slug === initialSuite.slug ||
@@ -58,19 +94,25 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
         setSelectedRoomId(initialSuite.id);
       }
     }
-  }, [initialSuite, rooms]);
+  }, [isOpen, initialSuite]);
 
-  // Load Razorpay Script dynamically
+  // 3. Load Razorpay script dynamically
   useEffect(() => {
-    if (typeof window !== "undefined" && !window.Razorpay) {
+    if (isOpen && typeof window !== "undefined" && !window.Razorpay) {
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.async = true;
       document.body.appendChild(script);
     }
-  }, []);
+  }, [isOpen]);
 
-  // Fetch live available rooms whenever dates or adults change
+  // 4. Auto-clamp guests when room capacity changes
+  useEffect(() => {
+    setAdults((prev) => (prev > maxAllowedAdults ? maxAllowedAdults : prev));
+    setChildrenCount((prev) => (prev > maxAllowedChildren ? maxAllowedChildren : prev));
+  }, [maxAllowedAdults, maxAllowedChildren]);
+
+  // 5. Fetch live available rooms (status only)
   useEffect(() => {
     let isMounted = true;
     async function loadAvailability() {
@@ -78,23 +120,6 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
         const avail = await fetchAvailableRooms(checkIn, checkOut, adults + childrenCount);
         if (isMounted && avail && avail.length > 0) {
           setRooms(avail);
-          const currentMatch = avail.find(
-            (r) =>
-              r.id === selectedRoomId ||
-              r.slug === selectedRoomId ||
-              (initialSuite &&
-                (r.id === initialSuite.id ||
-                  r.slug === initialSuite.slug ||
-                  r.slug === initialSuite.id ||
-                  r.id === initialSuite.slug ||
-                  r.room_number === initialSuite.roomNumber ||
-                  r.room_number === initialSuite.room_number))
-          );
-          if (currentMatch) {
-            setSelectedRoomId(currentMatch.id);
-          } else {
-            setSelectedRoomId(avail[0].id);
-          }
         }
       } catch (err) {
         console.error("Availability load error:", err);
@@ -106,17 +131,9 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     return () => {
       isMounted = false;
     };
-  }, [checkIn, checkOut, adults, childrenCount, isOpen, initialSuite]);
+  }, [checkIn, checkOut, adults, childrenCount, isOpen]);
 
   if (!isOpen) return null;
-
-  const room =
-    rooms.find(
-      (r) =>
-        r.id === selectedRoomId ||
-        r.slug === selectedRoomId ||
-        r.room_number === selectedRoomId
-    ) || rooms[0] || ROOMS_DATA[0];
 
   // Calculate nights
   const start = new Date(checkIn);
@@ -131,16 +148,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
   );
   const roomRate = pricePerNight * nights;
   const taxes = Math.round(roomRate * 0.18); // 18% GST / luxury tax
-  const discount = discountApplied ? Math.round(roomRate * 0.15) : 0; // 15% promo discount
-  const totalAmount = roomRate + taxes - discount;
-
-  const handleApplyPromo = () => {
-    if (promoCode.trim().toUpperCase() === "PALACE10" || promoCode.trim().toUpperCase() === "ROYALVIP") {
-      setDiscountApplied(true);
-    } else {
-      alert("Invalid promo code. Try 'PALACE10' or 'ROYALVIP'");
-    }
-  };
+  const totalAmount = roomRate + taxes;
 
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
@@ -154,6 +162,16 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
     if (checkOut <= checkIn) {
       setErrorMessage("Check-out date must be after check-in date.");
+      return;
+    }
+
+    if (adults > maxAllowedAdults) {
+      setErrorMessage(`Maximum ${maxAllowedAdults} adults allowed for ${is700SqFt ? '700' : '500'} sq ft.`);
+      return;
+    }
+
+    if (childrenCount > maxAllowedChildren) {
+      setErrorMessage(`Maximum ${maxAllowedChildren} children allowed for ${is700SqFt ? '700' : '500'} sq ft.`);
       return;
     }
 
@@ -177,7 +195,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
             firstName,
             lastName,
             email: guestEmail,
-            phone: guestPhone || "+91 98765 43210",
+            phone: guestPhone || "",
           },
         }),
       });
@@ -245,7 +263,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
           prefill: {
             name: guestName,
             email: guestEmail,
-            contact: guestPhone || "+919876543210",
+            contact: guestPhone || "",
           },
           theme: {
             color: "#933d2d",
@@ -304,17 +322,21 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[150] flex justify-end bg-black/80 backdrop-blur-md animate-fadeIn cursor-pointer"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-[150] flex justify-end">
+      {/* 1. Backdrop Overlay */}
       <div
-        className="relative w-full max-w-lg h-full bg-[#100F0E] border-l border-[#D4AF37]/30 shadow-2xl flex flex-col justify-between overflow-y-auto cursor-default touch-pan-y"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md animate-fadeIn cursor-pointer"
+        onClick={onClose}
+      />
+
+      {/* 2. Form Drawer Content (Sibling element) */}
+      <div
+        className="relative z-10 w-full max-w-lg h-full bg-[#100F0E] border-l border-[#D4AF37]/30 shadow-2xl flex flex-col justify-between overflow-y-auto cursor-default touch-pan-y"
         onClick={(e) => e.stopPropagation()}
         data-lenis-prevent
       >
         {/* Header */}
-        <div className="p-6 border-b border-[#D4AF37]/20 flex items-center justify-between bg-[#161412]">
+        <div className="px-6 py-4 border-b border-[#D4AF37]/20 flex items-center justify-between bg-[#161412]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37] flex items-center justify-center text-[#D4AF37]">
               <Crown className="w-4 h-4" />
@@ -330,6 +352,8 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
           </div>
           <button
             onClick={onClose}
+            data-cursor="CLOSE"
+            aria-label="Close"
             className="p-2 rounded-full border border-[#D4AF37]/30 text-[#D6B892] hover:bg-[#D4AF37] hover:text-[#100F0E] transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -394,7 +418,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmitBooking} className="p-6 space-y-6 flex-1">
+          <form onSubmit={handleSubmitBooking} className="p-6 space-y-5 flex-1">
             {errorMessage && (
               <div className="p-3 bg-red-950/80 border border-red-500/40 text-red-300 text-xs rounded text-center">
                 {errorMessage}
@@ -404,19 +428,18 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
             {/* Select Room Category */}
             <div>
               <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D4AF37] font-semibold block mb-1.5">
-                1. SELECT ROOM SUITE
+                1. SELECT ROOM SIZE
               </label>
               <select
                 value={room.id}
                 onChange={(e) => setSelectedRoomId(e.target.value)}
-                className="w-full bg-[#161412] border border-[#D4AF37]/40 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] cursor-pointer"
+                className="w-full bg-[#161412] border border-[#D4AF37]/40 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] cursor-pointer"
               >
-                {rooms.map((r) => {
-                  const isAvailable = (r.availability_status || r.availabilityStatus || "available") === "available";
+                {allSelectableRooms.map((r) => {
                   const roomP = Number(r.price_per_night !== undefined ? r.price_per_night : r.pricePerNight);
                   return (
-                    <option key={r.id} value={r.id} disabled={!isAvailable} className="bg-[#100F0E] text-[#F7F5F2]">
-                      {r.room_name || r.name} {!isAvailable ? " (UNAVAILABLE)" : ""} — ₹{roomP.toLocaleString('en-IN')}/night ({r.size_sq_ft || r.sizeSqFt} sq ft)
+                    <option key={r.id} value={r.id} className="bg-[#100F0E] text-[#F7F5F2]">
+                      {r.room_name || r.name} — ₹{roomP.toLocaleString('en-IN')}/night ({r.size_sq_ft || r.sizeSqFt} sq ft)
                     </option>
                   );
                 })}
@@ -434,7 +457,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   min={getToday()}
                   value={checkIn}
                   onChange={(e) => handleCheckInChange(e.target.value)}
-                  className="w-full bg-[#1c1917] border border-[#D4AF37]/50 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#FFFFFF] font-mono focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] shadow-sm font-semibold cursor-pointer"
+                  className="w-full bg-[#1c1917] border border-[#D4AF37]/50 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#FFFFFF] font-mono focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] shadow-sm font-semibold cursor-pointer"
                   required
                 />
               </div>
@@ -447,65 +470,77 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   min={getMinCheckOut(checkIn)}
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  className="w-full bg-[#1c1917] border border-[#D4AF37]/50 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#FFFFFF] font-mono focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] shadow-sm font-semibold cursor-pointer"
+                  className="w-full bg-[#1c1917] border border-[#D4AF37]/50 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#FFFFFF] font-mono focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] shadow-sm font-semibold cursor-pointer"
                   required
                 />
               </div>
             </div>
 
-            {/* Guests Count */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D6B892] font-medium block mb-1.5">
-                  ADULTS
-                </label>
-                <select
-                  value={adults}
-                  onChange={(e) => setAdults(Number(e.target.value))}
-                  className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#F7F5F2] font-mono cursor-pointer"
-                >
-                  <option value={1}>1 Adult</option>
-                  <option value={2}>2 Adults</option>
-                  <option value={3}>3 Adults</option>
-                  <option value={4}>4 Adults</option>
-                </select>
+            {/* Guests Count (Capacity: 500 sqft -> Max 3 Adults, 2 Children; 700 sqft -> Max 4 Adults, 3 Children) */}
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D6B892] font-medium block mb-1.5 flex items-center justify-between">
+                    <span>ADULTS</span>
+                    <span className="text-[10px] text-[#D4AF37]/80 font-mono">Max {maxAllowedAdults}</span>
+                  </label>
+                  <select
+                    value={Math.min(adults, maxAllowedAdults)}
+                    onChange={(e) => setAdults(Number(e.target.value))}
+                    className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] font-mono cursor-pointer"
+                  >
+                    {Array.from({ length: maxAllowedAdults }, (_, i) => i + 1).map((num) => (
+                      <option key={num} value={num}>
+                        {num} {num === 1 ? "Adult" : "Adults"}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D6B892] font-medium block mb-1.5 flex items-center justify-between">
+                    <span>CHILDREN</span>
+                    <span className="text-[10px] text-[#D4AF37]/80 font-mono">Max {maxAllowedChildren}</span>
+                  </label>
+                  <select
+                    value={Math.min(childrenCount, maxAllowedChildren)}
+                    onChange={(e) => setChildrenCount(Number(e.target.value))}
+                    className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] font-mono cursor-pointer"
+                  >
+                    {Array.from({ length: maxAllowedChildren + 1 }, (_, i) => i).map((num) => (
+                      <option key={num} value={num}>
+                        {num === 0 ? "0 Children" : `${num} ${num === 1 ? "Child" : "Children"}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D6B892] font-medium block mb-1.5">
-                  CHILDREN
-                </label>
-                <select
-                  value={childrenCount}
-                  onChange={(e) => setChildrenCount(Number(e.target.value))}
-                  className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#F7F5F2] font-mono cursor-pointer"
-                >
-                  <option value={0}>0 Children</option>
-                  <option value={1}>1 Child</option>
-                  <option value={2}>2 Children</option>
-                </select>
+
+              <div className="text-[10.5px] text-[#D6B892]/70 font-mono flex items-center justify-between pt-0.5">
+                <span>Room: {is700SqFt ? "Royal Suite (700 Sq Ft)" : "Heritage Deluxe (500 Sq Ft)"}</span>
+                <span className="text-[#D4AF37]">Max {maxAllowedAdults} Adults + {maxAllowedChildren} Kids</span>
               </div>
             </div>
 
             {/* Guest Contact Details */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2 pt-1">
               <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D4AF37] font-semibold block">
                 2. GUEST INFORMATION
               </label>
               <input
                 type="text"
-                placeholder="Full Name (e.g. Maharaja Vikram Singh)"
+                placeholder="Full Name"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
-                className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37]"
                 required
               />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <input
                   type="email"
                   placeholder="Email Address"
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
-                  className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37]"
                   required
                 />
                 <input
@@ -513,40 +548,14 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   placeholder="Phone Number"
                   value={guestPhone}
                   onChange={(e) => setGuestPhone(e.target.value)}
-                  className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-3 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37]"
                   required
                 />
               </div>
             </div>
 
-            {/* Promo Code Input */}
-            <div>
-              <label className="text-xs font-mono uppercase tracking-widest text-[#D6B892] block mb-1.5 flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-[#D4AF37]" />
-                PROMO CODE (Try: PALACE10 or ROYALVIP)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="PALACE10"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  disabled={discountApplied}
-                  className="flex-1 bg-[#161412] border border-[#D4AF37]/30 rounded-md px-3.5 py-2.5 text-sm text-[#F7F5F2] uppercase font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={handleApplyPromo}
-                  disabled={discountApplied}
-                  className="px-5 py-2.5 bg-[#1A1816] border border-[#D4AF37]/40 text-[#D4AF37] text-xs sm:text-sm font-serif uppercase tracking-wider rounded-md hover:bg-[#D4AF37] hover:text-[#100F0E] transition-colors cursor-pointer"
-                >
-                  {discountApplied ? "Applied!" : "Apply"}
-                </button>
-              </div>
-            </div>
-
             {/* Total Cost Summary */}
-            <div className="bg-[#161412] border border-[#D4AF37]/30 rounded-md p-5 space-y-2.5 text-xs sm:text-sm text-[#D6B892]">
+            <div className="bg-[#161412] border border-[#D4AF37]/30 rounded-md p-5 space-y-2 text-xs sm:text-sm text-[#D6B892]">
               <div className="flex justify-between">
                 <span>Rate ({nights} Nights)</span>
                 <span className="font-mono">₹{roomRate?.toLocaleString('en-IN')}</span>
@@ -555,12 +564,6 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                 <span>Heritage Taxes & GST (18%)</span>
                 <span className="font-mono">₹{taxes?.toLocaleString('en-IN')}</span>
               </div>
-              {discountApplied && (
-                <div className="flex justify-between text-emerald-400 font-semibold">
-                  <span>Royal Promo Discount (15%)</span>
-                  <span className="font-mono">-₹{discount?.toLocaleString('en-IN')}</span>
-                </div>
-              )}
               <div className="border-t border-[#D4AF37]/20 pt-3 flex justify-between items-baseline font-serif text-base text-[#F7F5F2]">
                 <span className="font-semibold">Grand Total</span>
                 <span className="text-[#D4AF37] font-semibold text-2xl font-mono">₹{totalAmount?.toLocaleString('en-IN')}</span>
@@ -570,7 +573,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
             <button
               type="submit"
               disabled={isProcessing}
-              className="w-full py-4 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs sm:text-sm font-serif uppercase tracking-[0.25em] font-semibold rounded-md shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-3 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs sm:text-sm font-serif uppercase tracking-[0.25em] font-semibold rounded-md shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isProcessing ? (
                 <>

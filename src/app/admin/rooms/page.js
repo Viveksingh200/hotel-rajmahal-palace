@@ -140,7 +140,7 @@ export default function AdminRoomsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
                     <div className="absolute top-3 left-3 bg-charcoal/90 text-gold border border-gold/40 px-2.5 py-1 rounded text-[11px] font-mono">
-                      Room #{room.room_number || "101"}
+                      {room.size_sq_ft || room.sizeSqFt || 500} Sq Ft
                     </div>
 
                     <div className="absolute top-3 right-3">

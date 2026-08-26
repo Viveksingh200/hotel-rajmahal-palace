@@ -17,7 +17,9 @@ export default function RoomCard({ room }) {
   const view = room.view_type || room.view;
   const size = room.size_sq_ft || room.sizeSqFt;
   const bed = room.bed_type || room.bedType || "Heritage Bed";
-  const guests = room.max_guests || room.maxGuests || 2;
+  const maxAdults = room.max_adults || room.maxAdults || (size === 500 ? 3 : 4);
+  const maxChildren = room.max_children || room.maxChildren || (size === 500 ? 2 : 3);
+  const guests = room.max_guests || room.maxGuests || (maxAdults + maxChildren);
   const image = room.image_url || room.featuredImage || "/images/heritage-deluxe-room.jpg";
   const slug = room.slug || room.id;
   const tagline = room.tagline || room.description;
@@ -33,6 +35,8 @@ export default function RoomCard({ room }) {
     currency: currency,
     sizeSqFt: size,
     maxGuests: guests,
+    maxAdults: maxAdults,
+    maxChildren: maxChildren,
     bedType: bed,
     view: view,
     featuredImage: image,
@@ -96,20 +100,19 @@ export default function RoomCard({ room }) {
             {roomName}
           </h3>
           <p className="text-xs font-serif italic text-sandstone/90 mb-3">{tagline}</p>
-          <p className="text-sm text-charcoal/70 line-clamp-2 mb-4 font-sans">{room.description}</p>
 
           {/* Quick Specs */}
           <div className="grid grid-cols-3 gap-2 py-3 border-y border-sandstone/10 text-xs text-charcoal/80 font-medium">
-            <div className="flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-gold" />
-              <span>{guests} Guests</span>
+            <div className="flex items-center gap-1.5" title={`Max ${maxAdults} Adults & ${maxChildren} Children`}>
+              <Users className="w-4 h-4 text-gold shrink-0" />
+              <span className="truncate">{maxAdults} Adults, {maxChildren} Child</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <BedDouble className="w-4 h-4 text-gold" />
+              <BedDouble className="w-4 h-4 text-gold shrink-0" />
               <span className="truncate">{String(bed).split(" ")[0]} Bed</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Maximize2 className="w-4 h-4 text-gold" />
+              <Maximize2 className="w-4 h-4 text-gold shrink-0" />
               <span>{size} Sq Ft</span>
             </div>
           </div>
@@ -128,30 +131,23 @@ export default function RoomCard({ room }) {
             ))}
         </div>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <Link
-            href={`/rooms/${slug}`}
-            className="w-full bg-cream-muted hover:bg-cream-dark text-charcoal font-serif text-xs tracking-wider uppercase py-2.5 rounded-sm border border-sandstone/20 text-center flex items-center justify-center gap-1 transition-colors"
-          >
-            <span>VIEW ROOM</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-
+        {/* Action Button */}
+        <div className="pt-2">
           {isAvailable ? (
             <button
               onClick={() => startBookingForRoom(normalizedRoom)}
-              className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-wider uppercase py-2.5 rounded-sm border border-gold/40 text-center flex items-center justify-center gap-1 shadow-md hover:shadow-sandstone/40 transition-all cursor-pointer"
+              data-cursor="RESERVE"
+              className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs sm:text-sm tracking-widest uppercase py-3 rounded-sm border border-gold/40 text-center flex items-center justify-center gap-2 shadow-md hover:shadow-sandstone/40 transition-all cursor-pointer"
             >
-              <Calendar className="w-3.5 h-3.5 text-gold" />
+              <Calendar className="w-4 h-4 text-gold" />
               <span>BOOK NOW</span>
             </button>
           ) : (
             <button
               disabled
-              className="w-full bg-stone-200 text-stone-500 font-serif text-xs tracking-wider uppercase py-2.5 rounded-sm border border-stone-300 text-center flex items-center justify-center gap-1 cursor-not-allowed opacity-75"
+              className="w-full bg-stone-200 text-stone-500 font-serif text-xs sm:text-sm tracking-widest uppercase py-3 rounded-sm border border-stone-300 text-center flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-4 h-4" />
               <span>{status === "maintenance" ? "MAINTENANCE" : "UNAVAILABLE"}</span>
             </button>
           )}

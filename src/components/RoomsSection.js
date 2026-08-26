@@ -40,13 +40,13 @@ export default function RoomsSection() {
           </div>
 
           <p className="text-base font-serif italic text-charcoal/70 max-w-md mt-4 md:mt-0">
-            &ldquo;Crafted with dark marble, handcrafted teak, and expansive views of the surrounding green hills.&rdquo;
+            &ldquo;Crafted with best quality marble, handcrafted teak, and expansive views of the surrounding green hills.&rdquo;
           </p>
         </div>
 
         {/* Room Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {rooms.slice(0, 3).map((room) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {rooms.map((room) => (
             <RoomCard key={room.id} room={room} />
           ))}
         </div>

@@ -37,14 +37,14 @@ export default function ExperienceSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs uppercase tracking-[0.4em] text-sandstone font-semibold block mb-2">
-            NATURAL HARMONY
+            NATURE & SERENITY
           </span>
           <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight mb-4">
-            SERENITY OF THE HILLS
+            Peace & Nature in the Hills
           </h2>
           <div className="w-24 h-0.5 mx-auto bg-gold mb-6" />
           <p className="text-base sm:text-lg font-serif italic text-sandstone">
-            &ldquo;Reconnect with nature in an unspoiled sanctuary surrounded by greenery and peaceful slopes.&rdquo;
+            &ldquo;Relax and enjoy nature surrounded by fresh mountain air and peaceful green hills.&rdquo;
           </p>
         </div>
 
@@ -57,21 +57,21 @@ export default function ExperienceSection() {
           className="relative h-[400px] sm:h-[500px] rounded-xl overflow-hidden shadow-2xl border border-sandstone/20 mb-16"
         >
           <Image
-            src="/images/experience.jpg"
-            alt="Scenic Hills and Green Landscape of Hotel Rajmahal Palace"
+            src="/images/temple.webp"
+            alt="Sacred Bhimashankar Jyotirlinga Temple near Hotel Rajmahal Palace"
             fill
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-transparent" />
           <div className="absolute bottom-8 left-8 right-8 max-w-2xl">
             <span className="text-xs uppercase tracking-widest text-gold font-medium block mb-2">
-              DISTANT VILLAGE HORIZON
+              SACRED JYOTIRLINGA
             </span>
             <h3 className="text-2xl sm:text-4xl font-serif text-white mb-2">
-              Untouched Natural Splendor
+              Bhimashankar Temple
             </h3>
             <p className="text-sm sm:text-base text-cream/90 font-light">
-              Nestled harmoniously into the slope, Rajmahal Palace overlooks quiet valleys where small traditional houses dot the far distance under clear azure skies.
+              Stay close to the ancient Bhimashankar Jyotirlinga temple, surrounded by peaceful Sahyadri hills and lush green nature.
             </p>
           </div>
         </motion.div>

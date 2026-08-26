@@ -1,10 +1,9 @@
-import { ROOMS_DATA } from "@/data/rooms";
-
 export default function sitemap() {
   const baseUrl = "https://hotelrajmahalpalace.com";
 
   const staticPages = [
     "",
+    "/about",
     "/rooms",
     "/experience",
     "/dining",
@@ -18,12 +17,5 @@ export default function sitemap() {
     priority: route === "" ? 1.0 : 0.8,
   }));
 
-  const roomPages = ROOMS_DATA.map((room) => ({
-    url: `${baseUrl}/rooms/${room.slug}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: "weekly",
-    priority: 0.9,
-  }));
-
-  return [...staticPages, ...roomPages];
+  return staticPages;
 }

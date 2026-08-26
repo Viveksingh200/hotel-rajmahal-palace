@@ -24,11 +24,11 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full bg-cream text-charcoal pb-20">
+    <div className="w-full bg-cream text-charcoal">
       {/* Banner */}
       <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden mb-16">
         <Image
-          src="/images/entrance.jpg"
+          src="/images/contact.jpeg"
           alt="Contact Hotel Rajmahal Palace"
           fill
           priority
@@ -65,35 +65,55 @@ export default function ContactPage() {
             <div className="w-full h-px bg-white/10" />
 
             <div className="space-y-6 text-sm font-sans">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-sandstone/20 text-gold border border-gold/30 flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5" />
+              <a
+                href={HOTEL_INFO.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-cursor="none"
+                className="flex items-start gap-4 group cursor-pointer hover:bg-white/5 p-2 rounded-lg -m-2 transition-colors"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#181614] text-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center shrink-0 group-hover:bg-[#D4AF37] group-hover:text-[#100F0E] group-hover:scale-110 transition-all duration-300 shadow-md">
+                  <MapPin className="w-5 h-5 text-current" />
                 </div>
                 <div>
-                  <span className="font-semibold text-white block font-serif">Address</span>
-                  <span className="text-xs text-cream/80">{HOTEL_INFO.address}</span>
+                  <span className="font-semibold text-white block font-serif flex items-center gap-1.5 group-hover:text-[#D4AF37] transition-colors">
+                    Address <span className="text-[10px] text-[#D4AF37] font-sans font-normal"></span>
+                  </span>
+                  <span className="text-xs text-cream/80 leading-relaxed block mt-0.5">{HOTEL_INFO.address}</span>
                 </div>
-              </div>
+              </a>
 
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-sandstone/20 text-gold border border-gold/30 flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5" />
+              <a
+                href={`tel:${HOTEL_INFO.phone.replace(/\s+/g, "")}`}
+                data-cursor="none"
+                className="flex items-start gap-4 group cursor-pointer hover:bg-white/5 p-2 rounded-lg -m-2 transition-colors"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#181614] text-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center shrink-0 group-hover:bg-[#D4AF37] group-hover:text-[#100F0E] group-hover:scale-110 transition-all duration-300 shadow-md">
+                  <Phone className="w-5 h-5 text-current" />
                 </div>
                 <div>
-                  <span className="font-semibold text-white block font-serif">Phone</span>
-                  <span className="text-xs text-cream/80">{HOTEL_INFO.phone}</span>
+                  <span className="font-semibold text-white block font-serif flex items-center gap-1.5 group-hover:text-[#D4AF37] transition-colors">
+                    Phone <span className="text-[10px] text-[#D4AF37] font-sans font-normal"></span>
+                  </span>
+                  <span className="text-xs text-cream/80 block mt-0.5">{HOTEL_INFO.phone}</span>
                 </div>
-              </div>
+              </a>
 
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-sandstone/20 text-gold border border-gold/30 flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5" />
+              <a
+                href={`mailto:${HOTEL_INFO.email}`}
+                data-cursor="none"
+                className="flex items-start gap-4 group cursor-pointer hover:bg-white/5 p-2 rounded-lg -m-2 transition-colors"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#181614] text-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center shrink-0 group-hover:bg-[#D4AF37] group-hover:text-[#100F0E] group-hover:scale-110 transition-all duration-300 shadow-md">
+                  <Mail className="w-5 h-5 text-current" />
                 </div>
                 <div>
-                  <span className="font-semibold text-white block font-serif">Email</span>
-                  <span className="text-xs text-cream/80">{HOTEL_INFO.email}</span>
+                  <span className="font-semibold text-white block font-serif flex items-center gap-1.5 group-hover:text-[#D4AF37] transition-colors">
+                    Email <span className="text-[10px] text-[#D4AF37] font-sans font-normal"></span>
+                  </span>
+                  <span className="text-xs text-cream/80 block mt-0.5">{HOTEL_INFO.email}</span>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
 
@@ -159,7 +179,7 @@ export default function ContactPage() {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full bg-cream-muted border border-sandstone/20 rounded px-3.5 py-2.5 text-sm focus:outline-none focus:border-sandstone"
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 98XXXXXXXX"
                   />
                 </div>
 
@@ -179,7 +199,8 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase px-8 py-3.5 rounded border border-gold/40 shadow-lg flex items-center justify-center gap-2 transition-all"
+                  data-cursor="SEND"
+                  className="bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase px-8 py-3.5 rounded border border-gold/40 shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Send className="w-4 h-4 text-gold" />
                   <span>SEND INQUIRY</span>

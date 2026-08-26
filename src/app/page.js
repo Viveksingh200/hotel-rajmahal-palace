@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Lenis from "lenis";
+import React, { useState } from "react";
 import Preloader from "@/components/Preloader";
-import CustomCursor from "@/components/CustomCursor";
 import CinematicCanvasScroll from "@/components/CinematicCanvasScroll";
 import SuiteModal from "@/components/SuiteModal";
 import DiningModal from "@/components/DiningModal";
@@ -38,65 +36,14 @@ export default function HomePage() {
     startBookingForRoom,
   } = useBooking();
 
-  // Lenis smooth scrolling instance
-  const [lenisInstance, setLenisInstance] = useState(null);
-
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.4,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 0.9,
-    });
-
-    setLenisInstance(lenis);
-
-    let rafId;
-    function raf(time) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, []);
-
-  // Lock scroll when any modal or drawer is active
-  const isAnyModalOpen =
-    isSuiteOpen || isDiningOpen || isBookingDrawerOpen;
-
-  useEffect(() => {
-    if (isAnyModalOpen) {
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-      if (lenisInstance) lenisInstance.stop();
-    } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      if (lenisInstance) lenisInstance.start();
-    }
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      if (lenisInstance) lenisInstance.start();
-    };
-  }, [isAnyModalOpen, lenisInstance]);
-
   return (
     <main className="relative min-h-screen bg-[#100F0E] text-[#F7F5F2] selection:bg-[#D4AF37] selection:text-[#100F0E]">
       {/* 1. Regal Preloader */}
       <Preloader
         progress={loadProgress}
         isReady={isReady}
-        onComplete={() => {}}
+        onComplete={() => { }}
       />
-
-      {/* 2. Custom Golden Trailing Cursor */}
-      <CustomCursor />
 
       {/* 3. 3D Storytelling Cinematic Canvas Engine (240 Native Frames Scrubber) */}
       <CinematicCanvasScroll
@@ -108,7 +55,7 @@ export default function HomePage() {
       />
 
       {/* 4. ROOMS SHOWCASE */}
-      <div id="rooms" className="py-16">
+      <div id="rooms">
         <RoomsSection />
       </div>
 
@@ -172,6 +119,7 @@ export default function HomePage() {
           <div className="pt-6 flex items-center justify-center">
             <button
               onClick={() => openBookingDrawer()}
+              data-cursor="RESERVE"
               className="bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-semibold tracking-widest uppercase px-10 py-5 rounded-sm border border-[#D4AF37]/50 shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center gap-3 cursor-pointer"
             >
               <Calendar className="w-5 h-5 text-[#100F0E]" />
@@ -180,31 +128,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* 10. Modals & Drawers */}
-      <SuiteModal
-        isOpen={isSuiteOpen}
-        onClose={closeSuites}
-        onSelectSuite={(suite) => {
-          closeSuites();
-          startBookingForRoom(suite);
-        }}
-      />
-
-      <DiningModal
-        isOpen={isDiningOpen}
-        onClose={closeDining}
-        onOpenBooking={() => {
-          closeDining();
-          openBookingDrawer();
-        }}
-      />
-
-      <BookingDrawer
-        isOpen={isBookingDrawerOpen}
-        onClose={closeBookingDrawer}
-        initialSuite={selectedRoom}
-      />
     </main>
   );
 }

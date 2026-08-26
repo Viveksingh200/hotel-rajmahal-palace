@@ -4,9 +4,12 @@ import { BookingProvider } from "@/context/BookingContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import BookingModal from "@/components/BookingModal";
 import GlobalBookingDrawer from "@/components/GlobalBookingDrawer";
 import GlobalDiningModal from "@/components/GlobalDiningModal";
+import GlobalSuiteModal from "@/components/GlobalSuiteModal";
+import CustomCursor from "@/components/CustomCursor";
+import SmoothScroll from "@/components/SmoothScroll";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 const cinzel = Cinzel({
   variable: "--font-serif",
@@ -31,9 +34,10 @@ export const metadata = {
     "Experience royal Indian heritage meets peaceful hill serenity at Hotel Rajmahal Palace. Book luxury rooms, fine dining, and private balcony suites.",
   keywords: [
     "Hotel Rajmahal Palace",
-    "Heritage Resort",
-    "Luxury Hill Hotel",
-    "Rajasthan Palace Stay",
+    "Heritage Resort Bhimashankar",
+    "Luxury Hill Hotel Bhimashankar",
+    "Bhimashankar Jyotirlinga Stay",
+    "Maharashtra Hill Resort",
     "Palace Booking",
   ],
   openGraph: {
@@ -50,12 +54,16 @@ export default function RootLayout({ children }) {
       <body className="bg-cream text-charcoal font-sans antialiased min-h-screen flex flex-col selection:bg-sandstone selection:text-white" suppressHydrationWarning>
         <AuthProvider>
           <BookingProvider>
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <BookingModal />
-            <GlobalBookingDrawer />
-            <GlobalDiningModal />
-            <Footer />
+            <SmoothScroll>
+              <CustomCursor />
+              <Navbar />
+              <main className="flex-grow">{children}</main>
+              <GlobalBookingDrawer />
+              <GlobalDiningModal />
+              <GlobalSuiteModal />
+              <FloatingWhatsApp />
+              <Footer />
+            </SmoothScroll>
           </BookingProvider>
         </AuthProvider>
       </body>

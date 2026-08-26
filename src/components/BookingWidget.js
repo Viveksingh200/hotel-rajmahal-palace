@@ -1,10 +1,14 @@
 "use client";
 
 import React from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Calendar as CalendarIcon, Users, DoorClosed, Search } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 
 export default function BookingWidget() {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const {
     checkIn,
     setCheckIn,
@@ -15,6 +19,8 @@ export default function BookingWidget() {
     roomsCount,
     setRoomsCount,
     searchAvailableRooms,
+    openBookingDrawer,
+    refreshAvailableRooms,
   } = useBooking();
 
   const today = new Date().toISOString().split("T")[0];
@@ -44,6 +50,10 @@ export default function BookingWidget() {
       return;
     }
     searchAvailableRooms(checkIn, checkOut, guests, roomsCount);
+    if (refreshAvailableRooms) {
+      refreshAvailableRooms();
+    }
+    openBookingDrawer();
   };
 
   return (
@@ -98,6 +108,9 @@ export default function BookingWidget() {
                 <option value={2}>2 Guests</option>
                 <option value={3}>3 Guests</option>
                 <option value={4}>4 Guests</option>
+                <option value={5}>5 Guests</option>
+                <option value={6}>6 Guests</option>
+                <option value={7}>7 Guests</option>
               </select>
             </div>
 
@@ -114,6 +127,11 @@ export default function BookingWidget() {
                 <option value={1}>1 Room</option>
                 <option value={2}>2 Rooms</option>
                 <option value={3}>3 Rooms</option>
+                <option value={4}>4 Rooms</option>
+                <option value={5}>5 Rooms</option>
+                <option value={6}>6 Rooms</option>
+                <option value={7}>7 Rooms</option>
+                <option value={8}>8 Rooms (Full Palace)</option>
               </select>
             </div>
           </div>
@@ -122,10 +140,11 @@ export default function BookingWidget() {
           <div>
             <button
               type="submit"
-              className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-sm tracking-widest py-3 px-6 rounded-sm border border-gold/40 hover:border-gold shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group"
+              data-cursor="RESERVE"
+              className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-sm tracking-widest py-3 px-6 rounded-sm border border-gold/40 hover:border-gold shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
             >
-              <Search className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" />
-              <span>SEARCH ROOMS</span>
+              <CalendarIcon className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" />
+              <span>BOOK NOW</span>
             </button>
           </div>
         </form>

@@ -10,7 +10,7 @@ export default function GalleryPage() {
       {/* Banner */}
       <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden">
         <Image
-          src="/images/hero-exterior.jpg"
+          src="/images/lobby.png"
           alt="Palace Gallery Header"
           fill
           priority
