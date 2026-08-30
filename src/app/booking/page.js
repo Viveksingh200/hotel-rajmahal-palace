@@ -216,16 +216,21 @@ export default function BookingPage() {
                         </div>
 
                         <div className="space-y-2.5 bg-cream-muted p-5 rounded-lg border border-sandstone/15">
-                          <h5 className="text-[11px] font-serif uppercase tracking-widest text-sandstone font-bold border-b border-sandstone/15 pb-2">
-                            Stay Schedule
+                          <h5 className="text-[11px] font-serif uppercase tracking-widest text-sandstone font-bold border-b border-sandstone/15 pb-2 flex items-center justify-between">
+                            <span>Stay Schedule</span>
+                            <span className="text-[10px] text-sandstone font-normal">22h / Night</span>
                           </h5>
                           <div className="flex justify-between pt-1">
                             <span className="text-charcoal/70">Check-In:</span>
-                            <span className="font-semibold text-charcoal">{b.check_in} (From 2:00 PM)</span>
+                            <span className="font-semibold text-charcoal">{b.check_in} (From 12:00 PM)</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-charcoal/70">Check-Out:</span>
-                            <span className="font-semibold text-charcoal">{b.check_out} (Until 11:00 AM)</span>
+                            <span className="font-semibold text-charcoal">{b.check_out} (Until 10:00 AM)</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-charcoal/70">Duration:</span>
+                            <span className="font-mono text-sandstone font-semibold">{b.nights || 1} Night(s) ({(b.nights || 1) * 22}h Stay)</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-charcoal/70">Payment ID:</span>

@@ -1,10 +1,27 @@
 "use client";
 
-import { X, BedDouble, Maximize, Users, ArrowRight, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import Image from "next/image";
+import { X, BedDouble, Users, ArrowRight, ShieldCheck, ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import { ROOMS_DATA } from "@/data/rooms";
 
 export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
+  const [activeModalImgIndex, setActiveModalImgIndex] = useState(0);
+
   if (!isOpen) return null;
+
+  const room = ROOMS_DATA[0];
+  const galleryImages = (Array.isArray(room.gallery) && room.gallery.length > 0)
+    ? room.gallery
+    : [
+        "/images/heritage-deluxe-room.jpg",
+        "/images/bedroom.jpg",
+        "/images/bathroom.jpg",
+        "/images/balcony.jpg",
+        "/images/hill-view-suite.png",
+      ];
+
+  const currentImg = galleryImages[activeModalImgIndex] || room.featuredImage;
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 lg:p-10">
@@ -39,62 +56,113 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
           </button>
         </div>
 
-        {/* Multi-Card Grid Body (Card Structure like Spa Section) */}
+        {/* Modal Body */}
         <div
           className="p-6 lg:p-8 overflow-y-auto space-y-6 flex-1 touch-pan-y overscroll-contain"
           data-lenis-prevent
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <p className="text-xs sm:text-sm text-[#D6B892]/80 font-sans leading-relaxed">
-            Select your preferred heritage room or presidential suite. Each accommodation is crafted with dark charcoal marble, teakwood joinery, and private balconies overlooking mountain slopes.
-          </p>
+          <div className="w-full max-w-4xl mx-auto">
+            <div className="bg-[#161412] border border-[#D4AF37]/35 rounded-xl overflow-hidden shadow-2xl space-y-6">
+              {/* Photo Showcase Carousel */}
+              <div className="relative h-64 sm:h-80 lg:h-96 w-full bg-charcoal">
+                <Image
+                  key={currentImg}
+                  src={currentImg}
+                  alt={room.name}
+                  fill
+                  priority
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {ROOMS_DATA.map((room) => (
-              <div
-                key={room.id}
-                className="bg-[#161412] border border-[#D4AF37]/25 rounded-lg p-6 flex flex-col justify-between hover:border-[#D4AF37] transition-all shadow-xl group space-y-5"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono tracking-widest text-[#D4AF37] uppercase block mb-1">
-                        {room.view}
-                      </span>
-                      <h3 className="font-serif text-2xl text-[#F7F5F2] font-semibold group-hover:text-[#D4AF37] transition-colors">
-                        {room.name}
-                      </h3>
-                    </div>
+                {/* Photo Counter */}
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="text-[11px] font-mono uppercase tracking-wider bg-black/70 backdrop-blur-md text-gold border border-gold/40 px-2.5 py-1 rounded-sm shadow-md flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{activeModalImgIndex + 1} / {galleryImages.length} Photos</span>
+                  </span>
+                </div>
+
+                {/* Arrows */}
+                <button
+                  type="button"
+                  onClick={() => setActiveModalImgIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1))}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-gold hover:text-charcoal text-cream backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveModalImgIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-gold hover:text-charcoal text-cream backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Thumbnails Row */}
+              <div className="px-6 flex items-center gap-2.5 overflow-x-auto pb-2">
+                {galleryImages.map((imgSrc, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveModalImgIndex(idx)}
+                    className={`relative shrink-0 w-16 sm:w-20 h-12 sm:h-14 rounded overflow-hidden transition-all cursor-pointer ${
+                      activeModalImgIndex === idx
+                        ? "ring-2 ring-gold border-2 border-gold opacity-100"
+                        : "opacity-60 hover:opacity-100 border border-white/20 hover:border-gold/60"
+                    }`}
+                  >
+                    <Image src={imgSrc} alt="" fill className="object-cover" />
+                  </button>
+                ))}
+              </div>
+
+              {/* Details & Specs */}
+              <div className="px-6 pb-6 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-[#D4AF37]/15 pb-4">
+                  <div>
+                    <span className="text-[10px] font-mono tracking-widest text-[#D4AF37] uppercase block mb-1">
+                      {room.view}
+                    </span>
+                    <h3 className="font-serif text-2xl sm:text-3xl text-[#F7F5F2] font-semibold">
+                      {room.name}
+                    </h3>
                   </div>
 
-                  <p className="text-xs font-serif italic text-[#D6B892]/90">
-                    &ldquo;{room.tagline}&rdquo;
-                  </p>
-
-                  {/* Specs Pills */}
-                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#D4AF37]/15 text-[11px] text-[#D6B892]">
-                    <div className="flex items-center gap-1.5">
-                      <Maximize className="w-3.5 h-3.5 text-[#D4AF37]" />
-                      <span>{room.sizeSqFt} Sq Ft</span>
-                    </div>
-                    <div className="flex items-center gap-1.5" title={`Max ${room.maxAdults} Adults & ${room.maxChildren} Children`}>
-                      <Users className="w-3.5 h-3.5 text-[#D4AF37]" />
-                      <span className="truncate">{room.maxAdults}A + {room.maxChildren}C</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <BedDouble className="w-3.5 h-3.5 text-[#D4AF37]" />
-                      <span className="truncate">{room.bedType.split(" ")[0]} Bed</span>
-                    </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] font-mono text-[#D6B892]/60 uppercase block">PER NIGHT</span>
+                    <span className="font-serif text-3xl text-[#D4AF37] font-bold">
+                      {room.currency}{Number(room.pricePerNight).toLocaleString('en-IN')}
+                    </span>
                   </div>
                 </div>
 
-                {/* Card Footer (Price & Direct Book Button) */}
-                <div className="pt-2 flex items-center justify-between border-t border-[#D4AF37]/10">
-                  <div>
-                    <span className="text-[10px] font-mono text-[#D6B892]/60 uppercase block">PER NIGHT</span>
-                    <span className="font-serif text-2xl text-[#D4AF37] font-semibold">
-                      {room.currency}{room.pricePerNight}
-                    </span>
+                <p className="text-sm font-serif italic text-[#D6B892]/90 leading-relaxed">
+                  &ldquo;{room.tagline}&rdquo;
+                </p>
+
+                {/* Specs */}
+                <div className="grid grid-cols-3 gap-3 py-3 px-4 bg-[#100F0E] rounded-lg border border-[#D4AF37]/15 text-xs text-[#D6B892]">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="truncate">{room.maxAdults} Adults + {room.maxChildren} Kids</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BedDouble className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="truncate">{room.bedType}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="truncate">Private Balcony</span>
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div className="pt-2 flex items-center justify-between border-t border-[#D4AF37]/15">
+                  <div className="text-xs font-mono text-[#D6B892]/70">
+                    Check-in: 12:00 PM • Check-out: 10:00 AM (22h Stay)
                   </div>
 
                   <button
@@ -102,17 +170,18 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
                       onClose();
                       if (onSelectSuite) onSelectSuite(room);
                     }}
-                    className="px-5 py-2.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs font-serif uppercase tracking-[0.15em] font-semibold rounded-sm shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-8 py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs font-serif uppercase tracking-[0.2em] font-semibold rounded shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
                   >
-                    <span>Book Room</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>Reserve Suite</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

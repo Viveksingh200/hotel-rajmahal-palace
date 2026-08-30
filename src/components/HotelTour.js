@@ -151,11 +151,11 @@ export default function HotelTour() {
                 onClick={() => jumpToStage(stage)}
                 className={`px-4 py-2 rounded-full text-xs font-serif tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 ${
                   isActive
-                    ? "bg-sandstone text-cream border border-gold shadow-lg shadow-sandstone/30 scale-105"
+                    ? "bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-bold border border-gold shadow-lg shadow-gold/30 scale-105"
                     : "bg-charcoal-light text-cream/70 hover:text-white border border-white/10 hover:border-gold/40"
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-gold" : "bg-white/30"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-[#100F0E]" : "bg-white/30"}`} />
                 {stage.name}
               </button>
             );
@@ -163,17 +163,26 @@ export default function HotelTour() {
         </div>
 
         {/* Video / Canvas Player Container */}
-        <div
-          ref={containerRef}
-          className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-gold/30 bg-black group"
-        >
-          {/* Canvas Frame Renderer */}
+        <div ref={containerRef} className="relative rounded-lg overflow-hidden border border-sandstone/30 shadow-2xl bg-black aspect-video max-w-5xl mx-auto group">
           <canvas
             ref={canvasRef}
-            width={1920}
-            height={1080}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover block"
           />
+
+          {/* Video Overlay Info */}
+          <div className="absolute top-0 inset-x-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent p-4 sm:p-6 flex items-center justify-between z-10">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-semibold block">
+                VIRTUAL EXPERIENCE
+              </span>
+              <h3 className="text-lg sm:text-xl font-serif text-white tracking-wide">
+                {activeStage.name}
+              </h3>
+            </div>
+            <span className="text-xs bg-black/60 backdrop-blur-md px-3 py-1 rounded border border-gold/30 text-gold font-serif">
+              {activeStage.highlight}
+            </span>
+          </div>
 
           {/* Loading Overlay */}
           {!imagesLoaded && (
@@ -185,18 +194,7 @@ export default function HotelTour() {
             </div>
           )}
 
-          {/* Top Stage Indicator Info */}
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-lg border border-white/10 max-w-sm">
-            <span className="text-[10px] uppercase tracking-widest text-gold block font-medium">
-              CURRENT LOCATION
-            </span>
-            <h4 className="text-base font-serif text-white">{activeStage.title}</h4>
-            <p className="text-xs text-cream/70 hidden sm:block mt-0.5 line-clamp-1">
-              {activeStage.description}
-            </p>
-          </div>
-
-          {/* Bottom Player Controls Bar */}
+          {/* Tour Controls Bar */}
           <div className="absolute bottom-0 inset-x-0 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 sm:p-6 flex flex-col gap-3 opacity-90 group-hover:opacity-100 transition-opacity">
             {/* Timeline Bar */}
             <div className="w-full bg-white/20 h-1.5 rounded-full cursor-pointer relative overflow-hidden">
@@ -211,10 +209,10 @@ export default function HotelTour() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="p-2.5 rounded-full bg-sandstone hover:bg-sandstone-dark text-white border border-gold/40 transition-colors focus:outline-none"
+                  className="p-2.5 rounded-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] border border-gold/40 transition-transform hover:scale-105 focus:outline-none"
                   aria-label={isPlaying ? "Pause tour" : "Play tour"}
                 >
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
+                  {isPlaying ? <Pause className="w-4 h-4 text-[#100F0E]" /> : <Play className="w-4 h-4 fill-[#100F0E] text-[#100F0E]" />}
                 </button>
 
                 <button

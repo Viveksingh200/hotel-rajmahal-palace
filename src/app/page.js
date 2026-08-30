@@ -98,7 +98,6 @@ export default function HomePage() {
 
       {/* 8. ABOUT & LOCATION */}
       <AboutSection />
-      <LocationSection />
 
       {/* 9. FINAL RESERVATION CTA */}
       <section className="py-24 bg-[#141210] text-[#F7F5F2] relative overflow-hidden text-center border-t border-[#D4AF37]/30">
@@ -128,6 +127,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <LocationSection />
     </main>
   );
 }

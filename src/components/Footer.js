@@ -160,9 +160,9 @@ export default function Footer() {
               <button
                 onClick={() => openBookingDrawer()}
                 data-cursor="RESERVE"
-                className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase py-3 rounded-sm border border-gold/40 shadow-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase py-3 rounded-sm border border-gold/40 shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                <Calendar className="w-4 h-4 text-gold" />
+                <Calendar className="w-4 h-4 text-[#100F0E]" />
                 <span>BOOK YOUR STAY</span>
               </button>
             </div>

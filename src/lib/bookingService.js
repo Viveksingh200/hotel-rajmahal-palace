@@ -2,8 +2,8 @@ import { supabase, isSupabaseConfigured } from "./supabase/client";
 import { ROOMS_DATA } from "@/data/rooms";
 
 // Local state fallback storage key for offline prototype persistence
-const LOCAL_BOOKINGS_KEY = "rajmahal_bookings_v5";
-const LOCAL_ROOMS_KEY = "rajmahal_rooms_v5";
+const LOCAL_BOOKINGS_KEY = "rajmahal_bookings_v6";
+const LOCAL_ROOMS_KEY = "rajmahal_rooms_v6";
 
 // Helper: Get offline rooms fallback
 const getLocalRooms = () => {
@@ -28,9 +28,8 @@ const getLocalRooms = () => {
     description: r.description,
     price_per_night: r.pricePerNight,
     max_guests: r.maxGuests,
-    max_adults: r.maxAdults || (r.sizeSqFt === 500 ? 3 : 4),
-    max_children: r.maxChildren || (r.sizeSqFt === 500 ? 2 : 3),
-    size_sq_ft: r.sizeSqFt,
+    max_adults: r.maxAdults || 3,
+    max_children: r.maxChildren || 2,
     bed_type: r.bedType,
     view_type: r.view,
     image_url: r.featuredImage,
@@ -72,9 +71,9 @@ const getLocalBookings = () => {
       guests: 3,
       rooms_count: 1,
       nights: 2,
-      room_subtotal: 28000,
-      taxes_and_fees: 5040,
-      total_amount: 33040,
+      room_subtotal: 6000,
+      taxes_and_fees: 1080,
+      total_amount: 7080,
       payment_status: "paid",
       booking_status: "confirmed",
       razorpay_order_id: "order_N8291047192",
@@ -194,6 +193,70 @@ export async function updateRoomAvailability(roomId, newStatus) {
     localStorage.setItem(LOCAL_ROOMS_KEY, JSON.stringify(updated));
   }
   return { success: true, room: updated.find((r) => r.id === roomId) };
+}
+
+/**
+ * Update Room Price per night (Admin/Owner action)
+ */
+export async function updateRoomPrice(roomId, newPrice) {
+  const numericPrice = Math.max(1, Number(newPrice));
+
+  try {
+    const res = await fetch("/api/admin/rooms/update-price", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId, price: numericPrice }),
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      const rooms = getLocalRooms();
+      const updated = rooms.map((r) =>
+        r.id === roomId || r.slug === roomId
+          ? { ...r, price_per_night: numericPrice, pricePerNight: numericPrice }
+          : r
+      );
+      if (typeof window !== "undefined") {
+        localStorage.setItem(LOCAL_ROOMS_KEY, JSON.stringify(updated));
+      }
+      return { success: true, price: numericPrice, room: data.room };
+    }
+  } catch (err) {
+    console.error("API price update fallback:", err);
+  }
+
+  // Direct Supabase fallback
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("rooms")
+        .update({ price_per_night: numericPrice })
+        .eq("id", roomId)
+        .select()
+        .single();
+      if (!error && data) {
+        const rooms = getLocalRooms();
+        const updated = rooms.map((r) =>
+          r.id === roomId ? { ...r, price_per_night: numericPrice, pricePerNight: numericPrice } : r
+        );
+        if (typeof window !== "undefined") {
+          localStorage.setItem(LOCAL_ROOMS_KEY, JSON.stringify(updated));
+        }
+        return { success: true, price: numericPrice, room: data };
+      }
+    } catch (err) {
+      console.error("Direct Supabase price update error:", err);
+    }
+  }
+
+  // Local storage fallback
+  const rooms = getLocalRooms();
+  const updated = rooms.map((r) =>
+    r.id === roomId ? { ...r, price_per_night: numericPrice, pricePerNight: numericPrice } : r
+  );
+  if (typeof window !== "undefined") {
+    localStorage.setItem(LOCAL_ROOMS_KEY, JSON.stringify(updated));
+  }
+  return { success: true, price: numericPrice, room: updated.find((r) => r.id === roomId) };
 }
 
 /**
@@ -383,8 +446,16 @@ export async function fetchDashboardMetrics() {
     .filter((b) => b.payment_status === "paid")
     .reduce((sum, b) => sum + Number(b.total_amount || 0), 0);
 
-  const availableRoomsCount = rooms.filter((r) => r.availability_status === "available").length;
-  const unavailableRoomsCount = rooms.filter((r) => r.availability_status !== "available").length;
+  const TOTAL_ROOMS = 8;
+  const isMasterAvailable = !rooms.some((r) => r.availability_status === "unavailable" || r.availability_status === "maintenance");
+
+  // Calculate currently active bookings spanning today
+  const currentlyOccupied = bookings.filter(
+    (b) => b.booking_status === "confirmed" && b.check_in <= today && b.check_out > today
+  ).length;
+
+  const availableRoomsCount = isMasterAvailable ? Math.max(0, TOTAL_ROOMS - currentlyOccupied) : 0;
+  const unavailableRoomsCount = TOTAL_ROOMS - availableRoomsCount;
 
   return {
     todayArrivalsCount: todayArrivals.length,
@@ -395,6 +466,7 @@ export async function fetchDashboardMetrics() {
     totalRevenue,
     availableRoomsCount,
     unavailableRoomsCount,
+    totalRoomsCount: TOTAL_ROOMS,
     todayArrivals,
     todayDepartures,
     recentBookings: bookings.slice(0, 5),

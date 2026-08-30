@@ -28,7 +28,7 @@ export default function RoomsSection() {
     <section id="rooms-section" className="py-24 bg-cream-muted text-charcoal relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
             <span className="text-xs uppercase tracking-[0.35em] text-sandstone font-semibold block mb-2">
               ACCOMMODATIONS
@@ -44,22 +44,13 @@ export default function RoomsSection() {
           </p>
         </div>
 
-        {/* Room Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {rooms.map((room) => (
-            <RoomCard key={room.id} room={room} />
-          ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <Link
-            href="/rooms"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase rounded-sm border border-gold/40 shadow-lg transition-all group"
-          >
-            <span>EXPLORE ALL SUITES</span>
-            <ArrowRight className="w-4 h-4 text-gold group-hover:translate-x-1 transition-transform" />
-          </Link>
+        {/* Single Full-Width Room Card (1 Card representing all 8 identical Heritage Deluxe Rooms) */}
+        <div className="w-full max-w-5xl mx-auto">
+          {rooms && rooms.length > 0 ? (
+            <RoomCard room={rooms[0]} />
+          ) : (
+            <RoomCard room={ROOMS_DATA[0]} />
+          )}
         </div>
       </div>
     </section>

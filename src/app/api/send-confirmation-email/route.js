@@ -12,6 +12,7 @@ export async function POST(req) {
       roomName,
       checkIn,
       checkOut,
+      bookingTime = "12:00 PM",
       nights,
       totalAmount,
       razorpayPaymentId,
@@ -89,16 +90,16 @@ export async function POST(req) {
               <td><strong>${roomName}</strong></td>
             </tr>
             <tr>
-              <td class="label">Check-In Date:</td>
-              <td>${checkIn} (From 2:00 PM)</td>
+              <td class="label">Check-In Date & Time:</td>
+              <td>${checkIn} • ${bookingTime}</td>
             </tr>
             <tr>
-              <td class="label">Check-Out Date:</td>
-              <td>${checkOut} (Until 11:00 AM)</td>
+              <td class="label">Check-Out Time:</td>
+              <td>${checkOut} (Until 10:00 AM Morning)</td>
             </tr>
             <tr>
-              <td class="label">Duration:</td>
-              <td>${nights} Night(s)</td>
+              <td class="label">Stay Duration:</td>
+              <td>${nights} Night(s) (${nights * 22} Hours total — 22h per night policy)</td>
             </tr>
             <tr>
               <td class="label">Payment ID:</td>
@@ -109,6 +110,10 @@ export async function POST(req) {
               <td style="color: #933d2d;">₹${Number(totalAmount).toLocaleString("en-IN")}</td>
             </tr>
           </table>
+
+          <div style="background-color: #faf7f2; border-left: 3px solid #c5a059; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #5a3d28;">
+            <strong>Stay Policy Notice:</strong> Each night reservation is valid for 22 hours (Check-in begins at 12:00 PM Noon; Check-out is scheduled by 10:00 AM Morning on departure date).
+          </div>
 
           <p style="font-size: 13px; color: #5a3d28;">
             Please present this confirmation email or your Booking Reference Number (<strong>${bookingReference}</strong>) at hotel reception during check-in.

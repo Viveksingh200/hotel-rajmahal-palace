@@ -84,9 +84,9 @@ export default function Hero() {
         >
           <Link
             href="/rooms"
-            className="w-full sm:w-auto bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-sm tracking-widest px-8 py-4 rounded-sm border border-gold/50 hover:border-gold shadow-2xl hover:shadow-sandstone/50 transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
+            className="w-full sm:w-auto bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-sm font-bold tracking-widest px-8 py-4 rounded-sm border border-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_45px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
           >
-            <Calendar className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" />
+            <Calendar className="w-4 h-4 text-[#100F0E] group-hover:scale-110 transition-transform" />
             <span>RESERVE YOUR STAY</span>
           </Link>
 

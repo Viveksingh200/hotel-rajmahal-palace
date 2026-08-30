@@ -274,9 +274,9 @@ export default function AboutPage() {
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 onClick={() => openBookingDrawer()}
-                className="w-full sm:w-auto px-9 py-4 bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs font-semibold uppercase tracking-[0.25em] rounded-sm shadow-xl hover:scale-105 transition-all cursor-pointer inline-flex items-center justify-center gap-2 border border-gold/40"
+                className="w-full sm:w-auto px-9 py-4 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold uppercase tracking-[0.25em] rounded-sm shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-105 transition-all cursor-pointer inline-flex items-center justify-center gap-2 border border-gold/40"
               >
-                <Calendar className="w-4 h-4 text-gold" />
+                <Calendar className="w-4 h-4 text-[#100F0E]" />
                 <span>RESERVE YOUR STAY</span>
               </button>
 

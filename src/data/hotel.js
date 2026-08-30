@@ -10,8 +10,10 @@ export const HOTEL_INFO = {
   mapUrl: "https://www.google.com/maps/dir/19.1880623,73.0488215/Hotel+Rajmahal+palace+(Bhimashankar+Pune),+Shirgaon,+Maharashtra+412402/@19.1099728,73.3369036,10z/data=!3m1!4b1!4m22!1m11!3m10!1s0x3bdd5b00229267e9:0x30be08e5fda4d0d4!2sHotel+Rajmahal+palace+(Bhimashankar+Pune)!5m2!4m1!1i2!8m2!3d19.0318832!4d73.6249857!15sChVob3RlbCByYWptYWhhbCBwYWxhY2VaFyIVaG90ZWwgcmFqbWFoYWwgcGFsYWNlkgEKcmVzdGF1cmFudOABAA!16s%2Fg%2F11wg8g4l_0!4m9!1m1!4e1!1m5!1m1!1s0x3bdd5b00229267e9:0x30be08e5fda4d0d4!2m2!1d73.6249857!2d19.0318832!3e3",
   embedMapUrl: "https://maps.google.com/maps?q=Hotel+Rajmahal+palace+(Bhimashankar+Pune),+Shirgaon,+Maharashtra+412402&t=&z=13&ie=UTF8&iwloc=&output=embed",
   coordinates: { lat: 19.0318832, lng: 73.6249857 },
-  checkInTime: "2:00 PM",
-  checkOutTime: "11:00 AM",
+  checkInTime: "12:00 PM",
+  checkOutTime: "10:00 AM",
+  stayDurationHours: 22,
+  stayDurationDescription: "22 Hours per night (12:00 PM Check-in to 10:00 AM Check-out)",
 };
 
 export const VISUAL_TOUR_STAGES = [

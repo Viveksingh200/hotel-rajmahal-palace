@@ -200,9 +200,9 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   data-cursor="SEND"
-                  className="bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase px-8 py-3.5 rounded border border-gold/40 shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="bg-[#F0AF02]/80 text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase px-8 py-3.5 rounded shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Send className="w-4 h-4 text-gold" />
+                  <Send className="w-4 h-4 text-[#100F0E]" />
                   <span>SEND INQUIRY</span>
                 </button>
               </form>

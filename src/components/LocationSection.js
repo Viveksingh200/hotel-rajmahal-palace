@@ -86,11 +86,11 @@ export default function LocationSection() {
                 href={HOTEL_INFO.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase py-3.5 rounded-lg border border-gold/40 text-center flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-gold/20"
+                className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase py-3.5 rounded-lg border border-gold/40 text-center flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.01]"
               >
-                <Compass className="w-4 h-4 text-gold" />
+                <Compass className="w-4 h-4 text-[#100F0E]" />
                 <span>OPEN IN GOOGLE MAPS</span>
-                <ExternalLink className="w-3.5 h-3.5 text-gold/80" />
+                <ExternalLink className="w-3.5 h-3.5 text-[#100F0E]" />
               </a>
               <span className="text-[11px] text-cream/50 text-center block">
                 Get real-time driving directions from your location

@@ -12,7 +12,21 @@ const supabaseServiceKey =
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, bookingId, bookingReference } = body;
+    const {
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature,
+      bookingId,
+      bookingReference,
+      customerName,
+      customerEmail,
+      customerPhone,
+      roomName,
+      checkIn,
+      checkOut,
+      nights,
+      totalAmount,
+    } = body;
 
     if (!razorpayOrderId || !razorpayPaymentId) {
       return NextResponse.json({ error: "Missing Razorpay payment fields" }, { status: 400 });
@@ -84,22 +98,31 @@ export async function POST(req) {
 
     // Trigger Automated Email Confirmation
     try {
-      const emailPayload = {
-        bookingReference,
-        customerName: confirmedBooking?.customer_name || guestInfo?.fullName || "Valued Guest",
-        customerEmail: confirmedBooking?.customer_email || guestInfo?.email,
-        customerPhone: confirmedBooking?.customer_phone || guestInfo?.phone,
-        roomName: confirmedBooking?.room?.room_name || roomName || "Palace Suite",
-        checkIn: confirmedBooking?.check_in || checkIn,
-        checkOut: confirmedBooking?.check_out || checkOut,
-        nights: nights || 1,
-        totalAmount: confirmedBooking?.total_amount || totalAmount || 0,
-        razorpayPaymentId,
-        razorpayOrderId,
-      };
+      const targetEmail = confirmedBooking?.customer_email || customerEmail;
+      const targetName = confirmedBooking?.customer_name || customerName || "Valued Guest";
+      const targetPhone = confirmedBooking?.customer_phone || customerPhone || "";
+      const targetRoom = confirmedBooking?.room?.room_name || roomName || "Palace Suite";
+      const targetCheckIn = confirmedBooking?.check_in || checkIn;
+      const targetCheckOut = confirmedBooking?.check_out || checkOut;
+      const targetNights = confirmedBooking?.nights || nights || 1;
+      const targetTotal = confirmedBooking?.total_amount || totalAmount || 0;
 
-      if (emailPayload.customerEmail) {
-        const origin = req.headers.get("origin") || "http://localhost:3000";
+      if (targetEmail) {
+        const emailPayload = {
+          bookingReference,
+          customerName: targetName,
+          customerEmail: targetEmail,
+          customerPhone: targetPhone,
+          roomName: targetRoom,
+          checkIn: targetCheckIn,
+          checkOut: targetCheckOut,
+          nights: targetNights,
+          totalAmount: targetTotal,
+          razorpayPaymentId,
+          razorpayOrderId,
+        };
+
+        const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
         fetch(`${origin}/api/send-confirmation-email`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

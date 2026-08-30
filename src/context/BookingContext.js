@@ -97,10 +97,10 @@ export function BookingProvider({ children }) {
 
   const pricePerNight = selectedRoom
     ? Number(
-        selectedRoom.price_per_night !== undefined
-          ? selectedRoom.price_per_night
-          : (selectedRoom.pricePerNight !== undefined ? selectedRoom.pricePerNight : 1)
-      )
+      selectedRoom.price_per_night !== undefined
+        ? selectedRoom.price_per_night
+        : (selectedRoom.pricePerNight !== undefined ? selectedRoom.pricePerNight : 1)
+    )
     : 1;
   const roomSubtotal = pricePerNight * nights * roomsCount;
   const taxesAndFees = Math.round(roomSubtotal * 0.18);

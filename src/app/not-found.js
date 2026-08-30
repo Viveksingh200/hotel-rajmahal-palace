@@ -20,9 +20,9 @@ export default function NotFound() {
 
       <Link
         href="/"
-        className="bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase px-8 py-4 rounded border border-gold/40 flex items-center gap-2 shadow-lg transition-all"
+        className="bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase px-8 py-4 rounded border border-gold/40 flex items-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] transition-all"
       >
-        <Home className="w-4 h-4 text-gold" />
+        <Home className="w-4 h-4 text-[#100F0E]" />
         <span>RETURN TO HOMEPAGE</span>
       </Link>
     </div>

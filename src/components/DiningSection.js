@@ -55,10 +55,10 @@ export default function DiningSection() {
               <button
                 onClick={() => openDining()}
                 data-cursor="MENU"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sandstone hover:bg-sandstone-dark text-cream font-serif text-xs tracking-widest uppercase font-semibold transition-all shadow-md group cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs tracking-widest uppercase font-bold transition-all shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] group cursor-pointer"
               >
                 <span>EXPLORE MENU</span>
-                <ArrowRight className="w-4 h-4 text-gold group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-[#100F0E] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </motion.div>

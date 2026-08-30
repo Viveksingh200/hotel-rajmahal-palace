@@ -142,7 +142,7 @@ export async function POST(req) {
             customer_name: `${guestInfo.firstName} ${guestInfo.lastName}`,
             customer_email: guestInfo.email,
             customer_phone: guestInfo.phone,
-            special_requests: guestInfo.specialRequests || "",
+            special_requests: guestInfo.specialRequests || (guestInfo.bookingTime ? `Arrival Time: ${guestInfo.bookingTime}` : (body.bookingTime ? `Arrival Time: ${body.bookingTime}` : "")),
             room_id: validRoomId || roomId,
             check_in: checkIn,
 

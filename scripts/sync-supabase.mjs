@@ -17,10 +17,10 @@ async function syncRooms() {
   const { error: deleteError } = await supabase.from("rooms").delete().neq("id", "00000000-0000-0000-0000-000000000000");
   if (deleteError) console.warn("Rooms delete note:", deleteError.message);
 
-  // 3. Insert the 2 new rooms with unique internal DB codes
+  // 3. Insert the single luxury room
   const rows = ROOMS_DATA.map((r, i) => ({
-    id: i === 0 ? "11111111-1111-1111-1111-111111111101" : "22222222-2222-2222-2222-222222222201",
-    room_number: i === 0 ? "500-SQFT" : "700-SQFT",
+    id: "11111111-1111-1111-1111-111111111101",
+    room_number: "PALACE-101",
     room_name: r.name,
     room_type: r.slug.replace("-room", "").replace("-suite", ""),
     slug: r.slug,
@@ -29,7 +29,6 @@ async function syncRooms() {
     max_guests: r.maxGuests,
     max_adults: r.maxAdults,
     max_children: r.maxChildren,
-    size_sq_ft: r.sizeSqFt,
     bed_type: r.bedType,
     view_type: r.view,
     image_url: r.featuredImage,
@@ -44,8 +43,9 @@ async function syncRooms() {
   if (insertError) {
     console.error("Insert error:", insertError);
   } else {
-    console.log("Successfully synced 2 rooms into Supabase:", data);
+    console.log("Successfully synced room into Supabase:", data);
   }
 }
 
 syncRooms();
+

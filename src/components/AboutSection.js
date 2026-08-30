@@ -57,7 +57,7 @@ export default function AboutSection() {
           >
             <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden border border-[#933D2D]/20 shadow-md">
               <Image
-                src="/images/about.jpg"
+                src="/images/lohagad-Ford.png"
                 alt="Sandstone Palace Facade Details"
                 fill
                 className="object-cover"
@@ -65,7 +65,7 @@ export default function AboutSection() {
             </div>
             <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden border border-[#933D2D]/20 shadow-md mt-8">
               <Image
-                src="/images/balcony.jpg"
+                src="/images/kondwal-waterfall.jpg"
                 alt="Balcony Overlooking Quiet Green Valleys"
                 fill
                 className="object-cover"
