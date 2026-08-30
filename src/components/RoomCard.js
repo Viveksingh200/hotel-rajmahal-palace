@@ -307,11 +307,13 @@ export default function RoomCard({ room }) {
                 </div>
               </div>
 
-              {/* 22-Hour Policy Tagline */}
+              {/* 22-Hour Policy & Non-Refundable Tagline */}
               <div className="p-2.5 sm:p-3 bg-[#100F0E]/90 rounded-lg border border-[#D4AF37]/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-2 text-[11px] sm:text-xs font-mono text-[#D6B892]">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37]" />
-                  <span className="text-[#F7F5F2] font-semibold">22-Hour Stay Policy</span>
+                  <span className="text-[#F7F5F2] font-semibold">22-Hour Stay</span>
+                  <span className="text-white/30">•</span>
+                  <span className="text-[#E6C875] font-sans font-medium">Non-Refundable</span>
                 </div>
                 <span className="text-[#D6B892]/80">Check-in: 12:00 PM • Check-out: 10:00 AM</span>
               </div>

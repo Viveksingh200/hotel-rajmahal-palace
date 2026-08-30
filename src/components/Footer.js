@@ -35,7 +35,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-16 border-b border-white/10">
           {/* Brand Column */}
           <div className="lg:col-span-5 space-y-4">
-            <Link href="/" className="inline-block group">
+            <Link href="/" data-cursor="HOME" className="inline-block group cursor-pointer">
               <span className="text-xs uppercase tracking-[0.3em] text-gold font-medium block">HOTEL</span>
               <span className="text-2xl font-serif tracking-wider text-cream group-hover:text-gold transition-colors">
                 RAJMAHAL PALACE

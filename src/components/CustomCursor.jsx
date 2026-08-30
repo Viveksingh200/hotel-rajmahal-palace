@@ -134,6 +134,13 @@ export default function CustomCursor() {
         ) {
           label = "CLOSE";
         } else if (
+          text.includes("rajmahal") ||
+          text.includes("hotel rajmahal") ||
+          text.includes("rajmahal palace") ||
+          (href === "/" && !text.includes("reserve"))
+        ) {
+          label = "HOME";
+        } else if (
           (/\b(book|reserve|reservation)\b/i.test(text) ||
             href.includes("/rooms") ||
             text.includes("book your stay")) &&

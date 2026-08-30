@@ -71,7 +71,7 @@ export default function Navbar({
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="group flex flex-col focus:outline-none">
+          <Link href="/" data-cursor="HOME" className="group flex flex-col focus:outline-none cursor-pointer">
             <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-semibold group-hover:text-amber-300 transition-colors">
               HOTEL
             </span>

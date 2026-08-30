@@ -9,7 +9,14 @@ import { useBooking } from "@/context/BookingContext";
 import CustomCalendarPicker from "@/components/CustomCalendarPicker";
 
 export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) {
-  const { checkIn: ctxCheckIn, checkOut: ctxCheckOut, guests: ctxGuests } = useBooking();
+  const {
+    checkIn: ctxCheckIn,
+    checkOut: ctxCheckOut,
+    bookingTime: ctxBookingTime,
+    guests: ctxGuests,
+    roomsCount: ctxRoomsCount,
+    setRoomsCount: ctxSetRoomsCount,
+  } = useBooking();
   const getToday = () => new Date().toISOString().split("T")[0];
   const getTomorrow = () => new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
@@ -32,9 +39,10 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
   const [rooms, setRooms] = useState(ROOMS_DATA);
   const [selectedRoomId, setSelectedRoomId] = useState(initialSuite?.id || ROOMS_DATA[0].id);
+  const [roomsQuantity, setRoomsQuantity] = useState(ctxRoomsCount || 1);
   const [checkIn, setCheckIn] = useState(ctxCheckIn || getToday());
   const [checkOut, setCheckOut] = useState(ctxCheckOut || getTomorrow());
-  const [bookingTime, setBookingTime] = useState(getDefaultBookingTime());
+  const [bookingTime, setBookingTime] = useState(ctxBookingTime || getDefaultBookingTime());
   const [step, setStep] = useState(1); // 1 = Select Room & Dates, 2 = Guest Information
   const [adults, setAdults] = useState(ctxGuests || 2);
   const [childrenCount, setChildrenCount] = useState(0);
@@ -51,28 +59,6 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     if (!checkOut || checkOut <= newDate) {
       setCheckOut(getMinCheckOut(newDate));
     }
-  };
-
-  const handleNextToGuestInfo = () => {
-    setErrorMessage("");
-    const todayStr = getToday();
-    if (checkIn < todayStr) {
-      setErrorMessage("Check-in date cannot be in the past.");
-      return;
-    }
-    if (checkOut <= checkIn) {
-      setErrorMessage("Check-out date must be after check-in date.");
-      return;
-    }
-    if (adults > maxAllowedAdults) {
-      setErrorMessage(`Maximum ${maxAllowedAdults} adults allowed.`);
-      return;
-    }
-    if (childrenCount > maxAllowedChildren) {
-      setErrorMessage(`Maximum ${maxAllowedChildren} children allowed.`);
-      return;
-    }
-    setStep(2);
   };
 
   const allSelectableRooms = ROOMS_DATA.map((baseRoom) => {
@@ -94,22 +80,46 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
         r.room_number === selectedRoomId
     ) || allSelectableRooms[0];
 
-  // Room capacity logic: Max 3 Adults & 2 Children
-  const maxAllowedAdults = Number(room.max_adults || room.maxAdults || 3);
-  const maxAllowedChildren = Number(room.max_children || room.maxChildren || 2);
+  // Room capacity logic: Scaled by number of rooms (e.g. 3 Adults & 2 Children per room)
+  const maxAllowedAdults = Number(room.max_adults || room.maxAdults || 3) * roomsQuantity;
+  const maxAllowedChildren = Number(room.max_children || room.maxChildren || 2) * roomsQuantity;
+
+  const handleNextToGuestInfo = () => {
+    setErrorMessage("");
+    const todayStr = getToday();
+    if (checkIn < todayStr) {
+      setErrorMessage("Check-in date cannot be in the past.");
+      return;
+    }
+    if (checkOut <= checkIn) {
+      setErrorMessage("Check-out date must be after check-in date.");
+      return;
+    }
+    if (adults > maxAllowedAdults) {
+      setErrorMessage(`Maximum ${maxAllowedAdults} adults allowed for ${roomsQuantity} room(s).`);
+      return;
+    }
+    if (childrenCount > maxAllowedChildren) {
+      setErrorMessage(`Maximum ${maxAllowedChildren} children allowed for ${roomsQuantity} room(s).`);
+      return;
+    }
+    setStep(2);
+  };
 
   // 1. Sync with context when opened
   useEffect(() => {
     if (isOpen) {
       setStep(1);
-      setBookingTime(getDefaultBookingTime());
+      if (ctxBookingTime) setBookingTime(ctxBookingTime);
+      else setBookingTime(getDefaultBookingTime());
       if (ctxCheckIn) setCheckIn(ctxCheckIn);
       if (ctxCheckOut) setCheckOut(ctxCheckOut);
+      if (ctxRoomsCount) setRoomsQuantity(ctxRoomsCount);
       if (ctxGuests) {
         setAdults((prev) => Math.min(ctxGuests, maxAllowedAdults));
       }
     }
-  }, [isOpen]);
+  }, [isOpen, ctxBookingTime, ctxCheckIn, ctxCheckOut, ctxRoomsCount, ctxGuests]);
 
   // 2. Sync initial suite only when drawer is opened or initialSuite changes
   useEffect(() => {
@@ -170,7 +180,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
   if (!isOpen) return null;
 
-  // Calculate nights
+  // Calculate nights & prices scaled by roomsQuantity
   const start = new Date(checkIn);
   const end = new Date(checkOut);
   const diffTime = Math.max(1, end.getTime() - start.getTime());
@@ -181,7 +191,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
       ? room.price_per_night
       : (room.pricePerNight !== undefined ? room.pricePerNight : 1)
   );
-  const roomRate = pricePerNight * nights;
+  const roomRate = pricePerNight * nights * roomsQuantity;
   const taxes = Math.round(roomRate * 0.18); // 18% GST / luxury tax
   const totalAmount = roomRate + taxes;
 
@@ -227,6 +237,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
           checkOut,
           bookingTime,
           guests: adults + childrenCount,
+          roomsCount: roomsQuantity,
           guestInfo: {
             firstName,
             lastName,
@@ -251,7 +262,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
           amount: orderData.amountInPaise,
           currency: "INR",
           name: "Hotel Rajmahal Palace",
-          description: `Reservation for ${orderData.roomName} (${nights} Nights)`,
+          description: `Reservation for ${orderData.roomName} (${roomsQuantity} Rooms × ${nights} Nights)`,
           image: "/favicon.ico",
           order_id: orderData.orderId,
           handler: async function (response) {
@@ -270,6 +281,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   customerEmail: guestEmail,
                   customerPhone: guestPhone,
                   roomName: room.room_name || room.name,
+                  roomsCount: roomsQuantity,
                   checkIn,
                   checkOut,
                   bookingTime,
@@ -318,60 +330,18 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
         const rzp = new window.Razorpay(options);
         rzp.on("payment.failed", async function (response) {
-          try {
-            await fetch("/api/razorpay/fail-payment", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                bookingId: orderData.bookingId,
-                bookingReference: orderData.bookingReference,
-                reason: response.error?.description || "Payment failed",
-              }),
-            });
-          } catch (e) {
-            console.error("Fail record error:", e);
-          }
-
-          setErrorMessage(
-            `Payment Failed: ${response.error?.description || "Transaction declined"}. Booking reference ${orderData.bookingReference} marked as 'Payment Failed (Pending)'. Please retry below.`
-          );
+          setErrorMessage(response.error?.description || "Payment was rejected or cancelled.");
           setIsProcessing(false);
         });
         rzp.open();
       } else {
-        // Fallback for demo testing when script is not yet loaded
-        try {
-          fetch("/api/send-confirmation-email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              bookingReference: orderData.bookingReference,
-              customerName: guestName,
-              customerEmail: guestEmail,
-              customerPhone: guestPhone,
-              roomName: room.room_name || room.name,
-              checkIn,
-              checkOut,
-              bookingTime,
-              nights,
-              totalAmount,
-              razorpayPaymentId: "DEMO_TEST_PAYMENT",
-              razorpayOrderId: orderData.orderId,
-            }),
-          }).catch((err) => console.error("Demo email send error:", err));
-        } catch (e) {
-          console.warn("Demo fallback email error:", e);
-        }
-
-        setTimeout(() => {
-          setIsSubmitted(true);
-          setIsProcessing(false);
-          triggerConfetti();
-        }, 1000);
+        setIsSubmitted(true);
+        setIsProcessing(false);
+        triggerConfetti();
       }
     } catch (err) {
-      console.error("Booking error:", err);
-      setErrorMessage(err.message || "Failed to process reservation");
+      console.error(err);
+      setErrorMessage(err.message || "Failed to initiate reservation payment. Please try again.");
       setIsProcessing(false);
     }
   };
@@ -380,22 +350,26 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
   const triggerConfetti = () => {
     try {
       confetti({
-        particleCount: 120,
+        particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ["#D4AF37", "#C9A86A", "#ffffff", "#e6c875"],
+        colors: ["#C9A86A", "#D4AF37", "#933D2D", "#F7F5F2"],
       });
-    } catch (err) {
-      console.log("Confetti trigger:", err);
+    } catch (e) {
+      // Confetti fallback
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[150] flex justify-end">
-      {/* 1. Backdrop Overlay */}
+    <div
+      className="fixed inset-0 z-[100] flex justify-end bg-black/70 backdrop-blur-sm animate-fadeIn"
+      style={{ cursor: "default" }}
+    >
+      {/* 1. Backdrop Overlay (Closes drawer on outside click) */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-md animate-fadeIn cursor-pointer"
+        className="absolute inset-0 cursor-pointer"
         onClick={onClose}
+        aria-label="Close background overlay"
       />
 
       {/* 2. Form Drawer Content (Sibling element) */}
@@ -443,7 +417,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                 Welcome to Rajmahal Palace!
               </h3>
               <p className="text-xs text-[#D6B892]/80 font-sans mt-3 max-w-sm leading-relaxed">
-                Thank you, <strong className="text-[#F7F5F2]">{guestName || "Estemeed Guest"}</strong>. Your reservation for <strong className="text-[#D4AF37]">{room.room_name || room.name}</strong> ({nights} Nights) has been confirmed.
+                Thank you, <strong className="text-[#F7F5F2]">{guestName || "Estemeed Guest"}</strong>. Your reservation for <strong className="text-[#D4AF37]">{room.room_name || room.name}</strong> ({roomsQuantity} Rooms • {nights} Nights) has been confirmed.
               </p>
             </div>
 
@@ -451,6 +425,10 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
               <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5">
                 <span>Booking Reference</span>
                 <span className="font-mono font-bold text-[#D4AF37]">{confirmedBookingRef || "RMP-829104"}</span>
+              </div>
+              <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5">
+                <span>Rooms Reserved</span>
+                <span className="font-semibold text-[#F7F5F2]">{roomsQuantity} {roomsQuantity > 1 ? "Rooms" : "Room"}</span>
               </div>
               <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5">
                 <span>Check-In & Arrival Time</span>
@@ -462,7 +440,11 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
               </div>
               <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5">
                 <span>Stay Duration</span>
-                <span className="font-semibold text-[#D4AF37]">{nights} Night(s) ({nights * 22}h Stay — 22h/Night)</span>
+                <span className="font-semibold text-[#D4AF37]">{nights} Night(s)</span>
+              </div>
+              <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5 text-[#E6C875]">
+                <span>Cancellation Policy</span>
+                <span className="font-semibold font-mono">Non-Refundable</span>
               </div>
               <div className="flex justify-between pt-1">
                 <span>Total Paid (Verified)</span>
@@ -470,7 +452,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
               </div>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 w-full">
               <a
                 href={`/booking?ref=${confirmedBookingRef || "RMP-829104"}`}
                 onClick={onClose}
@@ -480,26 +462,31 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
               </a>
 
               <button
-                onClick={() => {
-                  setIsSubmitted(false);
-                  onClose();
-                }}
-                className="w-full py-3 bg-[#161412] text-[#F7F5F2]/80 text-xs font-serif uppercase tracking-[0.2em] rounded-sm border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-colors cursor-pointer"
+                onClick={onClose}
+                className="w-full py-2.5 bg-transparent border border-[#D4AF37]/30 text-[#D6B892] text-xs font-serif uppercase tracking-wider rounded-sm hover:bg-[#D4AF37]/10 transition-colors cursor-pointer"
               >
-                Done & Return
+                Close Window
               </button>
             </div>
           </div>
         ) : (
-          <div className="p-5 sm:p-6 space-y-5 flex-1 flex flex-col justify-between">
+          <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
+            {/* Error Message Box */}
             {errorMessage && (
-              <div className="p-3 bg-red-950/80 border border-red-500/40 text-red-300 text-xs rounded text-center animate-fadeIn">
-                {errorMessage}
+              <div className="p-3 bg-red-950/60 border border-red-500/50 rounded text-red-200 text-xs flex items-center justify-between">
+                <span>{errorMessage}</span>
+                <button
+                  type="button"
+                  onClick={() => setErrorMessage("")}
+                  className="text-red-400 hover:text-white text-base font-bold ml-2 cursor-pointer"
+                >
+                  ✕
+                </button>
               </div>
             )}
 
-            {/* 2-Part Step Indicator */}
-            <div className="flex items-center justify-between bg-[#141210] p-1.5 rounded-xl border border-[#D4AF37]/25 text-xs font-mono">
+            {/* Step Indicator Header (2 Parts) */}
+            <div className="flex items-center justify-between border-b border-[#D4AF37]/20 pb-3 text-xs font-mono">
               <button
                 type="button"
                 onClick={() => setStep(1)}
@@ -513,12 +500,12 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                 <span className="truncate">ROOM & DATES</span>
               </button>
 
-              <div className="w-3 h-px bg-[#D4AF37]/30 mx-1 shrink-0" />
+              <div className="w-4 h-px bg-[#D4AF37]/30 mx-1" />
 
               <button
                 type="button"
                 onClick={() => {
-                  if (checkIn && checkOut && checkOut > checkIn) setStep(2);
+                  if (step === 1) handleNextToGuestInfo();
                 }}
                 className={`flex-1 py-2 px-2.5 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   step === 2
@@ -534,26 +521,49 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
             {/* ================= PART 1: SELECT ROOM and DATES & ARRIVAL TIME ================= */}
             {step === 1 && (
               <div className="space-y-5 animate-fadeIn flex-1">
-                {/* 1. SELECT ROOM */}
+                {/* 1. SELECT ROOM & NUMBER OF ROOMS */}
                 <div className="space-y-3">
-                  <div>
-                    <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D4AF37] font-semibold block mb-1.5">
-                      1. SELECT ROOM
-                    </label>
-                    <select
-                      value={room.id}
-                      onChange={(e) => setSelectedRoomId(e.target.value)}
-                      className="w-full bg-[#161412] border border-[#D4AF37]/40 rounded-md px-3.5 py-2 text-sm sm:text-base text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] cursor-pointer"
-                    >
-                      {allSelectableRooms.map((r) => {
-                        const roomP = Number(r.price_per_night !== undefined ? r.price_per_night : r.pricePerNight);
-                        return (
-                          <option key={r.id} value={r.id} className="bg-[#100F0E] text-[#F7F5F2]">
-                            {r.room_name || r.name} — ₹{roomP.toLocaleString('en-IN')}/night
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D4AF37] font-semibold block mb-1.5">
+                        1. SELECT ROOM
+                      </label>
+                      <select
+                        value={room.id}
+                        onChange={(e) => setSelectedRoomId(e.target.value)}
+                        className="w-full bg-[#161412] border border-[#D4AF37]/40 rounded-md px-3.5 py-2 text-sm text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] cursor-pointer"
+                      >
+                        {allSelectableRooms.map((r) => {
+                          const roomP = Number(r.price_per_night !== undefined ? r.price_per_night : r.pricePerNight);
+                          return (
+                            <option key={r.id} value={r.id} className="bg-[#100F0E] text-[#F7F5F2]">
+                              {r.room_name || r.name} — ₹{roomP.toLocaleString('en-IN')}/night
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[#D4AF37] font-semibold block mb-1.5 flex items-center justify-between">
+                        <span>NUMBER OF ROOMS</span>
+                        <span className="text-[10px] text-[#D6B892]/70 font-mono">Max 8</span>
+                      </label>
+                      <select
+                        value={roomsQuantity}
+                        onChange={(e) => {
+                          const count = Number(e.target.value);
+                          setRoomsQuantity(count);
+                        }}
+                        className="w-full bg-[#161412] border border-[#D4AF37]/40 rounded-md px-3.5 py-2 text-sm text-[#F7F5F2] font-mono focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] cursor-pointer"
+                      >
+                        {Array.from({ length: 8 }, (_, i) => i + 1).map((num) => (
+                          <option key={num} value={num} className="bg-[#100F0E] text-[#F7F5F2]">
+                            {num} {num === 1 ? "Room" : "Rooms"} (₹{(pricePerNight * num).toLocaleString('en-IN')}/night)
                           </option>
-                        );
-                      })}
-                    </select>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   {/* Guests Capacity Selector */}
@@ -594,6 +604,11 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                       </select>
                     </div>
                   </div>
+
+                  <div className="text-[10.5px] text-[#D6B892]/70 font-mono flex items-center justify-between pt-0.5">
+                    <span>Capacity for {roomsQuantity} Room{roomsQuantity > 1 ? "s" : ""}:</span>
+                    <span className="text-[#D4AF37]">Max {maxAllowedAdults} Adults + {maxAllowedChildren} Kids</span>
+                  </div>
                 </div>
 
                 {/* 2. DATES & ARRIVAL TIME (Custom Calendar with horizontal time scroll) */}
@@ -603,7 +618,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                       2. DATES & ARRIVAL TIME
                     </label>
                     <span className="text-[10.5px] font-mono text-[#D6B892]/80">
-                      {nights} Night{nights > 1 ? "s" : ""} Selected
+                      {roomsQuantity} Room{roomsQuantity > 1 ? "s" : ""} • {nights} Night{nights > 1 ? "s" : ""}
                     </span>
                   </div>
 
@@ -617,10 +632,12 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                     minDate={getToday()}
                   />
 
-                  {/* 22-Hour Policy Banner */}
-                  <div className="bg-[#181614] border border-[#D4AF37]/25 rounded px-3 py-1.5 flex items-center justify-between text-[11px] font-mono text-[#D6B892]">
+                  {/* Policy Banner: 22-Hour Stay & Non-Refundable */}
+                  <div className="bg-[#181614] border border-[#D4AF37]/25 rounded px-3 py-2 flex items-center justify-between text-[11px] font-mono text-[#D6B892]">
                     <span className="text-[#D4AF37] font-semibold">22-Hour Stay Policy</span>
-                    <span className="text-[#F7F5F2]/80">Check-in: 12:00 PM • Check-out: 10:00 AM</span>
+                    <span className="text-[#E6C875] font-medium bg-[#D4AF37]/10 px-2 py-0.5 rounded border border-[#D4AF37]/30">
+                      Non-Refundable Booking
+                    </span>
                   </div>
                 </div>
 
@@ -647,7 +664,9 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                     <div className="flex items-center justify-between border-b border-[#D4AF37]/20 pb-2">
                       <div className="min-w-0 pr-2">
                         <span className="text-[10px] font-mono text-[#D4AF37] uppercase tracking-wider block">SELECTED ROOM</span>
-                        <strong className="text-sm font-serif text-[#F7F5F2] truncate block">{room.room_name || room.name}</strong>
+                        <strong className="text-sm font-serif text-[#F7F5F2] truncate block">
+                          {room.room_name || room.name} ({roomsQuantity} {roomsQuantity > 1 ? "Rooms" : "Room"})
+                        </strong>
                       </div>
                       <button
                         type="button"
@@ -706,8 +725,8 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   {/* Total Cost Summary */}
                   <div className="bg-[#161412] border border-[#D4AF37]/30 rounded-md p-4 space-y-1.5 text-xs sm:text-sm text-[#D6B892]">
                     <div className="flex justify-between">
-                      <span>Rate ({nights} Nights)</span>
-                      <span className="font-mono">₹{roomRate?.toLocaleString('en-IN')}</span>
+                      <span>Rate ({roomsQuantity} {roomsQuantity > 1 ? "Rooms" : "Room"} × {nights} {nights > 1 ? "Nights" : "Night"})</span>
+                      <span className="font-mono font-semibold text-[#F7F5F2]">₹{roomRate?.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Heritage Taxes & GST (18%)</span>
@@ -716,6 +735,10 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                     <div className="border-t border-[#D4AF37]/20 pt-2 flex justify-between items-baseline font-serif text-base text-[#F7F5F2]">
                       <span className="font-semibold">Grand Total</span>
                       <span className="text-[#D4AF37] font-semibold text-2xl font-mono">₹{totalAmount?.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="border-t border-[#D4AF37]/15 pt-2 mt-1 flex items-center gap-1.5 text-[11px] text-[#E6C875] font-serif">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                      <span><strong>Cancellation Policy:</strong> Non-refundable reservation once confirmed.</span>
                     </div>
                   </div>
                 </div>

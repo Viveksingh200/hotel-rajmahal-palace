@@ -102,8 +102,8 @@ export async function POST(req) {
               <td>${nights} Night(s) (${nights * 22} Hours total — 22h per night policy)</td>
             </tr>
             <tr>
-              <td class="label">Payment ID:</td>
-              <td style="font-family: monospace;">${razorpayPaymentId || "VERIFIED"}</td>
+              <td class="label">Cancellation Policy:</td>
+              <td style="color: #933d2d; font-weight: bold;">Non-Refundable (100% deposit retained)</td>
             </tr>
             <tr class="total-row">
               <td class="label">Total Paid:</td>
@@ -112,7 +112,7 @@ export async function POST(req) {
           </table>
 
           <div style="background-color: #faf7f2; border-left: 3px solid #c5a059; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #5a3d28;">
-            <strong>Stay Policy Notice:</strong> Each night reservation is valid for 22 hours (Check-in begins at 12:00 PM Noon; Check-out is scheduled by 10:00 AM Morning on departure date).
+            <strong>Stay & Cancellation Policy:</strong> Each night reservation is valid for 22 hours (Check-in at 12:00 PM; Check-out by 10:00 AM). All bookings are strictly <strong>Non-Refundable</strong> once confirmed.
           </div>
 
           <p style="font-size: 13px; color: #5a3d28;">

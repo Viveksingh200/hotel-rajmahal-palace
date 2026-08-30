@@ -22,8 +22,19 @@ export function BookingProvider({ children }) {
   const dayAfter = new Date(today);
   dayAfter.setDate(today.getDate() + 2);
 
+  const getDefaultBookingTime = () => {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:00 ${ampm}`;
+  };
+
   const [checkIn, setCheckIn] = useState(formatDate(today));
   const [checkOut, setCheckOut] = useState(formatDate(tomorrow));
+  const [bookingTime, setBookingTime] = useState(getDefaultBookingTime());
   const [guests, setGuests] = useState(2);
   const [roomsCount, setRoomsCount] = useState(1);
 
@@ -192,6 +203,8 @@ export function BookingProvider({ children }) {
         setCheckIn,
         checkOut,
         setCheckOut,
+        bookingTime,
+        setBookingTime,
         guests,
         setGuests,
         roomsCount,
