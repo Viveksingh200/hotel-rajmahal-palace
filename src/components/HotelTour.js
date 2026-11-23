@@ -5,11 +5,26 @@ import { Play, Pause, Maximize, RefreshCw, Volume2, VolumeX, Eye } from "lucide-
 import { VISUAL_TOUR_STAGES } from "@/data/hotel";
 import { motion } from "framer-motion";
 
+const EXCLUDED_RANGES = [
+  [200, 240],
+  [410, 480],
+  [676, 720],
+];
+
+const FRAME_URLS = [];
+for (let num = 1; num <= 720; num++) {
+  const isExcluded = EXCLUDED_RANGES.some(([start, end]) => num >= start && num <= end);
+  if (!isExcluded) {
+    FRAME_URLS.push(`/frames/ezgif-frame-${String(num).padStart(3, "0")}.jpg`);
+  }
+}
+
+const TOTAL_FRAMES = FRAME_URLS.length;
+
 export default function HotelTour() {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(1);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const [activeStageId, setActiveStageId] = useState("exterior");
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
@@ -18,17 +33,19 @@ export default function HotelTour() {
   const animFrameRef = useRef(null);
   const containerRef = useRef(null);
 
-  const TOTAL_FRAMES = 720;
+  const matchedStage = VISUAL_TOUR_STAGES.find(
+    (stage) => currentFrameIndex >= stage.frameStart && currentFrameIndex <= stage.frameEnd
+  );
+  const activeStageId = matchedStage ? matchedStage.id : "exterior";
 
   // Preload frames for smooth canvas rendering
   useEffect(() => {
     let loadedCount = 0;
     const images = [];
 
-    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
-      const numStr = String(i).padStart(3, "0");
-      img.src = `/frames/ezgif-frame-${numStr}.jpg`;
+      img.src = FRAME_URLS[i];
 
       img.onload = () => {
         loadedCount++;
@@ -47,16 +64,6 @@ export default function HotelTour() {
       imagesRef.current = [];
     };
   }, []);
-
-  // Update active stage based on frame index
-  useEffect(() => {
-    const matchedStage = VISUAL_TOUR_STAGES.find(
-      (stage) => currentFrameIndex >= stage.frameStart && currentFrameIndex <= stage.frameEnd
-    );
-    if (matchedStage && matchedStage.id !== activeStageId) {
-      setActiveStageId(matchedStage.id);
-    }
-  }, [currentFrameIndex, activeStageId]);
 
   // Render frame on Canvas
   const drawFrame = (frameNum) => {

@@ -72,7 +72,7 @@ export default function DiningSection() {
             className="lg:col-span-7 relative h-[450px] sm:h-[520px] rounded-lg overflow-hidden border border-sandstone/20 shadow-xl group"
           >
             <Image
-              src="/images/dinning.png"
+              src="/images/dining.png"
               alt="Palace Courtyard Restaurant with Marble Tables and Green Seating"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"

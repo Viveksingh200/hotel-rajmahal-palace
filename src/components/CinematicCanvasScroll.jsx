@@ -10,12 +10,26 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// 720 Continuous Frames from the 3 video zips
-const FRAME_URLS = Array.from(
-  { length: 720 },
-  (_, i) => `/frames/ezgif-frame-${String(i + 1).padStart(3, "0")}.jpg`
-);
-const TOTAL_FRAMES = FRAME_URLS.length; // 720 frames
+// 563 Optimized frames (removed 200-240, 410-480, 676-720)
+const EXCLUDED_RANGES = [
+  [200, 240],
+  [410, 480],
+  [676, 720],
+];
+
+const FRAME_DATA = [];
+for (let num = 1; num <= 720; num++) {
+  const isExcluded = EXCLUDED_RANGES.some(([start, end]) => num >= start && num <= end);
+  if (!isExcluded) {
+    FRAME_DATA.push({
+      originalNumber: num,
+      url: `/frames/ezgif-frame-${String(num).padStart(3, "0")}.jpg`,
+    });
+  }
+}
+
+const FRAME_URLS = FRAME_DATA.map((f) => f.url);
+const TOTAL_FRAMES = FRAME_URLS.length; // 563 frames
 
 export default function CinematicCanvasScroll({
   onProgress,
@@ -50,7 +64,47 @@ export default function CinematicCanvasScroll({
     return () => clearTimeout(timer);
   }, []);
 
-  // Preload native Hotel Rajmahal Palace frames (720 frames) - RUNS ONCE ON MOUNT
+  // Instant High-Precision Canvas Drawing Engine
+  const renderFrame = (idx) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let img = imagesRef.current[idx];
+
+    // Fallback to nearest loaded frame if target frame is downloading
+    if (!img || !img.complete) {
+      for (let offset = 1; offset < 40; offset++) {
+        if (imagesRef.current[idx - offset]?.complete) {
+          img = imagesRef.current[idx - offset];
+          break;
+        }
+        if (imagesRef.current[idx + offset]?.complete) {
+          img = imagesRef.current[idx + offset];
+          break;
+        }
+      }
+    }
+
+    if (!img || !img.complete) return;
+
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const imgWidth = img.naturalWidth || img.width;
+    const imgHeight = img.naturalHeight || img.height;
+
+    const ratio = Math.max(canvasWidth / imgWidth, canvasHeight / imgHeight);
+    const newWidth = imgWidth * ratio;
+    const newHeight = imgHeight * ratio;
+    const offsetX = (canvasWidth - newWidth) / 2;
+    const offsetY = (canvasHeight - newHeight) / 2;
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+  };
+
+  // Preload native Hotel Rajmahal Palace frames (563 frames) - RUNS ONCE ON MOUNT
   useEffect(() => {
     let loadedCount = 0;
     let lastReportedPercent = -1;
@@ -113,46 +167,6 @@ export default function CinematicCanvasScroll({
     loadNextBatch();
   }, []);
 
-  // Instant High-Precision Canvas Drawing Engine
-  const renderFrame = (idx) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let img = imagesRef.current[idx];
-
-    // Fallback to nearest loaded frame if target frame is downloading
-    if (!img || !img.complete) {
-      for (let offset = 1; offset < 40; offset++) {
-        if (imagesRef.current[idx - offset]?.complete) {
-          img = imagesRef.current[idx - offset];
-          break;
-        }
-        if (imagesRef.current[idx + offset]?.complete) {
-          img = imagesRef.current[idx + offset];
-          break;
-        }
-      }
-    }
-
-    if (!img || !img.complete) return;
-
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    const imgWidth = img.naturalWidth || img.width;
-    const imgHeight = img.naturalHeight || img.height;
-
-    const ratio = Math.max(canvasWidth / imgWidth, canvasHeight / imgHeight);
-    const newWidth = imgWidth * ratio;
-    const newHeight = imgHeight * ratio;
-    const offsetX = (canvasWidth - newWidth) / 2;
-    const offsetY = (canvasHeight - newHeight) / 2;
-
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
-  };
-
   // Resize listener for High-DPI Canvas
   useEffect(() => {
     const handleResize = () => {
@@ -202,8 +216,10 @@ export default function CinematicCanvasScroll({
     };
   }, [imagesLoaded]);
 
+  const currentOriginalFrame = FRAME_DATA[frameIndex]?.originalNumber || (frameIndex + 1);
+
   return (
-    <div ref={containerRef} className="relative w-full h-[900vh] bg-[#100F0E]">
+    <div ref={containerRef} className="relative w-full h-[700vh] bg-[#100F0E]">
       {/* Sticky Canvas & Viewport Wrapper */}
       <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
         {/* Render Canvas */}
@@ -220,7 +236,7 @@ export default function CinematicCanvasScroll({
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-3 sm:px-6 pt-16 sm:pt-0 transition-all duration-500 ${
-            frameIndex >= 0 && frameIndex < 90
+            currentOriginalFrame >= 1 && currentOriginalFrame < 90
               ? "opacity-100 scale-100 pointer-events-auto"
               : "opacity-0 scale-95 pointer-events-none"
           }`}
@@ -264,12 +280,12 @@ export default function CinematicCanvasScroll({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* SCENE 2 (Frames 90 - 240): RESTAURANT                */}
+        {/* SCENE 2 (Restaurant)                                 */}
         {/* Style: Image 4 — Right Floating Dark Card           */}
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute top-20 sm:top-32 right-3 left-3 sm:left-auto sm:right-16 z-20 transition-all duration-700 ${
-            frameIndex >= 90 && frameIndex < 240
+            currentOriginalFrame >= 90 && currentOriginalFrame <= 240
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-8 pointer-events-none"
           }`}
@@ -296,12 +312,12 @@ export default function CinematicCanvasScroll({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* SCENE 3 (Frames 240 - 370): BEDROOM                  */}
+        {/* SCENE 3 (Bedroom)                                    */}
         {/* Style: Image 1 — Top-Left Floating Dark Card         */}
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute top-20 sm:top-32 left-3 right-3 sm:right-auto sm:left-16 z-20 transition-all duration-700 ${
-            frameIndex >= 240 && frameIndex < 370
+            currentOriginalFrame > 240 && currentOriginalFrame < 370
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-8 pointer-events-none"
           }`}
@@ -320,12 +336,12 @@ export default function CinematicCanvasScroll({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* SCENE 4 (Frames 370 - 480): BATHROOM                 */}
+        {/* SCENE 4 (Bathroom)                                   */}
         {/* Style: Image 3 — Center Heading + 4 Bottom Cards    */}
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute inset-0 z-20 flex flex-col justify-between p-3.5 sm:p-16 transition-all duration-700 ${
-            frameIndex >= 370 && frameIndex < 480
+            currentOriginalFrame >= 370 && currentOriginalFrame <= 480
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
@@ -365,12 +381,12 @@ export default function CinematicCanvasScroll({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* SCENE 5 (Frames 480 - 585): BEDROOM (RETURN)         */}
+        {/* SCENE 5 (Bedroom Return)                             */}
         {/* Style: Image 2 — Bottom-Left Floating Dark Card     */}
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute bottom-6 sm:bottom-20 left-3 right-3 sm:right-auto sm:left-16 z-20 transition-all duration-700 ${
-            frameIndex >= 480 && frameIndex < 585
+            currentOriginalFrame > 480 && currentOriginalFrame < 585
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-8 pointer-events-none"
           }`}
@@ -397,12 +413,12 @@ export default function CinematicCanvasScroll({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* SCENE 6 (Frames 585 - 650): BALCONY (VALLEY VIEWS)   */}
+        {/* SCENE 6 (Balcony Valley Views)                       */}
         {/* Style: Image 1 — Top-Left Floating Dark Card         */}
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute top-20 sm:top-32 left-3 right-3 sm:right-auto sm:left-16 z-20 transition-all duration-700 ${
-            frameIndex >= 585 && frameIndex < 650
+            currentOriginalFrame >= 585 && currentOriginalFrame < 640
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-8 pointer-events-none"
           }`}
@@ -421,12 +437,12 @@ export default function CinematicCanvasScroll({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* SCENE 7 (Frames 650 - 720): BALCONY (CLOSING MOMENT) */}
+        {/* SCENE 7 (Balcony Closing Moment)                     */}
         {/* Style: Centered Regal Card                           */}
         {/* ---------------------------------------------------- */}
         <div
           className={`absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-3 sm:px-6 transition-all duration-700 ${
-            frameIndex >= 650 && frameIndex <= 720
+            currentOriginalFrame >= 650
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
