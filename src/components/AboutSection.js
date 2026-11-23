@@ -17,15 +17,15 @@ export default function AboutSection() {
             transition={{ duration: 0.8 }}
             className="lg:col-span-6 space-y-6"
           >
-            <span className="text-xs uppercase tracking-[0.35em] text-[#933D2D] font-semibold block">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] text-[#933D2D] font-semibold block">
               OUR PHILOSOPHY
             </span>
 
-            <h2 className="text-3xl sm:text-5xl font-serif text-[#1A1D24] tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-5xl font-serif text-[#1A1D24] tracking-tight leading-tight">
               A QUIET ESCAPE IN THE HILLS
             </h2>
 
-            <div className="w-20 h-0.5 bg-[#C5A059]" />
+            <div className="w-16 sm:w-20 h-0.5 bg-[#C5A059]" />
 
             <p className="text-base sm:text-lg font-serif italic text-[#933D2D] font-medium">
               &ldquo;Conceived as a sanctuary of authentic Indian architectural grandeur and natural rest.&rdquo;

@@ -15,9 +15,11 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AboutPage() {
   const { openBookingDrawer } = useBooking();
+  const { isAuthenticated, openLoginModal } = useAuth();
 
   const values = [
     {
@@ -63,7 +65,7 @@ export default function AboutPage() {
   return (
     <div className="w-full bg-cream text-charcoal pb-20">
       {/* Subpage Banner Header */}
-      <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden">
+      <div className="relative min-h-[320px] sm:h-[420px] w-full flex flex-col items-center justify-center text-center overflow-hidden pt-24 sm:pt-28 pb-8 sm:pb-12 px-3 sm:px-4">
         <Image
           src="/images/hero.png"
           alt="About Hotel Rajmahal Palace"
@@ -71,17 +73,17 @@ export default function AboutPage() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-black/60 sm:to-transparent" />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-cream space-y-3 pt-14">
-          <span className="text-xs uppercase tracking-[0.4em] text-gold font-medium block">
+        <div className="relative z-10 max-w-4xl mx-auto px-2 sm:px-4 text-cream space-y-2.5 sm:space-y-3">
+          <span className="text-[9.5px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.4em] text-gold font-medium block">
             OUR STORY & HERITAGE
           </span>
-          <h1 className="text-4xl sm:text-6xl font-serif text-white tracking-tight">
+          <h1 className="text-2xl sm:text-6xl font-serif text-white tracking-tight">
             About The Palace
           </h1>
-          <div className="w-20 h-0.5 bg-gold mx-auto" />
-          <p className="text-base sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1 px-3 rounded-full">
+          <div className="w-12 sm:w-20 h-0.5 bg-gold mx-auto" />
+          <p className="text-xs sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1.5 px-3 sm:px-4 rounded-xl sm:rounded-full border border-[#D4AF37]/20">
             &ldquo;Where grand royal heritage meets the peaceful hills of Bhimashankar.&rdquo;
           </p>
         </div>
@@ -273,7 +275,13 @@ export default function AboutPage() {
 
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={() => openBookingDrawer()}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    openLoginModal({ autoOpenBooking: true });
+                    return;
+                  }
+                  openBookingDrawer();
+                }}
                 className="w-full sm:w-auto px-9 py-4 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold uppercase tracking-[0.25em] rounded-sm shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-105 transition-all cursor-pointer inline-flex items-center justify-center gap-2 border border-gold/40"
               >
                 <Calendar className="w-4 h-4 text-[#100F0E]" />

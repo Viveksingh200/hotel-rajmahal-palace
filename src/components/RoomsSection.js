@@ -30,13 +30,13 @@ export default function RoomsSection() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <span className="text-xs uppercase tracking-[0.35em] text-sandstone font-semibold block mb-2">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] text-sandstone font-semibold block mb-2">
               ACCOMMODATIONS
             </span>
-            <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight">
+            <h2 className="text-2xl sm:text-5xl font-serif text-charcoal tracking-tight">
               LUXURY ROOMS & SUITES
             </h2>
-            <div className="w-20 h-0.5 bg-gold mt-3" />
+            <div className="w-16 sm:w-20 h-0.5 bg-gold mt-2 sm:mt-3" />
           </div>
 
           <p className="text-base font-serif italic text-charcoal/70 max-w-md mt-4 md:mt-0">

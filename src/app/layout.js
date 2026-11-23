@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import GlobalBookingDrawer from "@/components/GlobalBookingDrawer";
 import GlobalDiningModal from "@/components/GlobalDiningModal";
 import GlobalSuiteModal from "@/components/GlobalSuiteModal";
+import LoginModal from "@/components/LoginModal";
 import CustomCursor from "@/components/CustomCursor";
 import SmoothScroll from "@/components/SmoothScroll";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
               <GlobalBookingDrawer />
               <GlobalDiningModal />
               <GlobalSuiteModal />
+              <LoginModal />
               <FloatingWhatsApp />
               <Footer />
             </SmoothScroll>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import LocationSection from "@/components/LocationSection";
 import { HOTEL_INFO } from "@/data/hotel";
-import { Phone, Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
+import { Phone, Mail, MapPin, Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -15,18 +15,42 @@ export default function ContactPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.name && formData.email) {
+    if (!formData.name || !formData.email || !formData.message) return;
+
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/send-inquiry-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to send inquiry");
+      }
+
       setSubmitted(true);
+      setFormData({ name: "", email: "", phone: "", message: "" });
+    } catch (err) {
+      console.error("Inquiry submission error:", err);
+      setErrorMsg("Failed to send your message. Please try again or call us directly.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="w-full bg-cream text-charcoal">
       {/* Banner */}
-      <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden mb-16">
+      <div className="relative min-h-[320px] sm:h-[420px] w-full flex flex-col items-center justify-center text-center overflow-hidden mb-12 sm:mb-16 pt-24 sm:pt-28 pb-8 sm:pb-12 px-3 sm:px-4">
         <Image
           src="/images/contact.jpeg"
           alt="Contact Hotel Rajmahal Palace"
@@ -34,17 +58,17 @@ export default function ContactPage() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-black/60 sm:to-transparent" />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-cream space-y-3 pt-14">
-          <span className="text-xs uppercase tracking-[0.4em] text-gold font-medium block">
+        <div className="relative z-10 max-w-4xl mx-auto px-2 sm:px-4 text-cream space-y-2.5 sm:space-y-3">
+          <span className="text-[9.5px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.4em] text-gold font-medium block">
             GET IN TOUCH
           </span>
-          <h1 className="text-4xl sm:text-6xl font-serif text-white tracking-tight">
+          <h1 className="text-2xl sm:text-6xl font-serif text-white tracking-tight">
             Contact Concierge
           </h1>
-          <div className="w-20 h-0.5 bg-gold mx-auto" />
-          <p className="text-base sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1 px-2 rounded-full">
+          <div className="w-12 sm:w-20 h-0.5 bg-gold mx-auto" />
+          <p className="text-xs sm:text-lg font-serif italic text-[#D4AF37] max-w-xl mx-auto bg-[#100F0E]/80 py-1.5 px-3 sm:px-4 rounded-xl sm:rounded-full">
             &ldquo;We look forward to welcoming you to the serenity of the hills.&rdquo;
           </p>
         </div>
@@ -197,13 +221,30 @@ export default function ContactPage() {
                   />
                 </div>
 
+                {errorMsg && (
+                  <div className="p-3 bg-red-950/20 border border-red-500/40 rounded text-xs text-red-600 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
                 <button
                   type="submit"
+                  disabled={loading}
                   data-cursor="SEND"
-                  className="bg-[#F0AF02]/80 text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase px-8 py-3.5 rounded shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full sm:w-auto bg-[#F0AF02]/80 disabled:opacity-50 disabled:cursor-not-allowed text-[#100F0E] font-serif text-xs font-bold tracking-wider sm:tracking-widest uppercase px-6 sm:px-8 py-3 sm:py-3.5 rounded shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Send className="w-4 h-4 text-[#100F0E]" />
-                  <span>SEND INQUIRY</span>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[#100F0E]" />
+                      <span>SENDING INQUIRY...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 text-[#100F0E]" />
+                      <span>SEND INQUIRY</span>
+                    </>
+                  )}
                 </button>
               </form>
             )}

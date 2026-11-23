@@ -81,7 +81,7 @@ export default function BookingPage() {
   return (
     <div className="w-full bg-cream text-charcoal pb-20 min-h-screen">
       {/* Subpage Banner Header */}
-      <div className="relative h-[320px] sm:h-[420px] w-full flex items-center justify-center text-center overflow-hidden mb-16">
+      <div className="relative min-h-[320px] sm:h-[420px] w-full flex flex-col items-center justify-center text-center overflow-hidden mb-12 sm:mb-16 pt-24 sm:pt-28 pb-8 sm:pb-12 px-3 sm:px-4">
         <Image
           src="/images/rooms.png"
           alt="Palace Reservations Header"
@@ -90,17 +90,17 @@ export default function BookingPage() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-black/60 sm:to-transparent" />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-cream space-y-4 pt-12">
-          <span className="text-xs uppercase tracking-[0.4em] text-gold font-medium block">
+        <div className="relative z-10 max-w-4xl mx-auto px-2 sm:px-6 text-cream space-y-2.5 sm:space-y-4">
+          <span className="text-[9.5px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.4em] text-gold font-medium block">
             ROYAL RESERVATIONS
           </span>
-          <h1 className="text-4xl sm:text-6xl font-serif text-white tracking-tight">
+          <h1 className="text-2xl sm:text-6xl font-serif text-white tracking-tight">
             My Palace Stays
           </h1>
-          <div className="w-20 h-0.5 bg-gold mx-auto" />
-          <p className="text-sm sm:text-base font-serif italic text-[#D4AF37] max-w-xl mx-auto leading-relaxed bg-[#100F0E]/80 py-1 px-2 rounded-full">
+          <div className="w-12 sm:w-20 h-0.5 bg-gold mx-auto" />
+          <p className="text-xs sm:text-base font-serif italic text-[#D4AF37] max-w-xl mx-auto leading-relaxed bg-[#100F0E]/80 py-1.5 px-3 rounded-xl sm:rounded-full">
             &ldquo;Your confirmed stays and digital reservation passes, retrieved automatically.&rdquo;
           </p>
         </div>
@@ -108,11 +108,11 @@ export default function BookingPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation Tabs Container */}
-        <div className="flex justify-center mb-14">
-          <div className="inline-flex p-1.5 bg-charcoal text-cream rounded-full border border-gold/30 shadow-2xl z-10">
+        <div className="flex justify-center mb-10 sm:mb-14 px-2">
+          <div className="inline-flex p-1 sm:p-1.5 bg-charcoal text-cream rounded-full border border-gold/30 shadow-2xl z-10 max-w-full">
             <button
               onClick={() => setActiveTab("search")}
-              className={`px-7 py-3 rounded-full text-xs font-serif tracking-widest uppercase transition-all cursor-pointer ${activeTab === "search"
+              className={`px-3.5 min-[360px]:px-5 sm:px-7 py-2 sm:py-3 rounded-full text-[10.5px] min-[360px]:text-[11px] sm:text-xs font-serif tracking-wider sm:tracking-widest uppercase transition-all cursor-pointer whitespace-nowrap ${activeTab === "search"
                 ? "bg-gradient-to-r from-sandstone to-sandstone-dark text-white shadow-lg font-semibold"
                 : "text-cream/70 hover:text-gold"
                 }`}
@@ -121,12 +121,12 @@ export default function BookingPage() {
             </button>
             <button
               onClick={() => setActiveTab("my-stays")}
-              className={`px-7 py-3 rounded-full text-xs font-serif tracking-widest uppercase transition-all cursor-pointer flex items-center gap-2 ${activeTab === "my-stays"
+              className={`px-3.5 min-[360px]:px-5 sm:px-7 py-2 sm:py-3 rounded-full text-[10.5px] min-[360px]:text-[11px] sm:text-xs font-serif tracking-wider sm:tracking-widest uppercase transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${activeTab === "my-stays"
                 ? "bg-gradient-to-r from-sandstone to-sandstone-dark text-white shadow-lg font-semibold"
                 : "text-cream/70 hover:text-gold"
                 }`}
             >
-              <Calendar className="w-4 h-4 text-gold" />
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold shrink-0" />
               <span>My Stays ({userBookings.length})</span>
             </button>
           </div>
@@ -222,11 +222,11 @@ export default function BookingPage() {
                           </h5>
                           <div className="flex justify-between pt-1">
                             <span className="text-charcoal/70">Check-In:</span>
-                            <span className="font-semibold text-charcoal">{b.check_in} (From 12:00 PM)</span>
+                            <span className="font-semibold text-charcoal">{b.check_in}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-charcoal/70">Check-Out:</span>
-                            <span className="font-semibold text-charcoal">{b.check_out} (Until 10:00 AM)</span>
+                            <span className="font-semibold text-charcoal">{b.check_out}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-charcoal/70">Duration:</span>

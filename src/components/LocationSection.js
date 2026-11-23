@@ -11,14 +11,14 @@ export default function LocationSection() {
     <section id="location" className="py-24 bg-cream-muted text-charcoal relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="text-xs uppercase tracking-[0.35em] text-sandstone font-semibold block mb-2">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] text-sandstone font-semibold block mb-2">
             DESTINATION
           </span>
-          <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight mb-3">
+          <h2 className="text-2xl sm:text-5xl font-serif text-charcoal tracking-tight mb-3">
             FIND YOUR ESCAPE
           </h2>
-          <div className="w-20 h-0.5 bg-gold mx-auto mb-4" />
+          <div className="w-16 sm:w-20 h-0.5 bg-gold mx-auto mb-4" />
           <p className="text-base text-charcoal/70 font-sans">
             Conveniently located on Pune-Nashik Highway (NH 60) with scenic hillside ambiance and seamless road connectivity.
           </p>
@@ -86,11 +86,11 @@ export default function LocationSection() {
                 href={HOTEL_INFO.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase py-3.5 rounded-lg border border-gold/40 text-center flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.01]"
+                className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-[11px] sm:text-xs font-bold tracking-wider sm:tracking-widest uppercase py-3 sm:py-3.5 px-3 rounded-lg border border-gold/40 text-center flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.01]"
               >
-                <Compass className="w-4 h-4 text-[#100F0E]" />
+                <Compass className="w-4 h-4 text-[#100F0E] shrink-0" />
                 <span>OPEN IN GOOGLE MAPS</span>
-                <ExternalLink className="w-3.5 h-3.5 text-[#100F0E]" />
+                <ExternalLink className="w-3.5 h-3.5 text-[#100F0E] shrink-0" />
               </a>
               <span className="text-[11px] text-cream/50 text-center block">
                 Get real-time driving directions from your location
@@ -129,7 +129,7 @@ export default function LocationSection() {
             <div className="p-4 bg-cream border-t border-sandstone/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs z-10">
               <div>
                 <p className="font-serif font-semibold text-charcoal">
-                  NH 60, Shirgaon, Rajgurunagar (Khed), Pune - 412402
+                  Hotel Rajmahal Palace, Shirgaon, Near Bhimashankar, NH 60, Tal Khed, Dist. Pune - 412402
                 </p>
                 <p className="text-[11px] text-charcoal/70 mt-0.5">
                   Shirgaon &bull; Khed &bull; Pune District &bull; Maharashtra

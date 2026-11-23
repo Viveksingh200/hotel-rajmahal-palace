@@ -47,8 +47,8 @@ serve(async (req) => {
 
     const pricePerNight = Number(room.price_per_night);
     const roomSubtotal = pricePerNight * nights;
-    const taxesAndFees = Math.round(roomSubtotal * 0.18);
-    const totalAmount = roomSubtotal + taxesAndFees;
+    const taxesAndFees = 0; // GST removed per request
+    const totalAmount = roomSubtotal;
 
     const bookingRef = `RMP-${Math.floor(100000 + Math.random() * 900000)}`;
 

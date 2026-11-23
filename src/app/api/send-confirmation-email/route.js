@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { getCheckOutTime } from "@/lib/timeUtils";
 
 export async function POST(req) {
   try {
@@ -95,7 +96,7 @@ export async function POST(req) {
             </tr>
             <tr>
               <td class="label">Check-Out Time:</td>
-              <td>${checkOut} (Until 10:00 AM Morning)</td>
+              <td>${checkOut} (${getCheckOutTime(bookingTime)} — 22-Hour Stay)</td>
             </tr>
             <tr>
               <td class="label">Stay Duration:</td>
@@ -112,7 +113,7 @@ export async function POST(req) {
           </table>
 
           <div style="background-color: #faf7f2; border-left: 3px solid #c5a059; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #5a3d28;">
-            <strong>Stay & Cancellation Policy:</strong> Each night reservation is valid for 22 hours (Check-in at 12:00 PM; Check-out by 10:00 AM). All bookings are strictly <strong>Non-Refundable</strong> once confirmed.
+            <strong>Stay & Cancellation Policy:</strong> Each night reservation is valid for 22 hours (Check-out is strictly 22 hours after your selected check-in time of ${bookingTime}, by ${getCheckOutTime(bookingTime)}). All bookings are strictly <strong>Non-Refundable</strong> once confirmed.
           </div>
 
           <p style="font-size: 13px; color: #5a3d28;">
@@ -121,7 +122,7 @@ export async function POST(req) {
         </div>
         <div class="footer">
           <p><strong>Hotel Rajmahal Palace</strong></p>
-          <p>Mukam Post Shirgaon, NH 60, Taluka Khed, Dist. Pune 412402 • Reservations: +91 70706 16464</p>
+          <p>Hotel Rajmahal Palace, Shirgaon, Near Bhimashankar, NH 60, Tal Khed, Dist. Pune - 412402 • Reservations: +91 70706 16464</p>
           <p style="margin-top: 10px; font-size: 11px; color: #762f22;">Thank you for choosing Hotel Rajmahal Palace.</p>
         </div>
       </div>
@@ -129,7 +130,58 @@ export async function POST(req) {
     </html>
     `;
 
-    if (smtpUser && smtpPass) {
+    const emailjsServiceId = process.env.EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID || process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+    let emailSent = false;
+
+    // 1. Send via EmailJS REST API if configured
+    if (emailjsServiceId && emailjsTemplateId && emailjsPublicKey) {
+      try {
+        const emailjsRes = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Origin": process.env.NEXT_PUBLIC_SITE_URL || "https://hotelrajmahalpalace.com",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          },
+          body: JSON.stringify({
+            service_id: emailjsServiceId,
+            template_id: emailjsTemplateId,
+            user_id: emailjsPublicKey,
+            template_params: {
+              customer_name: customerName,
+              customer_email: customerEmail,
+              customer_phone: customerPhone || "N/A",
+              to_email: customerEmail,
+              to_name: customerName,
+              booking_reference: bookingReference,
+              room_name: roomName,
+              check_in: `${checkIn} (${bookingTime})`,
+              check_out: checkOut,
+              nights: nights,
+              total_amount: Number(totalAmount).toLocaleString("en-IN"),
+              razorpay_payment_id: razorpayPaymentId || "N/A",
+              payment_status: "PAID & CONFIRMED",
+            },
+          }),
+        });
+
+        if (emailjsRes.ok) {
+          console.log(`[EMAIL DISPATCH] Email successfully sent to ${customerEmail} via EmailJS!`);
+          emailSent = true;
+        } else {
+          const errText = await emailjsRes.text();
+          console.warn("[EMAIL DISPATCH] EmailJS send warning:", errText);
+        }
+      } catch (emailjsErr) {
+        console.warn("[EMAIL DISPATCH] EmailJS send error:", emailjsErr);
+      }
+    }
+
+    // 2. Fallback / Alternative send via SMTP
+    if (!emailSent && smtpUser && smtpPass) {
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
@@ -148,8 +200,11 @@ export async function POST(req) {
       });
 
       console.log(`[EMAIL DISPATCH] Email successfully sent to ${customerEmail} via SMTP!`);
-    } else {
-      console.log(`[EMAIL DISPATCH] SMTP credentials not set. Simulated successful email delivery to ${customerEmail}.`);
+      emailSent = true;
+    }
+
+    if (!emailSent && !smtpUser && !emailjsPublicKey) {
+      console.log(`[EMAIL DISPATCH] Neither EmailJS Public Key nor SMTP credentials set. Simulated successful email delivery to ${customerEmail}.`);
     }
 
     return NextResponse.json({

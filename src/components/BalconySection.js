@@ -39,11 +39,11 @@ export default function BalconySection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="lg:col-span-5 space-y-6"
           >
-            <span className="text-xs uppercase tracking-[0.35em] text-sandstone font-semibold block">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] text-sandstone font-semibold block">
               SIGHTSEEING & NATURE
             </span>
 
-            <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight">
+            <h2 className="text-2xl sm:text-5xl font-serif text-charcoal tracking-tight">
               Beautiful Hills & Lakes
             </h2>
 

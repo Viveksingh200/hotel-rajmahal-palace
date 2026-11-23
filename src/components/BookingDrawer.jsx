@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Calendar, Users, Crown, CheckCircle, Tag, ArrowRight, Sparkles, Loader2, ShieldCheck, Clock } from "lucide-react";
+import { X, Calendar, Users, Crown, CheckCircle, Tag, ArrowRight, Sparkles, Loader2, ShieldCheck, Clock, Info } from "lucide-react";
 import confetti from "canvas-confetti";
 import { ROOMS_DATA } from "@/data/rooms";
 import { fetchAvailableRooms } from "@/lib/bookingService";
 import { useBooking } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 import CustomCalendarPicker from "@/components/CustomCalendarPicker";
+import {
+  getDefaultBookingTime as getSensibleDefaultTime,
+  getCheckOutTime,
+  isSlotPassed,
+} from "@/lib/timeUtils";
 
 export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) {
   const {
@@ -17,6 +23,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     roomsCount: ctxRoomsCount,
     setRoomsCount: ctxSetRoomsCount,
   } = useBooking();
+  const { user, isAuthenticated, openLoginModal } = useAuth();
   const getToday = () => new Date().toISOString().split("T")[0];
   const getTomorrow = () => new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
@@ -27,35 +34,34 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     return d.toISOString().split("T")[0];
   };
 
-  const getDefaultBookingTime = () => {
-    const now = new Date();
-    now.setHours(now.getHours() + 1);
-    let hours = now.getHours();
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    return `${hours}:00 ${ampm}`;
-  };
-
   const [rooms, setRooms] = useState(ROOMS_DATA);
   const [selectedRoomId, setSelectedRoomId] = useState(initialSuite?.id || ROOMS_DATA[0].id);
   const [roomsQuantity, setRoomsQuantity] = useState(ctxRoomsCount || 1);
   const [checkIn, setCheckIn] = useState(ctxCheckIn || getToday());
   const [checkOut, setCheckOut] = useState(ctxCheckOut || getTomorrow());
-  const [bookingTime, setBookingTime] = useState(ctxBookingTime || getDefaultBookingTime());
+  const [bookingTime, setBookingTime] = useState(() => {
+    const effectiveCheckIn = ctxCheckIn || getToday();
+    if (ctxBookingTime && !isSlotPassed(ctxBookingTime, effectiveCheckIn)) {
+      return ctxBookingTime;
+    }
+    return getSensibleDefaultTime(effectiveCheckIn);
+  });
   const [step, setStep] = useState(1); // 1 = Select Room & Dates, 2 = Guest Information
   const [adults, setAdults] = useState(ctxGuests || 2);
   const [childrenCount, setChildrenCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
+  const [guestName, setGuestName] = useState(() => user?.user_metadata?.full_name || user?.user_metadata?.name || "");
+  const [guestEmail, setGuestEmail] = useState(() => user?.email || "");
   const [guestPhone, setGuestPhone] = useState("");
   const [confirmedBookingRef, setConfirmedBookingRef] = useState("");
 
   const handleCheckInChange = (newDate) => {
     setCheckIn(newDate);
+    if (isSlotPassed(bookingTime, newDate)) {
+      setBookingTime(getSensibleDefaultTime(newDate));
+    }
     if (!checkOut || checkOut <= newDate) {
       setCheckOut(getMinCheckOut(newDate));
     }
@@ -85,6 +91,10 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
   const maxAllowedChildren = Number(room.max_children || room.maxChildren || 2) * roomsQuantity;
 
   const handleNextToGuestInfo = () => {
+    if (!isAuthenticated) {
+      openLoginModal({ autoOpenBooking: true, room });
+      return;
+    }
     setErrorMessage("");
     const todayStr = getToday();
     if (checkIn < todayStr) {
@@ -109,17 +119,29 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
   // 1. Sync with context when opened
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStep(1);
-      if (ctxBookingTime) setBookingTime(ctxBookingTime);
-      else setBookingTime(getDefaultBookingTime());
+      const effectiveCheckIn = ctxCheckIn || getToday();
       if (ctxCheckIn) setCheckIn(ctxCheckIn);
       if (ctxCheckOut) setCheckOut(ctxCheckOut);
       if (ctxRoomsCount) setRoomsQuantity(ctxRoomsCount);
+      if (ctxBookingTime && !isSlotPassed(ctxBookingTime, effectiveCheckIn)) {
+        setBookingTime(ctxBookingTime);
+      } else {
+        setBookingTime(getSensibleDefaultTime(effectiveCheckIn));
+      }
       if (ctxGuests) {
         setAdults((prev) => Math.min(ctxGuests, maxAllowedAdults));
       }
+      if (user?.email) {
+        setGuestEmail((prev) => prev || user.email);
+      }
+      const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || "";
+      if (fullName) {
+        setGuestName((prev) => prev || fullName);
+      }
     }
-  }, [isOpen, ctxBookingTime, ctxCheckIn, ctxCheckOut, ctxRoomsCount, ctxGuests]);
+  }, [isOpen, ctxBookingTime, ctxCheckIn, ctxCheckOut, ctxRoomsCount, ctxGuests, maxAllowedAdults, user]);
 
   // 2. Sync initial suite only when drawer is opened or initialSuite changes
   useEffect(() => {
@@ -134,12 +156,13 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
           r.room_number === initialSuite.room_number
       );
       if (match) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedRoomId(match.id);
       } else if (initialSuite.id) {
         setSelectedRoomId(initialSuite.id);
       }
     }
-  }, [isOpen, initialSuite]);
+  }, [isOpen, initialSuite, allSelectableRooms]);
 
   // 3. Load Razorpay script dynamically
   useEffect(() => {
@@ -153,6 +176,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
   // 4. Auto-clamp guests when room capacity changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAdults((prev) => (prev > maxAllowedAdults ? maxAllowedAdults : prev));
     setChildrenCount((prev) => (prev > maxAllowedChildren ? maxAllowedChildren : prev));
   }, [maxAllowedAdults, maxAllowedChildren]);
@@ -192,11 +216,15 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
       : (room.pricePerNight !== undefined ? room.pricePerNight : 1)
   );
   const roomRate = pricePerNight * nights * roomsQuantity;
-  const taxes = Math.round(roomRate * 0.18); // 18% GST / luxury tax
-  const totalAmount = roomRate + taxes;
+  const taxes = 0; // GST removed per request
+  const totalAmount = roomRate;
 
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      openLoginModal({ autoOpenBooking: true, room });
+      return;
+    }
     setErrorMessage("");
 
     const todayStr = getToday();
@@ -436,7 +464,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
               </div>
               <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5">
                 <span>Check-Out</span>
-                <span className="font-semibold text-[#F7F5F2]">{checkOut} (10:00 AM)</span>
+                <span className="font-semibold text-[#F7F5F2]">{checkOut} ({getCheckOutTime(bookingTime)})</span>
               </div>
               <div className="flex justify-between border-b border-[#D4AF37]/15 pb-1.5">
                 <span>Stay Duration</span>
@@ -486,34 +514,34 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
             )}
 
             {/* Step Indicator Header (2 Parts) */}
-            <div className="flex items-center justify-between border-b border-[#D4AF37]/20 pb-3 text-xs font-mono">
+            <div className="flex items-center justify-between border-b border-[#D4AF37]/20 pb-3 text-[11px] sm:text-xs font-mono">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className={`flex-1 py-2 px-2.5 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                className={`flex-1 py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-lg flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
                   step === 1
                     ? "bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-bold shadow-md"
                     : "text-[#D6B892]/70 hover:text-[#F7F5F2] hover:bg-[#1A1816]"
                 }`}
               >
-                <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold">1</span>
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-current flex items-center justify-center text-[9px] sm:text-[10px] font-bold shrink-0">1</span>
                 <span className="truncate">ROOM & DATES</span>
               </button>
 
-              <div className="w-4 h-px bg-[#D4AF37]/30 mx-1" />
+              <div className="w-3 sm:w-4 h-px bg-[#D4AF37]/30 mx-1 shrink-0" />
 
               <button
                 type="button"
                 onClick={() => {
                   if (step === 1) handleNextToGuestInfo();
                 }}
-                className={`flex-1 py-2 px-2.5 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                className={`flex-1 py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-lg flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
                   step === 2
                     ? "bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-bold shadow-md"
                     : "text-[#D6B892]/70 hover:text-[#F7F5F2] hover:bg-[#1A1816]"
                 }`}
               >
-                <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold">2</span>
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-current flex items-center justify-center text-[9px] sm:text-[10px] font-bold shrink-0">2</span>
                 <span className="truncate">GUEST DETAILS</span>
               </button>
             </div>
@@ -633,9 +661,9 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   />
 
                   {/* Policy Banner: 22-Hour Stay & Non-Refundable */}
-                  <div className="bg-[#181614] border border-[#D4AF37]/25 rounded px-3 py-2 flex items-center justify-between text-[11px] font-mono text-[#D6B892]">
-                    <span className="text-[#D4AF37] font-semibold">22-Hour Stay Policy</span>
-                    <span className="text-[#E6C875] font-medium bg-[#D4AF37]/10 px-2 py-0.5 rounded border border-[#D4AF37]/30">
+                  <div className="bg-[#181614] border border-[#D4AF37]/25 rounded px-2.5 sm:px-3 py-2 flex flex-wrap items-center justify-between gap-1.5 text-[10.5px] sm:text-[11px] font-mono text-[#D6B892]">
+                    <span className="text-[#D4AF37] font-semibold whitespace-nowrap">22-Hour Stay Policy</span>
+                    <span className="text-[#E6C875] font-medium bg-[#D4AF37]/10 px-2 py-0.5 rounded border border-[#D4AF37]/30 whitespace-nowrap">
                       Non-Refundable Booking
                     </span>
                   </div>
@@ -646,10 +674,10 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   <button
                     type="button"
                     onClick={handleNextToGuestInfo}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs sm:text-sm font-serif uppercase tracking-[0.2em] font-bold rounded-md shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-[11px] sm:text-sm font-serif uppercase tracking-[0.14em] sm:tracking-[0.2em] font-bold rounded-md shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.01] transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer px-3 sm:px-4"
                   >
-                    <span>CONTINUE TO GUEST INFORMATION</span>
-                    <ArrowRight className="w-4 h-4 text-[#100F0E]" />
+                    <span>CONTINUE TO GUEST INFO</span>
+                    <ArrowRight className="w-4 h-4 text-[#100F0E] shrink-0" />
                   </button>
                 </div>
               </div>
@@ -684,7 +712,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                       </div>
                       <div>
                         <span className="text-[#D6B892]/60 block text-[9.5px]">CHECK-OUT</span>
-                        <span className="font-semibold text-[#F7F5F2]">{checkOut} (10:00 AM)</span>
+                        <span className="font-semibold text-[#F7F5F2]">{checkOut} ({getCheckOutTime(bookingTime)})</span>
                       </div>
                     </div>
                   </div>
@@ -728,10 +756,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                       <span>Rate ({roomsQuantity} {roomsQuantity > 1 ? "Rooms" : "Room"} × {nights} {nights > 1 ? "Nights" : "Night"})</span>
                       <span className="font-mono font-semibold text-[#F7F5F2]">₹{roomRate?.toLocaleString('en-IN')}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Heritage Taxes & GST (18%)</span>
-                      <span className="font-mono">₹{taxes?.toLocaleString('en-IN')}</span>
-                    </div>
+                  
                     <div className="border-t border-[#D4AF37]/20 pt-2 flex justify-between items-baseline font-serif text-base text-[#F7F5F2]">
                       <span className="font-semibold">Grand Total</span>
                       <span className="text-[#D4AF37] font-semibold text-2xl font-mono">₹{totalAmount?.toLocaleString('en-IN')}</span>
@@ -748,17 +773,17 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                   <button
                     type="submit"
                     disabled={isProcessing}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs sm:text-sm font-serif uppercase tracking-[0.22em] font-bold rounded-md shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-[1.01] transition-transform flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-[11px] sm:text-sm font-serif uppercase tracking-[0.12em] sm:tracking-[0.22em] font-bold rounded-md shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-[1.01] transition-transform flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer disabled:opacity-50 px-2 sm:px-4"
                   >
                     {isProcessing ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>INITIALIZING PAYMENT...</span>
+                        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                        <span className="truncate">INITIALIZING PAYMENT...</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4" />
-                        <span>PAY WITH RAZORPAY (₹{totalAmount?.toLocaleString('en-IN')})</span>
+                        <Sparkles className="w-4 h-4 shrink-0" />
+                        <span className="truncate">PAY WITH RAZORPAY (₹{totalAmount?.toLocaleString('en-IN')})</span>
                       </>
                     )}
                   </button>

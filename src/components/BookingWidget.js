@@ -1,16 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Calendar as CalendarIcon, Users, Clock, Search } from "lucide-react";
+import { Calendar as CalendarIcon, Users, Clock, Search, Info } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
-
-const ALL_TIME_OPTIONS = [
-  "12:00 AM", "1:00 AM", "2:00 AM", "3:00 AM", "4:00 AM", "5:00 AM",
-  "6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM",
-  "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM",
-  "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM"
-];
+import { useAuth } from "@/context/AuthContext";
+import {
+  getAvailableTimeSlots,
+  getDefaultBookingTime,
+  getCheckOutTime,
+  isSlotPassed,
+} from "@/lib/timeUtils";
 
 export default function BookingWidget() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function BookingWidget() {
     setCheckOut,
     bookingTime,
     setBookingTime,
+    checkOutTime,
     guests,
     setGuests,
     roomsCount,
@@ -31,6 +32,7 @@ export default function BookingWidget() {
     openBookingDrawer,
     refreshAvailableRooms,
   } = useBooking();
+  const { isAuthenticated, openLoginModal } = useAuth();
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -43,13 +45,30 @@ export default function BookingWidget() {
 
   const handleCheckInChange = (newDate) => {
     setCheckIn(newDate);
+    if (isSlotPassed(bookingTime, newDate)) {
+      setBookingTime(getDefaultBookingTime(newDate));
+    }
     if (!checkOut || checkOut <= newDate) {
       setCheckOut(getMinCheckOut(newDate));
     }
   };
 
+  // Auto-correct bookingTime if currently selected time is in the past for checkIn
+  useEffect(() => {
+    if (checkIn && isSlotPassed(bookingTime, checkIn)) {
+      const nextValid = getDefaultBookingTime(checkIn);
+      if (nextValid !== bookingTime) {
+        setBookingTime(nextValid);
+      }
+    }
+  }, [checkIn, bookingTime, setBookingTime]);
+
   const handleSearch = (e) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      openLoginModal({ autoOpenBooking: true });
+      return;
+    }
     if (checkIn < today) {
       alert("Check-in date cannot be in the past.");
       return;
@@ -76,7 +95,9 @@ export default function BookingWidget() {
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Check-In</span>
               </span>
-              <span className="text-[10px] text-cream/70 font-mono">12:00 PM</span>
+              <span className="text-[10px] text-cream/70 font-mono truncate text-right">
+                {bookingTime}
+              </span>
             </label>
             <input
               type="date"
@@ -95,7 +116,7 @@ export default function BookingWidget() {
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Check-Out</span>
               </span>
-              <span className="text-[10px] text-cream/70 font-mono">10:00 AM</span>
+              <span className="text-[10px] text-cream/70 font-mono">{checkOutTime || getCheckOutTime(bookingTime)}</span>
             </label>
             <input
               type="date"
@@ -139,11 +160,13 @@ export default function BookingWidget() {
               onChange={(e) => setBookingTime(e.target.value)}
               className="w-full bg-charcoal-light border border-white/20 focus:border-gold rounded-sm px-3 py-2.5 text-sm text-white font-mono focus:outline-none focus:ring-1 focus:ring-gold transition-colors cursor-pointer"
             >
-              {ALL_TIME_OPTIONS.map((slot) => (
-                <option key={slot} value={slot} className="bg-[#100F0E] text-white">
-                  {slot}
-                </option>
-              ))}
+              {getAvailableTimeSlots(checkIn)
+                .filter((slot) => !slot.isPassed)
+                .map((slot) => (
+                  <option key={slot.value} value={slot.value} className="bg-[#100F0E] text-white">
+                    {slot.value}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -152,15 +175,15 @@ export default function BookingWidget() {
             <button
               type="submit"
               data-cursor="RESERVE"
-              className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-sm font-bold tracking-widest py-3 sm:py-3.5 px-4 rounded-sm border border-gold/40 shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
+              className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs min-[360px]:text-sm font-bold tracking-wider min-[360px]:tracking-widest py-3 sm:py-3.5 px-3 min-[360px]:px-4 rounded-sm border border-gold/40 shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 group cursor-pointer"
             >
-              <CalendarIcon className="w-4 h-4 text-[#100F0E] group-hover:scale-110 transition-transform" />
+              <CalendarIcon className="w-4 h-4 text-[#100F0E] group-hover:scale-110 transition-transform shrink-0" />
               <span>BOOK NOW</span>
             </button>
           </div>
         </form>
 
-        {/* 22-Hour Policy & Non-Refundable Tagline */}
+        {/* 22-Hour Policy Tagline */}
         <div className="pt-3 mt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-[11px] font-sans text-cream/70">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <span className="flex items-center gap-1.5 text-gold font-serif">
@@ -172,7 +195,7 @@ export default function BookingWidget() {
               Non-Refundable Booking
             </span>
           </div>
-          <span>Check-in: <strong className="text-white font-mono">12:00 PM Noon</strong> • Check-out: <strong className="text-white font-mono">10:00 AM Morning</strong></span>
+          <span>Check-in: <strong className="text-white font-mono">{bookingTime}</strong> • Check-out: <strong className="text-white font-mono">{checkOutTime || getCheckOutTime(bookingTime)} (Next Day)</strong> (22 Hours)</span>
         </div>
       </div>
     </div>

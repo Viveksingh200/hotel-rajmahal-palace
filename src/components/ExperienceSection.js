@@ -35,15 +35,15 @@ export default function ExperienceSection() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-sandstone/5 rounded-full filter blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase tracking-[0.4em] text-sandstone font-semibold block mb-2">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.4em] text-sandstone font-semibold block mb-2">
             NATURE & SERENITY
           </span>
-          <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight mb-4">
+          <h2 className="text-2xl sm:text-5xl font-serif text-charcoal tracking-tight mb-3 sm:mb-4">
             Peace & Nature in the Hills
           </h2>
-          <div className="w-24 h-0.5 mx-auto bg-gold mb-6" />
-          <p className="text-base sm:text-lg font-serif italic text-sandstone">
+          <div className="w-16 sm:w-24 h-0.5 mx-auto bg-gold mb-4 sm:mb-6" />
+          <p className="text-sm sm:text-lg font-serif italic text-sandstone">
             &ldquo;Relax and enjoy nature surrounded by fresh mountain air and peaceful green hills.&rdquo;
           </p>
         </div>
@@ -63,11 +63,11 @@ export default function ExperienceSection() {
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-transparent" />
-          <div className="absolute bottom-8 left-8 right-8 max-w-2xl">
-            <span className="text-xs uppercase tracking-widest text-gold font-medium block mb-2">
+          <div className="absolute bottom-6 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8 max-w-2xl">
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-gold font-medium block mb-1.5 sm:mb-2">
               SACRED JYOTIRLINGA
             </span>
-            <h3 className="text-2xl sm:text-4xl font-serif text-white mb-2">
+            <h3 className="text-xl sm:text-4xl font-serif text-white mb-1.5 sm:mb-2">
               Bhimashankar Temple
             </h3>
             <p className="text-sm sm:text-base text-cream/90 font-light">

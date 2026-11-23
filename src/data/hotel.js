@@ -5,7 +5,7 @@ export const HOTEL_INFO = {
   heroDescription: "An Indian heritage-inspired resort nestled amidst peaceful hills, lush valleys, and authentic architectural magnificence.",
   phone: "+91 70706 16464",
   email: "rajmahalpalace03@gmail.com",
-  address: "Mukam Post Shirgaon, Rajgurunagar Road, NH 60, Taluka Khed, Dist. Pune 412402, Maharashtra, India",
+  address: "Hotel Rajmahal Palace, Shirgaon, Near Bhimashankar, NH 60, Tal Khed, Dist. Pune - 412402",
   instagramUrl: "https://www.instagram.com/rajmahalpalace04?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==",
   mapUrl: "https://www.google.com/maps/dir/19.1880623,73.0488215/Hotel+Rajmahal+palace+(Bhimashankar+Pune),+Shirgaon,+Maharashtra+412402/@19.1099728,73.3369036,10z/data=!3m1!4b1!4m22!1m11!3m10!1s0x3bdd5b00229267e9:0x30be08e5fda4d0d4!2sHotel+Rajmahal+palace+(Bhimashankar+Pune)!5m2!4m1!1i2!8m2!3d19.0318832!4d73.6249857!15sChVob3RlbCByYWptYWhhbCBwYWxhY2VaFyIVaG90ZWwgcmFqbWFoYWwgcGFsYWNlkgEKcmVzdGF1cmFudOABAA!16s%2Fg%2F11wg8g4l_0!4m9!1m1!4e1!1m5!1m1!1s0x3bdd5b00229267e9:0x30be08e5fda4d0d4!2m2!1d73.6249857!2d19.0318832!3e3",
   embedMapUrl: "https://maps.google.com/maps?q=Hotel+Rajmahal+palace+(Bhimashankar+Pune),+Shirgaon,+Maharashtra+412402&t=&z=13&ie=UTF8&iwloc=&output=embed",

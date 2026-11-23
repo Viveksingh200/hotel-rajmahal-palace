@@ -93,13 +93,13 @@ export default function DiningModal({ isOpen, onClose }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-center">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
             <a
               href={`tel:${DINING_DATA.orderPhoneRaw}`}
               data-cursor="CALL"
-              className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-full shadow-md hover:scale-105 transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="flex-1 sm:flex-initial px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-[10px] min-[360px]:text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-full shadow-md hover:scale-105 transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <Phone className="w-3.5 h-3.5 fill-current" />
+              <Phone className="w-3.5 h-3.5 fill-current shrink-0" />
               <span>{DINING_DATA.orderPhone}</span>
             </a>
 
@@ -108,9 +108,9 @@ export default function DiningModal({ isOpen, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="WHATSAPP"
-              className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-serif text-[11px] sm:text-xs font-semibold uppercase tracking-wider rounded-full border border-emerald-500/30 shadow-md hover:scale-105 transition-all inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"
+              className="px-2.5 sm:px-4 py-2 sm:py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-serif text-[10px] min-[360px]:text-[11px] sm:text-xs font-semibold uppercase tracking-wider rounded-full border border-emerald-500/30 shadow-md hover:scale-105 transition-all inline-flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className="w-3.5 h-3.5 shrink-0" />
               <span>WhatsApp</span>
             </a>
           </div>

@@ -160,9 +160,9 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
                 </div>
 
                 {/* Card Footer */}
-                <div className="pt-2 flex items-center justify-between border-t border-[#D4AF37]/15">
-                  <div className="text-xs font-mono text-[#D6B892]/70">
-                    Check-in: 12:00 PM • Check-out: 10:00 AM (22h Stay)
+                <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-[#D4AF37]/15">
+                  <div className="text-[11px] sm:text-xs font-mono text-[#D6B892]/70">
+                    22-Hour Stay Policy (Check-out 22h from check-in)
                   </div>
 
                   <button
@@ -170,10 +170,10 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
                       onClose();
                       if (onSelectSuite) onSelectSuite(room);
                     }}
-                    className="px-8 py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-xs font-serif uppercase tracking-[0.2em] font-semibold rounded shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] text-[11px] sm:text-xs font-serif uppercase tracking-[0.16em] sm:tracking-[0.2em] font-semibold rounded shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>Reserve Suite</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 shrink-0" />
                   </button>
                 </div>
               </div>

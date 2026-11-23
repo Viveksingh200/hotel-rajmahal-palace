@@ -14,6 +14,7 @@ import AboutSection from "@/components/AboutSection";
 import LocationSection from "@/components/LocationSection";
 import { Calendar, Compass, Sparkles, ArrowRight } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -35,6 +36,7 @@ export default function HomePage() {
     selectedRoom,
     startBookingForRoom,
   } = useBooking();
+  const { isAuthenticated, openLoginModal } = useAuth();
 
   return (
     <main className="relative min-h-screen bg-[#100F0E] text-[#F7F5F2] selection:bg-[#D4AF37] selection:text-[#100F0E]">
@@ -74,21 +76,21 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
-              <span className="text-xs uppercase tracking-[0.35em] text-[#D4AF37] font-semibold block mb-2">
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] text-[#D4AF37] font-semibold block mb-2">
                 VISUAL ESSENCE
               </span>
-              <h2 className="text-3xl sm:text-5xl font-serif text-[#F7F5F2] tracking-tight">
+              <h2 className="text-2xl sm:text-5xl font-serif text-[#F7F5F2] tracking-tight">
                 PALACE GALLERY
               </h2>
-              <div className="w-20 h-0.5 bg-[#D4AF37] mt-3" />
+              <div className="w-16 sm:w-20 h-0.5 bg-[#D4AF37] mt-2.5 sm:mt-3" />
             </div>
 
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-2 text-[#D6B892] hover:text-[#D4AF37] font-serif text-sm tracking-wider uppercase font-semibold mt-4 md:mt-0 group"
+              className="inline-flex items-center gap-2 text-[#D6B892] hover:text-[#D4AF37] font-serif text-xs sm:text-sm tracking-wider uppercase font-semibold mt-4 md:mt-0 group"
             >
               <span>EXPLORE FULL GALLERY</span>
-              <ArrowRight className="w-4 h-4 text-[#D4AF37] group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-[#D4AF37] group-hover:translate-x-1 transition-transform shrink-0" />
             </Link>
           </div>
 
@@ -117,7 +119,13 @@ export default function HomePage() {
 
           <div className="pt-6 flex items-center justify-center">
             <button
-              onClick={() => openBookingDrawer()}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  openLoginModal({ autoOpenBooking: true });
+                  return;
+                }
+                openBookingDrawer();
+              }}
               data-cursor="RESERVE"
               className="bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-semibold tracking-widest uppercase px-10 py-5 rounded-sm border border-[#D4AF37]/50 shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center gap-3 cursor-pointer"
             >

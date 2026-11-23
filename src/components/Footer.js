@@ -6,14 +6,13 @@ import { usePathname } from "next/navigation";
 import { HOTEL_INFO } from "@/data/hotel";
 import { Calendar, Phone, Mail, MapPin } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Footer() {
   const pathname = usePathname();
   const { openBookingDrawer } = useBooking();
+  const { isAuthenticated, openLoginModal } = useAuth();
 
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
 
 
   const quickLinks = [
@@ -36,8 +35,8 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-5 space-y-4">
             <Link href="/" data-cursor="HOME" className="inline-block group cursor-pointer">
-              <span className="text-xs uppercase tracking-[0.3em] text-gold font-medium block">HOTEL</span>
-              <span className="text-2xl font-serif tracking-wider text-cream group-hover:text-gold transition-colors">
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-gold font-medium block">HOTEL</span>
+              <span className="text-xl sm:text-2xl font-serif tracking-wider text-cream group-hover:text-gold transition-colors">
                 RAJMAHAL PALACE
               </span>
             </Link>
@@ -106,7 +105,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs uppercase tracking-[0.3em] text-gold font-serif font-semibold">
+            <h4 className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gold font-serif font-semibold">
               QUICK LINKS
             </h4>
             <div className="w-10 h-0.5 bg-gold/40 mb-4" />
@@ -124,7 +123,7 @@ export default function Footer() {
 
           {/* Contact Info & CTA */}
           <div className="lg:col-span-4 space-y-4">
-            <h4 className="text-xs uppercase tracking-[0.3em] text-gold font-serif font-semibold">
+            <h4 className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gold font-serif font-semibold">
               RESERVATIONS & CONTACT
             </h4>
             <div className="w-10 h-0.5 bg-gold/40 mb-4" />
@@ -158,7 +157,13 @@ export default function Footer() {
 
             <div className="pt-2">
               <button
-                onClick={() => openBookingDrawer()}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    openLoginModal({ autoOpenBooking: true });
+                    return;
+                  }
+                  openBookingDrawer();
+                }}
                 data-cursor="RESERVE"
                 className="w-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs font-bold tracking-widest uppercase py-3 rounded-sm border border-gold/40 shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] flex items-center justify-center gap-2 transition-all cursor-pointer"
               >

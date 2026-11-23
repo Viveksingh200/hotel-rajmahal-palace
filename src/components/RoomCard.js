@@ -29,10 +29,12 @@ import {
   Moon
 } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function RoomCard({ room }) {
   const { startBookingForRoom, openSuites } = useBooking();
+  const { isAuthenticated, openLoginModal } = useAuth();
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -143,7 +145,7 @@ export default function RoomCard({ room }) {
 
               {/* Top Left Room Title & Status Badge */}
               <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex flex-wrap items-center gap-2 max-w-[65%]">
-                <span className="block md:hidden text-xs sm:text-sm font-serif font-bold text-white bg-black/85 backdrop-blur-md px-3 py-1.5 rounded-sm border border-[#D4AF37]/60 tracking-wide flex items-center gap-1.5">
+                <span className="block md:hidden text-[11px] sm:text-sm font-serif font-bold text-white bg-black/85 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-sm border border-[#D4AF37]/60 tracking-wide flex items-center gap-1.5 truncate max-w-full">
                   <span>{roomName}</span>
                 </span>
 
@@ -163,7 +165,7 @@ export default function RoomCard({ room }) {
                     e.stopPropagation();
                     setIsLightboxOpen(true);
                   }}
-                  className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider bg-black/75 hover:bg-[#D4AF37] hover:text-[#100F0E] text-[#D4AF37] backdrop-blur-md border border-[#D4AF37]/40 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-sm shadow-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="text-[9.5px] sm:text-[11px] font-mono uppercase tracking-wider bg-black/75 hover:bg-[#D4AF37] hover:text-[#100F0E] text-[#D4AF37] backdrop-blur-md border border-[#D4AF37]/40 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-sm shadow-xl flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer"
                 >
                   <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>{activeImgIndex + 1} / {galleryImages.length} Photos</span>
@@ -254,7 +256,7 @@ export default function RoomCard({ room }) {
                     <span className="text-xs text-[#D6B892]/70 font-sans">/ night</span>
                   </div>
                   <span className="text-[10.5px] sm:text-[11px] text-[#D6B892]/60 font-mono block">
-                    + 18% GST (₹540) • Total ₹3,540
+                    All Taxes Included • No GST Added
                   </span>
                 </div>
               </div>
@@ -315,28 +317,34 @@ export default function RoomCard({ room }) {
                   <span className="text-white/30">•</span>
                   <span className="text-[#E6C875] font-sans font-medium">Non-Refundable</span>
                 </div>
-                <span className="text-[#D6B892]/80">Check-in: 12:00 PM • Check-out: 10:00 AM</span>
+                <span className="text-[#D6B892]/80">22-Hour Stay Policy</span>
               </div>
             </div>
 
             {/* Action Row */}
-            <div className="pt-2 sm:pt-3 border-t border-[#D4AF37]/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+            <div className="pt-2 sm:pt-3 border-t border-[#D4AF37]/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               {isAvailable ? (
                 <button
-                  onClick={() => startBookingForRoom(normalizedRoom)}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      openLoginModal({ autoOpenBooking: true, room: normalizedRoom });
+                      return;
+                    }
+                    startBookingForRoom(normalizedRoom);
+                  }}
                   data-cursor="RESERVE"
-                  className="w-full sm:flex-1 py-3.5 sm:py-4 px-6 sm:px-8 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.22em] font-bold rounded-md shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_45px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 sm:py-4 px-3 sm:px-8 bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-[11px] min-[360px]:text-xs sm:text-sm uppercase tracking-[0.14em] min-[360px]:tracking-[0.2em] sm:tracking-[0.22em] font-bold rounded-md shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_45px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 sm:gap-2.5 cursor-pointer"
                 >
-                  <Calendar className="w-4 h-4 text-[#100F0E]" />
+                  <Calendar className="w-4 h-4 text-[#100F0E] shrink-0" />
                   <span>RESERVE NOW</span>
-                  <ArrowRight className="w-4 h-4 text-[#100F0E]" />
+                  <ArrowRight className="w-4 h-4 text-[#100F0E] shrink-0" />
                 </button>
               ) : (
                 <button
                   disabled
-                  className="w-full sm:flex-1 py-3.5 sm:py-4 px-6 sm:px-8 bg-stone-800 text-stone-400 font-serif text-xs sm:text-sm tracking-widest uppercase rounded border border-stone-700 text-center flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
+                  className="w-full sm:flex-1 py-3 sm:py-4 px-3 sm:px-8 bg-stone-800 text-stone-400 font-serif text-[11px] sm:text-sm tracking-widest uppercase rounded border border-stone-700 text-center flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
                 >
-                  <Lock className="w-4 h-4" />
+                  <Lock className="w-4 h-4 shrink-0" />
                   <span>{status === "maintenance" ? "UNDER MAINTENANCE" : "UNAVAILABLE"}</span>
                 </button>
               )}
@@ -344,9 +352,9 @@ export default function RoomCard({ room }) {
               <button
                 type="button"
                 onClick={() => setIsLightboxOpen(true)}
-                className="w-full sm:w-auto px-4 sm:px-5 py-3 sm:py-4 bg-[#161412] hover:bg-[#1f1b17] text-[#D6B892] hover:text-[#D4AF37] border border-[#D4AF37]/35 rounded-md font-serif text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full sm:w-auto px-3.5 sm:px-5 py-2.5 sm:py-4 bg-[#161412] hover:bg-[#1f1b17] text-[#D6B892] hover:text-[#D4AF37] border border-[#D4AF37]/35 rounded-md font-serif text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Camera className="w-3.5 h-3.5" />
+                <Camera className="w-3.5 h-3.5 shrink-0" />
                 <span>View All Photos</span>
               </button>
             </div>
@@ -565,6 +573,10 @@ export default function RoomCard({ room }) {
 
               <button
                 onClick={() => {
+                  if (!isAuthenticated) {
+                    openLoginModal({ autoOpenBooking: true, room: normalizedRoom });
+                    return;
+                  }
                   setIsLightboxOpen(false);
                   startBookingForRoom(normalizedRoom);
                 }}

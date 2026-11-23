@@ -11,11 +11,7 @@ export default function SmoothScroll({ children }) {
   const { isSuiteOpen, isDiningOpen, isBookingDrawerOpen } = useBooking();
 
   const isAnyModalOpen = isSuiteOpen || isDiningOpen || isBookingDrawerOpen;
-  const isAdmin = pathname?.startsWith("/admin");
-
   useEffect(() => {
-    if (isAdmin) return;
-
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -45,7 +41,7 @@ export default function SmoothScroll({ children }) {
         window.__lenis = null;
       }
     };
-  }, [isAdmin]);
+  }, []);
 
   // Handle route change: scroll to top
   useEffect(() => {

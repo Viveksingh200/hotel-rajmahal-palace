@@ -15,14 +15,24 @@ export default function Navbar({
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const bookingCtx = useBooking();
-  const { user, isAuthenticated, signInWithGoogle, signOut } = useAuth();
+  const { openBookingDrawer } = useBooking();
+  const { user, isAuthenticated, openLoginModal, signOut } = useAuth();
   const pathname = usePathname();
   const dropdownRef = useRef(null);
 
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
+  const handleOpenBooking = () => {
+    setMobileMenuOpen(false);
+    if (!isAuthenticated) {
+      openLoginModal({ autoOpenBooking: true });
+      return;
+    }
+    if (onOpenBooking) {
+      onOpenBooking();
+    } else if (openBookingDrawer) {
+      openBookingDrawer();
+    }
+  };
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,18 +74,18 @@ export default function Navbar({
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 px-4 sm:px-8 ${scrolled
-          ? `bg-[#12100E]/98 backdrop-blur-2xl py-3 shadow-[0_15px_40px_rgba(0,0,0,0.9)] ${!mobileMenuOpen ? "border-b border-[#D4AF37]/30" : ""}`
-          : "bg-gradient-to-b from-[#12100E]/95 via-[#12100E]/60 to-transparent pt-4 pb-6"
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 px-3 sm:px-8 ${scrolled
+          ? `bg-[#12100E]/98 backdrop-blur-2xl py-2.5 sm:py-3 shadow-[0_15px_40px_rgba(0,0,0,0.9)] ${!mobileMenuOpen ? "border-b border-[#D4AF37]/30" : ""}`
+          : "bg-gradient-to-b from-[#12100E]/95 via-[#12100E]/60 to-transparent pt-3 pb-3 sm:pt-4 sm:pb-6"
           }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Logo */}
-          <Link href="/" data-cursor="HOME" className="group flex flex-col focus:outline-none cursor-pointer">
-            <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-semibold group-hover:text-amber-300 transition-colors">
+          <Link href="/" data-cursor="HOME" className="group flex flex-col focus:outline-none cursor-pointer shrink-0 min-w-0">
+            <span className="text-[8px] min-[360px]:text-[9px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-[#D4AF37] font-semibold group-hover:text-amber-300 transition-colors leading-tight">
               HOTEL
             </span>
-            <span className="text-xl sm:text-2xl font-serif tracking-wider text-[#F7F5F2] group-hover:text-white transition-colors">
+            <span className="text-[13px] min-[360px]:text-base sm:text-2xl font-serif tracking-tight min-[360px]:tracking-wider text-[#F7F5F2] group-hover:text-white transition-colors whitespace-nowrap leading-tight">
               RAJMAHAL PALACE
             </span>
             <span className="h-[1px] w-full bg-gradient-to-r from-[#D4AF37]/0 via-[#D4AF37]/70 to-[#D4AF37]/0 group-hover:via-[#D4AF37] transition-all duration-300"></span>
@@ -119,13 +129,14 @@ export default function Navbar({
 
           {/* Right Action Buttons ("BOOK NOW" & Login Profile) */}
           <div className="hidden lg:flex items-center space-x-3">
-            <Link
-              href="/rooms"
+            <button
+              type="button"
+              onClick={handleOpenBooking}
               data-cursor="RESERVE"
               className="bg-black/50 hover:bg-[#D4AF37] text-[#F7F5F2] hover:text-[#100F0E] font-serif text-[11px] font-semibold tracking-[0.25em] uppercase px-7 py-2.5 rounded-full border border-[#D4AF37]/80 shadow-[0_0_20px_rgba(212,175,55,0.25)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
             >
               BOOK NOW
-            </Link>
+            </button>
 
             {isAuthenticated ? (
               <div className="relative" ref={dropdownRef}>
@@ -172,29 +183,29 @@ export default function Navbar({
               </div>
             ) : (
               <button
-                onClick={signInWithGoogle}
+                onClick={() => openLoginModal({ autoOpenBooking: false })}
                 className="bg-white/10 hover:bg-white/20 text-[#F7F5F2] font-serif text-[11px] tracking-wider uppercase px-4 py-2 rounded-full border border-white/20 hover:border-[#D4AF37] transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
               >
                 <User className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>Google Sign In</span>
+                <span>Login</span>
               </button>
             )}
           </div>
 
           {/* Mobile View Toggle */}
-          <div className="flex lg:hidden items-center space-x-2 sm:space-x-3">
+          <div className="flex lg:hidden items-center space-x-1.5 min-[360px]:space-x-2.5 shrink-0">
             {isAuthenticated ? (
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="flex items-center justify-center w-7 h-7 rounded-full bg-[#D4AF37] text-[#100F0E] font-bold text-[11px] font-mono shadow-md cursor-pointer"
+                className="flex items-center justify-center w-7 h-7 rounded-full bg-[#D4AF37] text-[#100F0E] font-bold text-[11px] font-mono shadow-md cursor-pointer shrink-0"
                 title={user?.email || "Profile"}
               >
                 {user?.email?.[0]?.toUpperCase() || "G"}
               </button>
             ) : (
               <button
-                onClick={signInWithGoogle}
-                className="bg-white/10 text-[#F7F5F2] font-serif text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-1"
+                onClick={() => openLoginModal({ autoOpenBooking: false })}
+                className="bg-white/10 hover:bg-white/20 text-[#F7F5F2] font-serif text-[9px] min-[360px]:text-[10px] tracking-wider uppercase px-2.5 py-1 min-[360px]:px-3 min-[360px]:py-1.5 rounded-full border border-white/20 flex items-center gap-1 shrink-0 cursor-pointer"
               >
                 <User className="w-3 h-3 text-[#D4AF37]" />
                 <span>Login</span>
@@ -203,10 +214,10 @@ export default function Navbar({
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-[#F7F5F2] p-1.5 focus:outline-none"
+              className="text-[#F7F5F2] p-1 min-[360px]:p-1.5 focus:outline-none shrink-0 cursor-pointer"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-[#D4AF37]" /> : <Menu className="w-6 h-6 text-[#F7F5F2]" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 min-[360px]:w-6 min-[360px]:h-6 text-[#D4AF37]" /> : <Menu className="w-5 h-5 min-[360px]:w-6 min-[360px]:h-6 text-[#F7F5F2]" />}
             </button>
           </div>
         </div>
@@ -220,7 +231,7 @@ export default function Navbar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "-100%" }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 bg-[#100F0E]/98 backdrop-blur-xl flex flex-col justify-between pt-20 pb-12 px-6 border-b border-[#D4AF37]/30 lg:hidden"
+            className="fixed inset-0 z-40 bg-[#100F0E]/98 backdrop-blur-xl flex flex-col justify-between pt-20 pb-10 px-5 sm:px-6 border-b border-[#D4AF37]/30 lg:hidden overflow-y-auto"
           >
             <div className="flex flex-col space-y-4">
               {isAuthenticated && (
@@ -284,15 +295,15 @@ export default function Navbar({
               </div>
             </div>
 
-            <div className="flex flex-col space-y-4">
-              <Link
-                href="/rooms"
-                onClick={() => setMobileMenuOpen(false)}
+            <div className="flex flex-col space-y-4 mt-6 shrink-0">
+              <button
+                type="button"
+                onClick={handleOpenBooking}
                 className="w-full bg-[#D4AF37] text-[#100F0E] font-serif tracking-widest py-3.5 rounded-full border border-[#D4AF37]/40 text-center flex items-center justify-center gap-2 shadow-lg font-semibold cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 <span>BOOK NOW</span>
-              </Link>
+              </button>
             </div>
           </motion.div>
         )}

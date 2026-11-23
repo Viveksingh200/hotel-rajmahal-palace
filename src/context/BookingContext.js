@@ -3,6 +3,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { ROOMS_DATA } from "@/data/rooms";
 import { fetchAvailableRooms, createBookingRecord } from "@/lib/bookingService";
+import {
+  getDefaultBookingTime as getSensibleDefaultTime,
+  getSensibleDefaultCheckInDate,
+  getCheckOutTime,
+  isSlotPassed,
+} from "@/lib/timeUtils";
 
 const BookingContext = createContext();
 
@@ -22,19 +28,28 @@ export function BookingProvider({ children }) {
   const dayAfter = new Date(today);
   dayAfter.setDate(today.getDate() + 2);
 
-  const getDefaultBookingTime = () => {
-    const now = new Date();
-    now.setHours(now.getHours() + 1);
-    let hours = now.getHours();
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    return `${hours}:00 ${ampm}`;
-  };
+  const initialCheckIn = getSensibleDefaultCheckInDate();
+  const initialCheckOut = (() => {
+    const d = new Date(initialCheckIn + "T00:00:00");
+    d.setDate(d.getDate() + 1);
+    return formatDate(d);
+  })();
 
-  const [checkIn, setCheckIn] = useState(formatDate(today));
-  const [checkOut, setCheckOut] = useState(formatDate(tomorrow));
-  const [bookingTime, setBookingTime] = useState(getDefaultBookingTime());
+  const [checkIn, setCheckInState] = useState(initialCheckIn);
+  const [checkOut, setCheckOut] = useState(initialCheckOut);
+  const [bookingTime, setBookingTime] = useState(() => getSensibleDefaultTime(initialCheckIn));
+
+  // Smart check-in setter that auto-adjusts bookingTime if the previous selection is past for the new date
+  const setCheckIn = useCallback((newDate) => {
+    setCheckInState(newDate);
+    setBookingTime((currentTime) => {
+      if (isSlotPassed(currentTime, newDate)) {
+        return getSensibleDefaultTime(newDate);
+      }
+      return currentTime;
+    });
+  }, [setCheckInState, setBookingTime]);
+
   const [guests, setGuests] = useState(2);
   const [roomsCount, setRoomsCount] = useState(1);
 
@@ -91,8 +106,9 @@ export function BookingProvider({ children }) {
   }, [checkIn, checkOut, guests, selectedRoom]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshAvailableRooms();
-  }, [checkIn, checkOut, guests]);
+  }, [checkIn, checkOut, guests, refreshAvailableRooms]);
 
   // Calculate total nights
   const calculateNights = () => {
@@ -105,6 +121,7 @@ export function BookingProvider({ children }) {
   };
 
   const nights = calculateNights();
+  const checkOutTime = getCheckOutTime(bookingTime);
 
   const pricePerNight = selectedRoom
     ? Number(
@@ -114,8 +131,8 @@ export function BookingProvider({ children }) {
     )
     : 1;
   const roomSubtotal = pricePerNight * nights * roomsCount;
-  const taxesAndFees = Math.round(roomSubtotal * 0.18);
-  const grandTotal = roomSubtotal + taxesAndFees;
+  const taxesAndFees = 0; // GST removed per request
+  const grandTotal = roomSubtotal;
 
   const openBookingModal = (step = "available") => {
     setBookingStep(step);
@@ -205,6 +222,7 @@ export function BookingProvider({ children }) {
         setCheckOut,
         bookingTime,
         setBookingTime,
+        checkOutTime,
         guests,
         setGuests,
         roomsCount,

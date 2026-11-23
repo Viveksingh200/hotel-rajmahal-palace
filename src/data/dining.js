@@ -12,7 +12,7 @@ export const DINING_DATA = {
   },
   categories: [
     { id: "all", name: "All Dishes", icon: "✨" },
-    { id: "breakfast", name: "Breakfast", icon: "🍳" },
+    { id: "breakfast", name: "Breakfast", icon: "🥣" },
     { id: "sandwich", name: "Sandwich", icon: "🥪" },
     { id: "upvas", name: "Upvas Special", icon: "🙏" },
     { id: "soups", name: "Soups", icon: "🍲" },
@@ -25,20 +25,20 @@ export const DINING_DATA = {
     { id: "roti", name: "Roti & Breads", icon: "🫓" },
     { id: "raita", name: "Raita & Curd", icon: "🥗" },
     { id: "sweets", name: "Sweets & Desserts", icon: "🍨" },
-    { id: "hot-drinks", name: "Hot Drinks", icon: "🥤" },
-    { id: "cold-drinks", name: "Cold Drinks", icon: "🧊" },
+    { id: "hot-drinks", name: "Hot Drinks", icon: "☕" },
+    { id: "cold-drinks", name: "Cold Drinks", icon: "🥤" },
     { id: "thali", name: "Thali", icon: "🍽️" },
   ],
   menu: [
-    // 🍳 BREAKFAST
-    { name: "Poha", price: "₹60", category: "breakfast", icon: "🍳", desc: "Fresh flattened rice tempered with mustard, curry leaves, onions & roasted peanuts" },
-    { name: "Upma", price: "₹60", category: "breakfast", icon: "🍳", desc: "Traditional semolina breakfast tempered with ghee, ginger & fresh herbs" },
-    { name: "Shira", price: "₹60", category: "breakfast", icon: "🍳", desc: "Warm semolina sweet pudding prepared with pure ghee & cardamom" },
-    { name: "Batata Bhaji", price: "₹90", category: "breakfast", icon: "🍳", desc: "Spiced golden potato sabji cooked with green chillies & fresh coriander" },
-    { name: "Kanda Bhaji", price: "₹90", category: "breakfast", icon: "🍳", desc: "Crispy Maharashtrian spiced onion fritters served piping hot" },
-    { name: "Maggi (Plain / Masala / Peri Peri / Cheese)", price: "₹80", category: "breakfast", icon: "🍳", desc: "Cooked to your preference: Classic Plain, Masala, Peri Peri, or Cheese Loaded" },
-    { name: "Vada Pav", price: "₹20", category: "breakfast", icon: "🍳", desc: "Iconic spiced potato fritter in fresh pav with garlic chutney" },
-    { name: "Misal Pav", price: "₹100", category: "breakfast", icon: "🍳", desc: "Spicy sprouted moth bean curry with farsan, onions, lemon & butter pav" },
+    // 🥣 BREAKFAST
+    { name: "Poha", price: "₹60", category: "breakfast", icon: "🥣", desc: "Fresh flattened rice tempered with mustard, curry leaves, onions & roasted peanuts" },
+    { name: "Upma", price: "₹60", category: "breakfast", icon: "🥣", desc: "Traditional semolina breakfast tempered with ghee, ginger & fresh herbs" },
+    { name: "Shira", price: "₹60", category: "breakfast", icon: "🥣", desc: "Warm semolina sweet pudding prepared with pure ghee & cardamom" },
+    { name: "Batata Bhaji", price: "₹90", category: "breakfast", icon: "🥣", desc: "Spiced golden potato sabji cooked with green chillies & fresh coriander" },
+    { name: "Kanda Bhaji", price: "₹90", category: "breakfast", icon: "🥣", desc: "Crispy Maharashtrian spiced onion fritters served piping hot" },
+    { name: "Maggi (Plain / Masala / Peri Peri / Cheese)", price: "₹80", category: "breakfast", icon: "🥣", desc: "Cooked to your preference: Classic Plain, Masala, Peri Peri, or Cheese Loaded" },
+    { name: "Vada Pav", price: "₹20", category: "breakfast", icon: "🥣", desc: "Iconic spiced potato fritter in fresh pav with garlic chutney" },
+    { name: "Misal Pav", price: "₹100", category: "breakfast", icon: "🥣", desc: "Spicy sprouted moth bean curry with farsan, onions, lemon & butter pav" },
 
     // 🥪 SANDWICH
     { name: "Veg Sandwich", price: "₹70", category: "sandwich", icon: "🥪", desc: "Fresh cucumbers, tomatoes, potatoes & green mint chutney" },

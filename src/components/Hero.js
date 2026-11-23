@@ -16,7 +16,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
+    <section className="relative w-full h-screen min-h-[580px] sm:min-h-[700px] flex items-center justify-center overflow-hidden">
       {/* Background Image with Ambient Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -33,16 +33,16 @@ export default function Hero() {
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-cream mt-16 sm:mt-0">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-cream pt-20 pb-16 sm:py-0 mt-6 sm:mt-0">
         {/* Sub-badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-sandstone/30 border border-gold/40 backdrop-blur-md mb-6"
+          className="inline-flex items-center gap-2 sm:gap-3 px-3.5 py-1.5 rounded-full bg-sandstone/30 border border-gold/40 backdrop-blur-md mb-4 sm:mb-6"
         >
-          <span className="w-2 h-2 rounded-full bg-gold animate-ping" />
-          <span className="text-xs uppercase tracking-[0.35em] text-gold font-medium">
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gold animate-ping" />
+          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] text-gold font-medium">
             A STAY BEYOND ORDINARY
           </span>
         </motion.div>
@@ -52,7 +52,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.4 }}
-          className="text-4xl sm:text-6xl md:text-7xl font-serif tracking-tight text-white mb-4 drop-shadow-md leading-tight"
+          className="text-3xl sm:text-6xl md:text-7xl font-serif tracking-tight text-white mb-3 sm:mb-4 drop-shadow-md leading-tight"
         >
           Hotel Rajmahal Palace
         </motion.h1>
@@ -62,7 +62,7 @@ export default function Hero() {
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-gold to-transparent mb-6"
+          className="w-24 sm:w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-gold to-transparent mb-5 sm:mb-6"
         />
 
         {/* Subtitle / Quote */}
@@ -70,7 +70,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="text-lg sm:text-2xl font-serif italic text-cream/90 max-w-2xl mx-auto mb-10 drop-shadow"
+          className="text-base sm:text-2xl font-serif italic text-cream/90 max-w-2xl mx-auto mb-8 sm:mb-10 drop-shadow"
         >
           &ldquo;Where heritage meets the serenity of the hills.&rdquo;
         </motion.p>
@@ -80,11 +80,11 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6"
         >
           <Link
             href="/rooms"
-            className="w-full sm:w-auto bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-sm font-bold tracking-widest px-8 py-4 rounded-sm border border-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_45px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
+            className="w-full sm:w-auto bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs sm:text-sm font-bold tracking-widest px-6 py-3.5 sm:px-8 sm:py-4 rounded-sm border border-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_45px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-[#100F0E] group-hover:scale-110 transition-transform" />
             <span>RESERVE YOUR STAY</span>
@@ -92,7 +92,7 @@ export default function Hero() {
 
           <button
             onClick={scrollToExplore}
-            className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-cream font-serif text-sm tracking-widest px-8 py-4 rounded-sm border border-white/30 hover:border-gold backdrop-blur-md transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
+            className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-cream font-serif text-xs sm:text-sm tracking-widest px-6 py-3.5 sm:px-8 sm:py-4 rounded-sm border border-white/30 hover:border-gold backdrop-blur-md transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
           >
             <Compass className="w-4 h-4 text-gold group-hover:rotate-45 transition-transform" />
             <span>EXPLORE THE HOTEL</span>

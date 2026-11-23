@@ -21,12 +21,12 @@ export default function DiningSection() {
             transition={{ duration: 0.8 }}
             className="lg:col-span-5 space-y-6"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sandstone/15 text-sandstone">
-              <Utensils className="w-3.5 h-3.5" />
-              <span className="text-xs uppercase tracking-widest font-semibold">PALACE GASTRONOMY</span>
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-sandstone/15 text-sandstone">
+              <Utensils className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest font-semibold">PALACE GASTRONOMY</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif text-charcoal tracking-tight">
+            <h2 className="text-2xl sm:text-5xl font-serif text-charcoal tracking-tight">
               DINE WITH US
             </h2>
 
@@ -55,10 +55,10 @@ export default function DiningSection() {
               <button
                 onClick={() => openDining()}
                 data-cursor="MENU"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-xs tracking-widest uppercase font-bold transition-all shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] group cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-[#C9A86A] via-[#D4AF37] to-[#C9A86A] text-[#100F0E] font-serif text-[11px] sm:text-xs tracking-wider sm:tracking-widest uppercase font-bold transition-all shadow-[0_0_20px_rgba(212,175,55,0.35)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.02] group cursor-pointer"
               >
                 <span>EXPLORE MENU</span>
-                <ArrowRight className="w-4 h-4 text-[#100F0E] group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-[#100F0E] group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
             </div>
           </motion.div>

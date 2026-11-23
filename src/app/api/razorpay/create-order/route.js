@@ -14,7 +14,7 @@ const supabaseServiceKey =
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { roomId, checkIn, checkOut, guests, guestInfo } = body;
+    const { roomId, checkIn, checkOut, guests, roomsCount = 1, guestInfo } = body;
 
     if (!roomId || !checkIn || !checkOut || !guestInfo?.email) {
       return NextResponse.json({ error: "Missing required booking details" }, { status: 400 });
@@ -70,9 +70,10 @@ export async function POST(req) {
 
 
     // 3. SERVER-SIDE PRICE CALCULATION (SECURITY: NEVER trust client amount)
-    const roomSubtotal = roomPrice * nights;
-    const taxesAndFees = Math.round(roomSubtotal * 0.18); // 18% GST / luxury tax
-    const totalAmount = roomSubtotal + taxesAndFees; // In Dollars / Rupees
+    const countOfRooms = Math.max(1, Number(roomsCount) || 1);
+    const roomSubtotal = roomPrice * nights * countOfRooms;
+    const taxesAndFees = 0; // GST removed per request
+    const totalAmount = roomSubtotal; // Flat room rate without GST
 
     // 4. Generate unique Booking Reference
     const bookingRef = `RMP-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -148,7 +149,7 @@ export async function POST(req) {
 
             check_out: checkOut,
             guests: Number(guests || 1),
-            rooms_count: 1,
+            rooms_count: countOfRooms,
             nights,
             room_subtotal: roomSubtotal,
             taxes_and_fees: taxesAndFees,
