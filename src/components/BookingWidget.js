@@ -10,6 +10,7 @@ import {
   getDefaultBookingTime,
   getCheckOutTime,
   isSlotPassed,
+  getSensibleDefaultCheckInDate,
 } from "@/lib/timeUtils";
 
 export default function BookingWidget() {
@@ -34,7 +35,7 @@ export default function BookingWidget() {
   } = useBooking();
   const { isAuthenticated, openLoginModal } = useAuth();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getSensibleDefaultCheckInDate();
 
   const getMinCheckOut = (checkInDate) => {
     if (!checkInDate) return today;
@@ -95,7 +96,7 @@ export default function BookingWidget() {
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Check-In</span>
               </span>
-              <span className="text-[10px] text-cream/70 font-mono truncate text-right">
+              <span suppressHydrationWarning className="text-[10px] text-cream/70 font-mono truncate text-right">
                 {bookingTime}
               </span>
             </label>
@@ -116,7 +117,7 @@ export default function BookingWidget() {
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Check-Out</span>
               </span>
-              <span className="text-[10px] text-cream/70 font-mono">{checkOutTime || getCheckOutTime(bookingTime)}</span>
+              <span suppressHydrationWarning className="text-[10px] text-cream/70 font-mono">{checkOutTime || getCheckOutTime(bookingTime)}</span>
             </label>
             <input
               type="date"
@@ -156,6 +157,7 @@ export default function BookingWidget() {
               <span>Timing</span>
             </label>
             <select
+              suppressHydrationWarning
               value={bookingTime}
               onChange={(e) => setBookingTime(e.target.value)}
               className="w-full bg-charcoal-light border border-white/20 focus:border-gold rounded-sm px-3 py-2.5 text-sm text-white font-mono focus:outline-none focus:ring-1 focus:ring-gold transition-colors cursor-pointer"
@@ -184,7 +186,7 @@ export default function BookingWidget() {
         </form>
 
         {/* 22-Hour Policy Tagline */}
-        <div className="pt-3 mt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-[11px] font-sans text-cream/70">
+        <div suppressHydrationWarning className="pt-3 mt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-[11px] font-sans text-cream/70">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <span className="flex items-center gap-1.5 text-gold font-serif">
               <span className="w-1.5 h-1.5 rounded-full bg-gold inline-block" />
@@ -195,7 +197,7 @@ export default function BookingWidget() {
               Non-Refundable Booking
             </span>
           </div>
-          <span>Check-in: <strong className="text-white font-mono">{bookingTime}</strong> • Check-out: <strong className="text-white font-mono">{checkOutTime || getCheckOutTime(bookingTime)} (Next Day)</strong> (22 Hours)</span>
+          <span suppressHydrationWarning>Check-in: <strong suppressHydrationWarning className="text-white font-mono">{bookingTime}</strong> • Check-out: <strong suppressHydrationWarning className="text-white font-mono">{checkOutTime || getCheckOutTime(bookingTime)} (Next Day)</strong> (22 Hours)</span>
         </div>
       </div>
     </div>

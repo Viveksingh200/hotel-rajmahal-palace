@@ -4,12 +4,16 @@ import Razorpay from "razorpay";
 import { createClient } from "@supabase/supabase-js";
 import { ROOMS_DATA } from "@/data/rooms";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  "https://toqcichgylvlzxzyhled.supabase.co";
 const supabaseServiceKey =
   process.env.SUPABASE_SECRET_KEY ||
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_PUBLISHABLE_KEY;
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  "sb_publishable_3ZEw-XUy7Y1-ewEx9x7qow_lNsG0b7d";
 
 export async function POST(req) {
   try {
@@ -78,8 +82,13 @@ export async function POST(req) {
     // 4. Generate unique Booking Reference
     const bookingRef = `RMP-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
-    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+    const razorpayKeyId =
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      process.env.RAZORPAY_KEY_ID ||
+      "rzp_live_U57eHePEww5fpx";
+    const razorpayKeySecret =
+      process.env.RAZORPAY_KEY_SECRET ||
+      "FmIrHkxHmKm1BlxlNu1cqis7";
 
     let razorpayOrderId = `demo_order_${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -175,7 +184,7 @@ export async function POST(req) {
       amount: totalAmount,
       amountInPaise: Math.round(totalAmount * 100),
       currency: "INR",
-      keyId: razorpayKeyId || "rzp_test_demo_key",
+      keyId: razorpayKeyId,
       nights,
       roomSubtotal,
       taxesAndFees,

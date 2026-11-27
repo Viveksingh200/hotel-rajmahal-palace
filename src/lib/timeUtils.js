@@ -3,6 +3,7 @@
  * Full 24-hour access from 12:00 AM to 11:00 PM.
  * For today, past hours are filtered out (e.g. at 12:23 AM, slots from 1:00 AM to 11:00 PM are available).
  * Check-out timing is calculated as exactly 22 hours from the booking timing.
+ * Always calibrated to Indian Standard Time (IST / Asia/Kolkata: UTC + 5:30)
  */
 
 export const ALL_HOURLY_SLOTS = [
@@ -35,9 +36,19 @@ export const ALL_HOURLY_SLOTS = [
 export const CHECK_IN_TIME_SLOTS = ALL_HOURLY_SLOTS;
 
 /**
+ * Get current date/time in Indian Standard Time (IST: UTC + 5 hours 30 mins)
+ * Ensures consistency across Vercel servers (UTC) and client browsers.
+ */
+export function getNowInIST() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + 5.5 * 3600000);
+}
+
+/**
  * Format a Date to YYYY-MM-DD
  */
-export function getLocalDateString(date = new Date()) {
+export function getLocalDateString(date = getNowInIST()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -49,7 +60,7 @@ export function getLocalDateString(date = new Date()) {
  */
 export function isSlotPassed(slotValue, checkInDate) {
   if (!checkInDate) return false;
-  const now = new Date();
+  const now = getNowInIST();
   const todayStr = getLocalDateString(now);
 
   if (checkInDate < todayStr) return true;
@@ -69,7 +80,7 @@ export function isSlotPassed(slotValue, checkInDate) {
  * For future dates: returns all 24 slots.
  */
 export function getAvailableTimeSlots(checkInDate) {
-  const now = new Date();
+  const now = getNowInIST();
   const todayStr = getLocalDateString(now);
 
   if (!checkInDate || checkInDate > todayStr) {
@@ -94,7 +105,7 @@ export function getAvailableTimeSlots(checkInDate) {
  */
 export function getDefaultBookingTime(checkInDate) {
   const slots = getAvailableTimeSlots(checkInDate);
-  const now = new Date();
+  const now = getNowInIST();
   const todayStr = getLocalDateString(now);
 
   if (!checkInDate || checkInDate > todayStr) {
@@ -109,7 +120,7 @@ export function getDefaultBookingTime(checkInDate) {
  * Default check-in date: Today
  */
 export function getSensibleDefaultCheckInDate() {
-  return getLocalDateString(new Date());
+  return getLocalDateString(getNowInIST());
 }
 
 /**

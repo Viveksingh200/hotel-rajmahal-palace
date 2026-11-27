@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  "https://toqcichgylvlzxzyhled.supabase.co";
 const supabaseServiceKey =
   process.env.SUPABASE_SECRET_KEY ||
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_PUBLISHABLE_KEY;
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  "sb_publishable_3ZEw-XUy7Y1-ewEx9x7qow_lNsG0b7d";
 
 export async function POST(req) {
   try {
@@ -32,7 +36,9 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing Razorpay payment fields" }, { status: 400 });
     }
 
-    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+    const razorpayKeySecret =
+      process.env.RAZORPAY_KEY_SECRET ||
+      "FmIrHkxHmKm1BlxlNu1cqis7";
     let isSignatureValid = false;
 
     // Server-side HMAC SHA256 Signature Verification

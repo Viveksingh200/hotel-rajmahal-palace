@@ -2,19 +2,25 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  "https://toqcichgylvlzxzyhled.supabase.co";
 const supabaseServiceKey =
   process.env.SUPABASE_SECRET_KEY ||
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_PUBLISHABLE_KEY;
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  "sb_publishable_3ZEw-XUy7Y1-ewEx9x7qow_lNsG0b7d";
 
 export async function POST(req) {
   try {
     const rawBody = await req.text();
     const signature = req.headers.get("x-razorpay-signature");
 
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const webhookSecret =
+      process.env.RAZORPAY_WEBHOOK_SECRET ||
+      "rajmahal_webhook_secret_2026";
 
     // Verify webhook signature if secret exists
     if (webhookSecret && signature) {

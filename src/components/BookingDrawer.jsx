@@ -12,6 +12,9 @@ import {
   getDefaultBookingTime as getSensibleDefaultTime,
   getCheckOutTime,
   isSlotPassed,
+  getSensibleDefaultCheckInDate,
+  getLocalDateString,
+  getNowInIST,
 } from "@/lib/timeUtils";
 
 export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) {
@@ -25,8 +28,12 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     availableRooms,
   } = useBooking();
   const { user, isAuthenticated, openLoginModal } = useAuth();
-  const getToday = () => new Date().toISOString().split("T")[0];
-  const getTomorrow = () => new Date(Date.now() + 86400000).toISOString().split("T")[0];
+  const getToday = () => getSensibleDefaultCheckInDate();
+  const getTomorrow = () => {
+    const d = getNowInIST();
+    d.setDate(d.getDate() + 1);
+    return getLocalDateString(d);
+  };
 
   const getMinCheckOut = (checkInDate) => {
     if (!checkInDate) return getTomorrow();
