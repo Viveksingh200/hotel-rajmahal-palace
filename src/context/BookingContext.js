@@ -82,33 +82,78 @@ export function BookingProvider({ children }) {
       const rooms = await fetchAvailableRooms(checkIn, checkOut, guests);
       if (rooms && rooms.length > 0) {
         setAvailableRooms(rooms);
-        // Match selected room by id, slug, or room_number
-        const stillAvailable = rooms.find(
-          (r) =>
-            r.id === selectedRoom?.id ||
-            r.slug === selectedRoom?.slug ||
-            r.slug === selectedRoom?.id ||
-            r.id === selectedRoom?.slug ||
-            (selectedRoom?.roomNumber && r.room_number === selectedRoom.roomNumber) ||
-            (selectedRoom?.room_number && r.room_number === selectedRoom.room_number)
-        );
-        if (stillAvailable) {
-          setSelectedRoom(stillAvailable);
-        } else {
-          setSelectedRoom(rooms[0]);
-        }
+        setSelectedRoom((prev) => {
+          if (!prev) return rooms[0];
+          const stillAvailable = rooms.find(
+            (r) =>
+              r.id === prev.id ||
+              r.slug === prev.slug ||
+              r.slug === prev.id ||
+              r.id === prev.slug ||
+              (prev.roomNumber && r.room_number === prev.roomNumber) ||
+              (prev.room_number && r.room_number === prev.room_number)
+          );
+          if (stillAvailable) {
+            const hasChanged =
+              stillAvailable.id !== prev.id ||
+              stillAvailable.price_per_night !== prev.price_per_night ||
+              stillAvailable.pricePerNight !== prev.pricePerNight ||
+              stillAvailable.availability_status !== prev.availability_status;
+            return hasChanged ? stillAvailable : prev;
+          }
+          return rooms[0];
+        });
       }
     } catch (err) {
       console.error("Failed to query DB room availability:", err);
     } finally {
       setIsLoadingRooms(false);
     }
-  }, [checkIn, checkOut, guests, selectedRoom]);
+  }, [checkIn, checkOut, guests]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    refreshAvailableRooms();
-  }, [checkIn, checkOut, guests, refreshAvailableRooms]);
+    let isCurrent = true;
+    fetchAvailableRooms(checkIn, checkOut, guests)
+      .then((rooms) => {
+        if (!isCurrent) return;
+        if (rooms && rooms.length > 0) {
+          setAvailableRooms(rooms);
+          setSelectedRoom((prev) => {
+            if (!prev) return rooms[0];
+            const stillAvailable = rooms.find(
+              (r) =>
+                r.id === prev.id ||
+                r.slug === prev.slug ||
+                r.slug === prev.id ||
+                r.id === prev.slug ||
+                (prev.roomNumber && r.room_number === prev.roomNumber) ||
+                (prev.room_number && r.room_number === prev.room_number)
+            );
+            if (stillAvailable) {
+              const hasChanged =
+                stillAvailable.id !== prev.id ||
+                stillAvailable.price_per_night !== prev.price_per_night ||
+                stillAvailable.pricePerNight !== prev.pricePerNight ||
+                stillAvailable.availability_status !== prev.availability_status;
+              return hasChanged ? stillAvailable : prev;
+            }
+            return rooms[0];
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to query DB room availability:", err);
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setIsLoadingRooms(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [checkIn, checkOut, guests]);
 
   // Calculate total nights
   const calculateNights = () => {
