@@ -80,6 +80,18 @@ export const metadata = {
   authors: [{ name: "Hotel Rajmahal Palace" }],
   creator: "Hotel Rajmahal Palace",
   publisher: "Hotel Rajmahal Palace",
+  icons: {
+    icon: [
+      { url: "/images/logo.jpeg" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/images/logo.jpeg" },
+    ],
+    shortcut: "/images/logo.jpeg",
+  },
   alternates: {
     canonical: "https://hotelrajmahalpalace.in",
   },
