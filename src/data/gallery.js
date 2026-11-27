@@ -42,7 +42,7 @@ export const GALLERY_ITEMS = [
     subtitle: "PRIVATE RESIDENCE",
     title: "Golden Hour Villa",
     caption: "White ornamental railings and serene hill morning mist",
-    src: "/images/hill-view-suite.png",
+    src: "/images/experience.png",
     aspect: "landscape",
   },
   {
