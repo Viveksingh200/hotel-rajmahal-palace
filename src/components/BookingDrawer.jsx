@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Calendar, Users, Crown, CheckCircle, Tag, ArrowRight, Sparkles, Loader2, ShieldCheck, Clock, Info } from "lucide-react";
 import confetti from "canvas-confetti";
 import { ROOMS_DATA } from "@/data/rooms";
-import { fetchAvailableRooms } from "@/lib/bookingService";
+import { fetchAvailableRooms, fetchRooms } from "@/lib/bookingService";
 import { useBooking } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
 import CustomCalendarPicker from "@/components/CustomCalendarPicker";
@@ -22,6 +22,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     guests: ctxGuests,
     roomsCount: ctxRoomsCount,
     setRoomsCount: ctxSetRoomsCount,
+    availableRooms,
   } = useBooking();
   const { user, isAuthenticated, openLoginModal } = useAuth();
   const getToday = () => new Date().toISOString().split("T")[0];
@@ -34,7 +35,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     return d.toISOString().split("T")[0];
   };
 
-  const [rooms, setRooms] = useState(ROOMS_DATA);
+  const [rooms, setRooms] = useState(() => (availableRooms && availableRooms.length > 0 ? availableRooms : ROOMS_DATA));
   const [selectedRoomId, setSelectedRoomId] = useState(initialSuite?.id || ROOMS_DATA[0].id);
   const [roomsQuantity, setRoomsQuantity] = useState(ctxRoomsCount || 1);
   const [checkIn, setCheckIn] = useState(ctxCheckIn || getToday());
@@ -67,8 +68,10 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     }
   };
 
+  const effectiveRooms = availableRooms && availableRooms.length > 0 ? availableRooms : rooms;
+
   const allSelectableRooms = ROOMS_DATA.map((baseRoom) => {
-    const liveMatch = rooms.find(
+    const liveMatch = effectiveRooms.find(
       (r) =>
         r.id === baseRoom.id ||
         r.slug === baseRoom.slug ||
@@ -142,6 +145,23 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
       }
     }
   }, [isOpen, ctxBookingTime, ctxCheckIn, ctxCheckOut, ctxRoomsCount, ctxGuests, maxAllowedAdults, user]);
+
+  // Fetch live prices directly from Supabase whenever drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      let isMounted = true;
+      fetchRooms()
+        .then((live) => {
+          if (isMounted && live && live.length > 0) {
+            setRooms(live);
+          }
+        })
+        .catch(() => {});
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [isOpen]);
 
   // 2. Sync initial suite only when drawer is opened or initialSuite changes
   useEffect(() => {
