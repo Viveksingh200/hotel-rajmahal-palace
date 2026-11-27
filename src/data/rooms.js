@@ -1,10 +1,11 @@
 export const ROOMS_DATA = [
   {
-    id: "heritage-deluxe-room",
+    id: "11111111-1111-1111-1111-111111111101",
     slug: "heritage-deluxe-room",
     name: "Heritage Deluxe Room",
     tagline: "Authentic warmth with dark marble elegance and serene green hill vistas",
     pricePerNight: 3000,
+    price_per_night: 3000,
     currency: "₹",
     maxGuests: 5,
     maxAdults: 3,

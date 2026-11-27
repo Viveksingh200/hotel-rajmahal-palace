@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { ROOMS_DATA } from "@/data/rooms";
-import { fetchAvailableRooms, createBookingRecord } from "@/lib/bookingService";
+import { fetchAvailableRooms, fetchRooms, createBookingRecord } from "@/lib/bookingService";
 import {
   getDefaultBookingTime as getSensibleDefaultTime,
   getSensibleDefaultCheckInDate,
@@ -154,6 +154,36 @@ export function BookingProvider({ children }) {
       isCurrent = false;
     };
   }, [checkIn, checkOut, guests]);
+
+  // Immediately load live room prices from Supabase on mount
+  useEffect(() => {
+    let isCurrent = true;
+    fetchRooms()
+      .then((rooms) => {
+        if (!isCurrent) return;
+        if (rooms && rooms.length > 0) {
+          setAvailableRooms(rooms);
+          setSelectedRoom((prev) => {
+            if (!prev) return rooms[0];
+            const stillAvailable = rooms.find(
+              (r) =>
+                r.id === prev.id ||
+                r.slug === prev.slug ||
+                r.slug === prev.id ||
+                r.id === prev.slug
+            );
+            return stillAvailable || rooms[0];
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to query live rooms on mount:", err);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   // Calculate total nights
   const calculateNights = () => {

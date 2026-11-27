@@ -97,7 +97,22 @@ export async function fetchRooms() {
         .select("*")
         .order("price_per_night", { ascending: true });
       if (!error && data && data.length > 0) {
-        return data;
+        const normalized = data.map((r) => {
+          const livePrice = Number(r.price_per_night !== undefined ? r.price_per_night : r.pricePerNight);
+          return {
+            ...r,
+            price_per_night: livePrice,
+            pricePerNight: livePrice,
+          };
+        });
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem(LOCAL_ROOMS_KEY, JSON.stringify(normalized));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        return normalized;
       }
     } catch (err) {
       console.warn("Supabase rooms query fallback:", err);
@@ -110,61 +125,79 @@ export async function fetchRooms() {
  * Check room availability for given dates & guest count against Supabase DB
  */
 export async function fetchAvailableRooms(checkIn, checkOut, guests = 1) {
-  if (!checkIn || !checkOut) return await fetchRooms();
+  // Always fetch live rooms directly from Supabase first so room prices & details are 100% current
+  const allRooms = await fetchRooms();
+  if (!allRooms || allRooms.length === 0) return getLocalRooms();
+  if (!checkIn || !checkOut) return allRooms;
 
   if (isSupabaseConfigured()) {
     try {
-      // 1. Fetch bookings that overlap with requested dates and are active
+      // 1. Fetch only confirmed or recently initiated (< 15 min) bookings that overlap with requested dates
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
       const { data: overlappingBookings, error: bookingErr } = await supabase
         .from("bookings")
-        .select("room_id")
-        .in("booking_status", ["confirmed", "pending"])
+        .select("room_id, rooms_count, booking_status, payment_status, created_at")
         .neq("payment_status", "failed")
+        .neq("booking_status", "cancelled")
         .lt("check_in", checkOut)
         .gt("check_out", checkIn);
 
-      if (!bookingErr) {
-        const bookedRoomIds = (overlappingBookings || []).map((b) => b.room_id);
+      if (!bookingErr && overlappingBookings) {
+        // Filter out abandoned unpaid checkouts
+        const activeBookings = overlappingBookings.filter((b) => {
+          if (b.booking_status === "confirmed" || b.payment_status === "paid") return true;
+          if (b.booking_status === "pending" && b.payment_status === "pending") {
+            return b.created_at && b.created_at >= fifteenMinutesAgo;
+          }
+          return false;
+        });
 
-        // 2. Query available rooms that are NOT in bookedRoomIds and have availability_status = 'available'
-        let query = supabase
-          .from("rooms")
-          .select("*")
-          .eq("availability_status", "available")
-          .eq("is_active", true)
-          .gte("max_guests", Number(guests));
-
-        if (bookedRoomIds.length > 0) {
-          query = query.not("id", "in", `(${bookedRoomIds.join(",")})`);
+        // Sum booked rooms per room_id (Hotel has 8 identical Heritage Deluxe Rooms)
+        const bookedCountByRoomId = {};
+        for (const b of activeBookings) {
+          const rId = b.room_id;
+          const count = Number(b.rooms_count) || 1;
+          bookedCountByRoomId[rId] = (bookedCountByRoomId[rId] || 0) + count;
         }
 
-        const { data: rooms, error: roomErr } = await query.order("price_per_night", { ascending: true });
+        const TOTAL_INVENTORY = 8;
 
-        if (!roomErr && rooms) {
-          return rooms;
-        }
+        return allRooms.map((room) => {
+          const bookedCount = bookedCountByRoomId[room.id] || 0;
+          const remainingInventory = Math.max(0, TOTAL_INVENTORY - bookedCount);
+          const isAvailable = remainingInventory > 0 && room.availability_status === "available" && room.is_active;
+
+          const livePrice = Number(
+            room.price_per_night !== undefined
+              ? room.price_per_night
+              : (room.pricePerNight !== undefined ? room.pricePerNight : 1)
+          );
+
+          return {
+            ...room,
+            price_per_night: livePrice,
+            pricePerNight: livePrice,
+            remaining_inventory: remainingInventory,
+            availability_status: isAvailable ? "available" : "sold_out",
+          };
+        });
       }
     } catch (err) {
       console.warn("Supabase availability check fallback:", err);
     }
   }
 
-  // Local state fallback logic
-  const rooms = getLocalRooms();
-  const bookings = getLocalBookings();
-
-  return rooms.filter((room) => {
-    if (room.availability_status !== "available" || !room.is_active) return false;
-    if (room.max_guests < Number(guests)) return false;
-
-    // Check overlap in local bookings
-    const isBooked = bookings.some((b) => {
-      if (b.room_id !== room.id && b.room?.id !== room.id) return false;
-      if (b.booking_status === "cancelled" || b.payment_status === "failed") return false;
-      return b.check_in < checkOut && b.check_out > checkIn;
-    });
-
-    return !isBooked;
+  return allRooms.map((room) => {
+    const livePrice = Number(
+      room.price_per_night !== undefined
+        ? room.price_per_night
+        : (room.pricePerNight !== undefined ? room.pricePerNight : 1)
+    );
+    return {
+      ...room,
+      price_per_night: livePrice,
+      pricePerNight: livePrice,
+    };
   });
 }
 

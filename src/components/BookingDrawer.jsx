@@ -43,7 +43,9 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
   };
 
   const [rooms, setRooms] = useState(() => (availableRooms && availableRooms.length > 0 ? availableRooms : ROOMS_DATA));
-  const [selectedRoomId, setSelectedRoomId] = useState(initialSuite?.id || ROOMS_DATA[0].id);
+  const [userSelectedRoomId, setUserSelectedRoomId] = useState(null);
+  const effectiveSelectedRoomId = userSelectedRoomId || initialSuite?.id || initialSuite?.slug || ROOMS_DATA[0].id;
+
   const [roomsQuantity, setRoomsQuantity] = useState(ctxRoomsCount || 1);
   const [checkIn, setCheckIn] = useState(ctxCheckIn || getToday());
   const [checkOut, setCheckOut] = useState(ctxCheckOut || getTomorrow());
@@ -85,15 +87,26 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
         r.room_name === baseRoom.name ||
         r.name === baseRoom.name
     );
-    return liveMatch ? { ...baseRoom, ...liveMatch } : baseRoom;
+    if (!liveMatch) return baseRoom;
+    const livePrice = Number(
+      liveMatch.price_per_night !== undefined
+        ? liveMatch.price_per_night
+        : (liveMatch.pricePerNight !== undefined ? liveMatch.pricePerNight : baseRoom.pricePerNight)
+    );
+    return {
+      ...baseRoom,
+      ...liveMatch,
+      price_per_night: livePrice,
+      pricePerNight: livePrice,
+    };
   });
 
   const room =
     allSelectableRooms.find(
       (r) =>
-        r.id === selectedRoomId ||
-        r.slug === selectedRoomId ||
-        r.room_number === selectedRoomId
+        r.id === effectiveSelectedRoomId ||
+        r.slug === effectiveSelectedRoomId ||
+        r.room_number === effectiveSelectedRoomId
     ) || allSelectableRooms[0];
 
   // Room capacity logic: Scaled by number of rooms (e.g. 3 Adults & 2 Children per room)
@@ -170,28 +183,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
     }
   }, [isOpen]);
 
-  // 2. Sync initial suite only when drawer is opened or initialSuite changes
-  useEffect(() => {
-    if (isOpen && initialSuite) {
-      const match = allSelectableRooms.find(
-        (r) =>
-          r.id === initialSuite.id ||
-          r.slug === initialSuite.slug ||
-          r.slug === initialSuite.id ||
-          r.id === initialSuite.slug ||
-          r.room_number === initialSuite.roomNumber ||
-          r.room_number === initialSuite.room_number
-      );
-      if (match) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSelectedRoomId(match.id);
-      } else if (initialSuite.id) {
-        setSelectedRoomId(initialSuite.id);
-      }
-    }
-  }, [isOpen, initialSuite, allSelectableRooms]);
-
-  // 3. Load Razorpay script dynamically
+  // 2. Load Razorpay script dynamically
   useEffect(() => {
     if (isOpen && typeof window !== "undefined" && !window.Razorpay) {
       const script = document.createElement("script");
@@ -585,7 +577,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
                       </label>
                       <select
                         value={room.id}
-                        onChange={(e) => setSelectedRoomId(e.target.value)}
+                        onChange={(e) => setUserSelectedRoomId(e.target.value)}
                         className="w-full bg-[#161412] border border-[#D4AF37]/40 rounded-md px-3.5 py-2 text-sm text-[#F7F5F2] focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] cursor-pointer"
                       >
                         {allSelectableRooms.map((r) => {
