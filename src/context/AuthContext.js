@@ -90,28 +90,36 @@ export function AuthProvider({ children }) {
   const signInWithGoogle = async (redirectPath) => {
     if (!isSupabaseConfigured()) {
       console.warn("Supabase not configured for OAuth");
+      alert("Authentication configuration is missing. Please check your Supabase credentials.");
       return;
     }
     setIsRedirecting(true);
 
-    let targetPath = redirectPath;
-    if (!targetPath && typeof window !== "undefined") {
-      targetPath =
-        sessionStorage.getItem("rajmahal_auth_return_url") ||
-        loginRedirectPath ||
-        (window.location.pathname + window.location.search);
-    }
-    if (!targetPath) targetPath = "/";
+    try {
+      let targetPath = redirectPath;
+      if (!targetPath && typeof window !== "undefined") {
+        targetPath =
+          sessionStorage.getItem("rajmahal_auth_return_url") ||
+          loginRedirectPath ||
+          (window.location.pathname + window.location.search);
+      }
+      if (!targetPath) targetPath = "/";
 
-    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}${targetPath}` : undefined;
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: redirectUrl,
-      },
-    });
-    if (error) {
-      console.error("Google Login Error:", error.message);
+      const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}${targetPath}` : undefined;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+      if (error) {
+        console.error("Google Login Error:", error.message);
+        alert(`Google Sign-In failed: ${error.message}`);
+        setIsRedirecting(false);
+      }
+    } catch (err) {
+      console.error("Unexpected Google Login error:", err);
+      alert(`Google Sign-In error: ${err.message || err}`);
       setIsRedirecting(false);
     }
   };
