@@ -43,8 +43,8 @@ export default function RoomCard({ room }) {
   const price = room.price_per_night !== undefined ? room.price_per_night : (room.pricePerNight !== undefined ? room.pricePerNight : 3000);
   const currency = room.currency || "₹";
   const bed = room.bed_type || room.bedType || "King Heritage Bed";
-  const maxAdults = room.max_adults || room.maxAdults || 3;
-  const maxChildren = room.max_children || room.maxChildren || 2;
+  const maxAdults = room.max_adults || room.maxAdults || 2;
+  const maxChildren = room.max_children !== undefined ? room.max_children : (room.maxChildren !== undefined ? room.maxChildren : 1);
   const guests = room.max_guests || room.maxGuests || (maxAdults + maxChildren);
   const image = room.image_url || room.featuredImage || "/images/heritage-deluxe-room.jpg";
   const slug = room.slug || room.id || "heritage-deluxe-room";
@@ -95,7 +95,7 @@ export default function RoomCard({ room }) {
       "Kettle",
       "Water Bottle",
     ],
-    highlights: room.highlights || ["Max 3 Adults & 2 Children", "Courtyard View", "Dark Marble Bath", "Private Balcony"],
+    highlights: room.highlights || ["Max 2 Adults & 1 Child", "Courtyard View", "Dark Marble Bath", "Private Balcony"],
   };
 
   return (

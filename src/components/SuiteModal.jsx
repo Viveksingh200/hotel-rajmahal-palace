@@ -144,7 +144,7 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
                 <div className="grid grid-cols-3 gap-3 py-3 px-4 bg-[#100F0E] rounded-lg border border-[#D4AF37]/15 text-xs text-[#D6B892]">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-[#D4AF37]" />
-                    <span className="truncate">{room.maxAdults} Adults + {room.maxChildren} Kids</span>
+                    <span className="truncate">{room.maxAdults || 2} Adults + {room.maxChildren || 1} {Number(room.maxChildren || 1) === 1 ? 'Child' : 'Kids'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <BedDouble className="w-4 h-4 text-[#D4AF37]" />

@@ -7,9 +7,9 @@ export const ROOMS_DATA = [
     pricePerNight: 3000,
     price_per_night: 3000,
     currency: "₹",
-    maxGuests: 5,
-    maxAdults: 3,
-    maxChildren: 2,
+    maxGuests: 3,
+    maxAdults: 2,
+    maxChildren: 1,
     bedType: "King Heritage Bed",
     view: "Palace Courtyard & Hill Garden",
     featuredImage: "/images/bedroom1.png",
@@ -29,7 +29,7 @@ export const ROOMS_DATA = [
       "Electric Kettle",
       "Mineral Water Bottles",
     ],
-    highlights: ["Max 3 Adults & 2 Children", "Courtyard View", "Dark Marble Bath", "Private Balcony"],
+    highlights: ["Max 2 Adults & 1 Child", "Courtyard View", "Dark Marble Bath", "Private Balcony"],
   },
 ];
 

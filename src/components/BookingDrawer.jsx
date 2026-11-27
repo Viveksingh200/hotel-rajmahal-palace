@@ -109,9 +109,9 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
         r.room_number === effectiveSelectedRoomId
     ) || allSelectableRooms[0];
 
-  // Room capacity logic: Scaled by number of rooms (e.g. 3 Adults & 2 Children per room)
-  const maxAllowedAdults = Number(room.max_adults || room.maxAdults || 3) * roomsQuantity;
-  const maxAllowedChildren = Number(room.max_children || room.maxChildren || 2) * roomsQuantity;
+  // Room capacity logic: Scaled by number of rooms (e.g. 2 Adults & 1 Child per room)
+  const maxAllowedAdults = Number(room.max_adults || room.maxAdults || 2) * roomsQuantity;
+  const maxAllowedChildren = Number(room.max_children !== undefined ? (room.max_children || 1) : (room.maxChildren !== undefined ? room.maxChildren : 1)) * roomsQuantity;
 
   const handleNextToGuestInfo = () => {
     if (!isAuthenticated) {
@@ -654,7 +654,7 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
                   <div className="text-[10.5px] text-[#D6B892]/70 font-mono flex items-center justify-between pt-0.5">
                     <span>Capacity for {roomsQuantity} Room{roomsQuantity > 1 ? "s" : ""}:</span>
-                    <span className="text-[#D4AF37]">Max {maxAllowedAdults} Adults + {maxAllowedChildren} Kids</span>
+                    <span className="text-[#D4AF37]">Max {maxAllowedAdults} Adults + {maxAllowedChildren} {maxAllowedChildren === 1 ? "Child" : "Children"}</span>
                   </div>
                 </div>
 
