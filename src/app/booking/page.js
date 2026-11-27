@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Search, CheckCircle2, Calendar, ShieldCheck, Printer, User, Mail, Phone, Lock, Sparkles, Clock } from "lucide-react";
+import { Search, CheckCircle2, Calendar, ShieldCheck, Printer, User, Mail, Phone, Lock, Sparkles, Clock, XCircle, AlertCircle } from "lucide-react";
 import BookingWidget from "@/components/BookingWidget";
 import RoomsSection from "@/components/RoomsSection";
 import { fetchBookingByReference, fetchUserBookings } from "@/lib/bookingService";
@@ -44,7 +44,39 @@ export default function BookingPage() {
 
       setIsLoading(true);
       try {
-        const bookings = await fetchUserBookings(user?.email, recentRefs);
+        let bookings = await fetchUserBookings(user?.email, recentRefs);
+
+        // Auto-sync any pending bookings with Razorpay in case payment was completed via UPI intent or external flow
+        if (bookings && bookings.length > 0) {
+          const pendingBookings = bookings.filter(
+            (b) => (b.booking_status === "pending" || b.payment_status === "pending") && b.razorpay_order_id
+          );
+          if (pendingBookings.length > 0) {
+            await Promise.all(
+              pendingBookings.map(async (pb) => {
+                try {
+                  const syncRes = await fetch("/api/razorpay/sync-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      bookingReference: pb.booking_reference,
+                      orderId: pb.razorpay_order_id,
+                    }),
+                  });
+                  const syncData = await syncRes.json();
+                  if (syncData.synced && syncData.booking) {
+                    bookings = bookings.map((b) =>
+                      b.booking_reference === syncData.booking.booking_reference ? syncData.booking : b
+                    );
+                  }
+                } catch (e) {
+                  console.warn("Order sync check error:", e);
+                }
+              })
+            );
+          }
+        }
+
         setUserBookings(bookings || []);
       } catch (err) {
         console.error("Error loading automatic user bookings:", err);
@@ -62,7 +94,25 @@ export default function BookingPage() {
     setIsLoading(true);
     setSearched(true);
     try {
-      const result = await fetchBookingByReference(searchRef);
+      let result = await fetchBookingByReference(searchRef);
+      if (result && (result.booking_status === "pending" || result.payment_status === "pending") && result.razorpay_order_id) {
+        try {
+          const syncRes = await fetch("/api/razorpay/sync-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bookingReference: result.booking_reference,
+              orderId: result.razorpay_order_id,
+            }),
+          });
+          const syncData = await syncRes.json();
+          if (syncData.synced && syncData.booking) {
+            result = syncData.booking;
+          }
+        } catch (e) {
+          console.warn("Lookup sync error:", e);
+        }
+      }
       setSingleResult(result);
     } catch (err) {
       console.error("Manual search error:", err);
@@ -150,96 +200,148 @@ export default function BookingPage() {
             ) : userBookings.length > 0 ? (
               <div className="space-y-8">
                 <div className="flex items-center justify-between border-b border-sandstone/20 pb-4">
-                  <h3 className="text-2xl sm:text-3xl font-serif text-charcoal">
-                    Your Confirmed Reservations ({userBookings.length})
-                  </h3>
-                  <button
-                    onClick={handlePrint}
-                    className="px-5 py-2.5 bg-charcoal text-gold text-xs font-serif uppercase tracking-wider rounded-md border border-gold/40 flex items-center gap-2 transition-colors cursor-pointer hover:bg-black shadow-md"
-                  >
-                    <Printer className="w-4 h-4 text-gold" />
-                    <span>Print Pass Vouchers</span>
-                  </button>
+                  <div>
+                    <h3 className="text-2xl sm:text-3xl font-serif text-charcoal">
+                      Your Reservations ({userBookings.length})
+                    </h3>
+                    <p className="text-xs text-charcoal/70 font-sans mt-0.5">
+                      {userBookings.filter((b) => b.booking_status === "confirmed").length} Confirmed Stay(s)
+                    </p>
+                  </div>
+                  {userBookings.some((b) => b.booking_status === "confirmed") && (
+                    <button
+                      onClick={handlePrint}
+                      className="px-5 py-2.5 bg-charcoal text-gold text-xs font-serif uppercase tracking-wider rounded-md border border-gold/40 flex items-center gap-2 transition-colors cursor-pointer hover:bg-black shadow-md"
+                    >
+                      <Printer className="w-4 h-4 text-gold" />
+                      <span>Print Pass Vouchers</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                  {userBookings.map((b) => (
-                    <div
-                      key={b.id || b.booking_reference}
-                      className="bg-white rounded-xl border-2 border-gold/40 shadow-2xl overflow-hidden animate-fade-in"
-                    >
-                      {/* Banner */}
-                      <div className="bg-gradient-to-r from-charcoal via-[#1C1A17] to-charcoal text-cream p-6 sm:p-8 border-b border-gold/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                            <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">
-                              {b.booking_status === "confirmed" ? "Confirmed & Verified" : b.booking_status?.toUpperCase()}
+                  {userBookings.map((b) => {
+                    const isConfirmed = b.booking_status === "confirmed" && b.payment_status === "paid";
+                    const isCancelled = b.booking_status === "cancelled" || b.payment_status === "failed";
+                    const isPending = !isConfirmed && !isCancelled;
+
+                    return (
+                      <div
+                        key={b.id || b.booking_reference}
+                        className={`bg-white rounded-xl border-2 ${
+                          isConfirmed
+                            ? "border-gold/40 shadow-2xl"
+                            : isCancelled
+                            ? "border-stone-300 shadow-sm opacity-90"
+                            : "border-amber-400/50 shadow-xl"
+                        } overflow-hidden animate-fade-in`}
+                      >
+                        {/* Banner */}
+                        <div className="bg-gradient-to-r from-charcoal via-[#1C1A17] to-charcoal text-cream p-6 sm:p-8 border-b border-gold/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              {isConfirmed && (
+                                <>
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                  <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">
+                                    Confirmed & Verified
+                                  </span>
+                                </>
+                              )}
+                              {isCancelled && (
+                                <>
+                                  <XCircle className="w-5 h-5 text-rose-400" />
+                                  <span className="text-xs font-mono uppercase tracking-widest text-rose-400 font-semibold">
+                                    Cancelled & Unpaid
+                                  </span>
+                                </>
+                              )}
+                              {isPending && (
+                                <>
+                                  <Clock className="w-5 h-5 text-amber-400 animate-pulse" />
+                                  <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-semibold">
+                                    Payment Pending
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                            <h4 className="text-2xl sm:text-3xl font-serif text-white">
+                              {b.room?.room_name || b.room?.name || "Heritage Room Suite"}
+                            </h4>
+                            <p className="text-xs font-serif text-gold mt-1">
+                              Reference ID: <span className="font-mono text-white">{b.booking_reference}</span>
+                            </p>
+                          </div>
+
+                          <div className="text-right bg-black/50 px-5 py-2.5 rounded-lg border border-gold/30 shadow-inner">
+                            <span className="text-[10px] uppercase font-serif text-gold block tracking-widest">
+                              {isConfirmed ? "Total Paid" : isCancelled ? "Cancelled" : "Amount Due"}
+                            </span>
+                            <span
+                              className={`text-xl font-mono font-bold ${
+                                isConfirmed
+                                  ? "text-emerald-400"
+                                  : isCancelled
+                                  ? "text-stone-400 line-through"
+                                  : "text-amber-400"
+                              }`}
+                            >
+                              ₹{Number(b.total_amount || 0).toLocaleString("en-IN")}
                             </span>
                           </div>
-                          <h4 className="text-2xl sm:text-3xl font-serif text-white">
-                            {b.room?.room_name || b.room?.name || "Heritage Room Suite"}
-                          </h4>
-                          <p className="text-xs font-serif text-gold mt-1">
-                            Reference ID: <span className="font-mono text-white">{b.booking_reference}</span>
-                          </p>
                         </div>
 
-                        <div className="text-right bg-black/50 px-5 py-2.5 rounded-lg border border-gold/30 shadow-inner">
-                          <span className="text-[10px] uppercase font-serif text-gold block tracking-widest">
-                            Total Paid
-                          </span>
-                          <span className="text-xl font-mono text-white font-bold">
-                            ₹{Number(b.total_amount || 0).toLocaleString("en-IN")}
-                          </span>
-                        </div>
-                      </div>
+                        {/* Details */}
+                        <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-charcoal">
+                          <div className="space-y-2.5 bg-cream-muted p-5 rounded-lg border border-sandstone/15">
+                            <h5 className="text-[11px] font-serif uppercase tracking-widest text-sandstone font-bold border-b border-sandstone/15 pb-2">
+                              Guest Details
+                            </h5>
+                            <div className="flex justify-between pt-1">
+                              <span className="text-charcoal/70">Guest Name:</span>
+                              <span className="font-semibold text-charcoal">{b.customer_name}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-charcoal/70">Contact Email:</span>
+                              <span className="font-mono">{b.customer_email}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-charcoal/70">Phone Number:</span>
+                              <span className="font-mono">{b.customer_phone}</span>
+                            </div>
+                          </div>
 
-                      {/* Details */}
-                      <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-charcoal">
-                        <div className="space-y-2.5 bg-cream-muted p-5 rounded-lg border border-sandstone/15">
-                          <h5 className="text-[11px] font-serif uppercase tracking-widest text-sandstone font-bold border-b border-sandstone/15 pb-2">
-                            Guest Details
-                          </h5>
-                          <div className="flex justify-between pt-1">
-                            <span className="text-charcoal/70">Guest Name:</span>
-                            <span className="font-semibold text-charcoal">{b.customer_name}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-charcoal/70">Contact Email:</span>
-                            <span className="font-mono">{b.customer_email}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-charcoal/70">Phone Number:</span>
-                            <span className="font-mono">{b.customer_phone}</span>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2.5 bg-cream-muted p-5 rounded-lg border border-sandstone/15">
-                          <h5 className="text-[11px] font-serif uppercase tracking-widest text-sandstone font-bold border-b border-sandstone/15 pb-2 flex items-center justify-between">
-                            <span>Stay Schedule</span>
-                            <span className="text-[10px] text-sandstone font-normal">22h / Night</span>
-                          </h5>
-                          <div className="flex justify-between pt-1">
-                            <span className="text-charcoal/70">Check-In:</span>
-                            <span className="font-semibold text-charcoal">{b.check_in}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-charcoal/70">Check-Out:</span>
-                            <span className="font-semibold text-charcoal">{b.check_out}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-charcoal/70">Duration:</span>
-                            <span className="font-mono text-sandstone font-semibold">{b.nights || 1} Night(s) ({(b.nights || 1) * 22}h Stay)</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-charcoal/70">Payment ID:</span>
-                            <span className="font-mono">{b.razorpay_payment_id || "VERIFIED"}</span>
+                          <div className="space-y-2.5 bg-cream-muted p-5 rounded-lg border border-sandstone/15">
+                            <h5 className="text-[11px] font-serif uppercase tracking-widest text-sandstone font-bold border-b border-sandstone/15 pb-2 flex items-center justify-between">
+                              <span>Stay Schedule</span>
+                              <span className="text-[10px] text-sandstone font-normal">22h / Night</span>
+                            </h5>
+                            <div className="flex justify-between pt-1">
+                              <span className="text-charcoal/70">Check-In:</span>
+                              <span className="font-semibold text-charcoal">{b.check_in}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-charcoal/70">Check-Out:</span>
+                              <span className="font-semibold text-charcoal">{b.check_out}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-charcoal/70">Duration:</span>
+                              <span className="font-mono text-sandstone font-semibold">
+                                {b.nights || 1} Night(s) ({(b.nights || 1) * 22}h Stay)
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-charcoal/70">Payment ID:</span>
+                              <span className={`font-mono ${isConfirmed ? "text-emerald-700 font-semibold" : ""}`}>
+                                {b.razorpay_payment_id ||
+                                  (isConfirmed ? "VERIFIED" : isCancelled ? "None (Cancelled / Incomplete)" : "Pending Verification")}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ) : (
@@ -281,28 +383,49 @@ export default function BookingPage() {
                       <div className="bg-white rounded-xl border-2 border-gold/40 shadow-2xl overflow-hidden animate-fade-in">
                         <div className="bg-gradient-to-r from-charcoal via-[#1C1A17] to-charcoal text-cream p-6 border-b border-gold/30 flex justify-between items-center">
                           <div>
-                            <span className="text-xs font-mono uppercase tracking-widest text-emerald-400">
-                              ✓ Verified Reservation
+                            <span className={`text-xs font-mono uppercase tracking-widest font-semibold ${
+                              singleResult.booking_status === "confirmed"
+                                ? "text-emerald-400"
+                                : singleResult.booking_status === "cancelled"
+                                ? "text-rose-400"
+                                : "text-amber-400"
+                            }`}>
+                              {singleResult.booking_status === "confirmed"
+                                ? "✓ Verified Reservation"
+                                : singleResult.booking_status === "cancelled"
+                                ? "✕ Cancelled Reservation"
+                                : "⧖ Payment Pending"}
                             </span>
-                            <h4 className="text-2xl font-serif text-white">
+                            <h4 className="text-2xl font-serif text-white mt-0.5">
                               {singleResult.room?.room_name || singleResult.room?.name || "Palace Suite"}
                             </h4>
                             <p className="text-xs font-serif text-gold">Ref: {singleResult.booking_reference}</p>
                           </div>
-                          <button
-                            onClick={handlePrint}
-                            className="px-4 py-2 bg-white/10 text-cream text-xs font-serif uppercase tracking-wider rounded border border-gold/40"
-                          >
-                            Print Pass
-                          </button>
+                          {singleResult.booking_status === "confirmed" && (
+                            <button
+                              onClick={handlePrint}
+                              className="px-4 py-2 bg-white/10 text-cream text-xs font-serif uppercase tracking-wider rounded border border-gold/40 hover:bg-white/20 transition-colors"
+                            >
+                              Print Pass
+                            </button>
+                          )}
                         </div>
 
-                        <div className="p-6 grid grid-cols-2 gap-4 text-xs text-charcoal">
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-charcoal">
                           <div>
                             <strong>Guest:</strong> {singleResult.customer_name} ({singleResult.customer_email})
                           </div>
                           <div>
                             <strong>Dates:</strong> {singleResult.check_in} to {singleResult.check_out}
+                          </div>
+                          <div>
+                            <strong>Payment Status:</strong>{" "}
+                            <span className={singleResult.payment_status === "paid" ? "text-emerald-600 font-semibold uppercase" : "text-amber-600 font-semibold uppercase"}>
+                              {singleResult.payment_status || "Unpaid"}
+                            </span>
+                          </div>
+                          <div>
+                            <strong>Total Amount:</strong> ₹{Number(singleResult.total_amount || 0).toLocaleString("en-IN")}
                           </div>
                         </div>
                       </div>

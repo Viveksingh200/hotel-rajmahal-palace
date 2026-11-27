@@ -377,6 +377,19 @@ export default function BookingDrawer({ isOpen, onClose, initialSuite = null }) 
 
         const rzp = new window.Razorpay(options);
         rzp.on("payment.failed", async function (response) {
+          try {
+            fetch("/api/razorpay/fail-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                bookingReference: orderData.bookingReference,
+                bookingId: orderData.bookingId,
+                reason: response.error?.description || "Payment was rejected or cancelled",
+              }),
+            }).catch((e) => console.warn(e));
+          } catch (e) {
+            console.warn(e);
+          }
           setErrorMessage(response.error?.description || "Payment was rejected or cancelled.");
           setIsProcessing(false);
         });
