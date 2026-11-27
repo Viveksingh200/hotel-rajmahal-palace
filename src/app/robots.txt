@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hotelrajmahalpalace.com/sitemap.xml
+Sitemap: https://hotelrajmahalpalace.in/sitemap.xml

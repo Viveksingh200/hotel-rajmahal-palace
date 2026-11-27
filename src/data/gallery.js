@@ -6,8 +6,7 @@ export const GALLERY_ITEMS = [
     category: "EXTERIOR",
     subtitle: "HOTEL EXTERIOR",
     title: "Hotel Rajmahal Palace",
-    caption: "Warm red sandstone architecture framed by lush green hill slope",
-    src: "/images/hero.png",
+    src: "/images/hotel-image.jpeg",
     aspect: "landscape",
   },
   {

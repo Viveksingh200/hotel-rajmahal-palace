@@ -2,8 +2,8 @@ import { supabase, isSupabaseConfigured } from "./supabase/client";
 import { ROOMS_DATA } from "@/data/rooms";
 
 // Local state fallback storage key for offline prototype persistence
-const LOCAL_BOOKINGS_KEY = "rajmahal_bookings_v6";
-const LOCAL_ROOMS_KEY = "rajmahal_rooms_v6";
+const LOCAL_BOOKINGS_KEY = "rajmahal_bookings_v8";
+const LOCAL_ROOMS_KEY = "rajmahal_rooms_v8";
 
 // Helper: Get offline rooms fallback
 const getLocalRooms = () => {

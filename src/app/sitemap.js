@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const baseUrl = "https://hotelrajmahalpalace.com";
+  const baseUrl = "https://hotelrajmahalpalace.in";
 
   const staticPages = [
     "",

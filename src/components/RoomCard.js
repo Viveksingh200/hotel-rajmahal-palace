@@ -53,22 +53,9 @@ export default function RoomCard({ room }) {
   const isAvailable = status === "available" && room.is_active !== false;
 
   // Gallery list with curated photos
-  const galleryImages = (Array.isArray(room.gallery) && room.gallery.length > 0)
-    ? room.gallery
-    : [
-      "/images/heritage-deluxe-room.jpg",
-      "/images/bedroom.jpg",
-      "/images/bathroom.jpg",
-      "/images/balcony.jpg",
-      "/images/hill-view-suite.png",
-    ];
-
-  const photoLabels = [
-    "Master Bedroom & Heritage Architecture",
-    "Handcrafted Teak Headboard & Premium Linens",
-    "En-Suite Charcoal Marble Bath Chamber",
-    "Private Step-Out Balcony & Misty Mountain View",
-    "Hilltop Courtyard & Sunrise Valley Panoramas",
+  const galleryImages = [
+    "/images/bedroom1.png",
+    "/images/rooms.png",
   ];
 
   const currentImage = galleryImages[activeImgIndex] || image;
@@ -512,9 +499,6 @@ export default function RoomCard({ room }) {
                 <span className="text-[9px] sm:text-[10px] font-mono text-[#D4AF37] uppercase tracking-widest block">
                   PALACE PHOTO GALLERY
                 </span>
-                <h4 className="font-serif text-sm sm:text-lg text-[#F7F5F2] truncate">
-                  {roomName} — {photoLabels[activeImgIndex] || `Photo ${activeImgIndex + 1}`}
-                </h4>
               </div>
 
               <button

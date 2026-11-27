@@ -143,7 +143,7 @@ export async function POST(req) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Origin": process.env.NEXT_PUBLIC_SITE_URL || "https://hotelrajmahalpalace.com",
+            "Origin": process.env.NEXT_PUBLIC_SITE_URL || "https://hotelrajmahalpalace.in",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
           },
           body: JSON.stringify({

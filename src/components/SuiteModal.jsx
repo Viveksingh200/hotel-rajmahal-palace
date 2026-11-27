@@ -14,11 +14,8 @@ export default function SuiteModal({ isOpen, onClose, onSelectSuite }) {
   const galleryImages = (Array.isArray(room.gallery) && room.gallery.length > 0)
     ? room.gallery
     : [
-        "/images/heritage-deluxe-room.jpg",
-        "/images/bedroom.jpg",
-        "/images/bathroom.jpg",
-        "/images/balcony.jpg",
-        "/images/hill-view-suite.png",
+        "/images/bedroom1.png",
+        "/images/rooms.png",
       ];
 
   const currentImg = galleryImages[activeModalImgIndex] || room.featuredImage;
